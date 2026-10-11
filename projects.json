@@ -7,13 +7,13 @@
       "slug": "tester-project",
       "path": "prototypes/tester-project/",
       "purpose": "design-challenge",
-      "status": "active",
+      "status": "published",
       "createdAt": "2026-10-11",
       "designSource": {
         "type": "ui",
         "reference": "helenhsong/ui design-systems/default"
       },
-      "publishedUrl": null,
+      "publishedUrl": "https://helenhsong.github.io/sandbox/prototypes/tester-project/",
       "brief": {
         "where": "Web app",
         "what": "To be defined; Helen will add challenge details later."
