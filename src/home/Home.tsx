@@ -5,17 +5,15 @@ type Project = {
   slug: string;
   path?: string;
   repository?: string;
-  purpose?: string;
-  status: string;
   createdAt: string;
 };
 
-const purposeLabels: Record<string, string> = {
-  "design-challenge": "Design challenge",
-  "client-demo": "Client demo",
-  exploration: "Exploration",
-  other: "Other",
-};
+const dateFormat = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
 
 function href(project: Project) {
   if (project.path) return `${import.meta.env.BASE_URL}${project.path}`;
@@ -27,8 +25,7 @@ export function Home() {
 
   return (
     <main className="home">
-      <h1>Sandbox</h1>
-      <p className="home-intro">Standalone prototypes: design challenges, client demos, and explorations.</p>
+      <h1 className="home-heading">Index</h1>
       {projects.length === 0 ? (
         <p className="home-empty">No prototypes yet.</p>
       ) : (
@@ -36,11 +33,7 @@ export function Home() {
           {projects.map((project) => (
             <li key={project.slug}>
               <a href={href(project)}>{project.name}</a>
-              <span className="home-meta">
-                {[project.purpose && purposeLabels[project.purpose], project.status, project.createdAt]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </span>
+              <time dateTime={project.createdAt}>{dateFormat.format(new Date(project.createdAt))}</time>
             </li>
           ))}
         </ul>

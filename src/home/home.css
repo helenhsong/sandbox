@@ -2,47 +2,64 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .home {
-  max-width: 40rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 500px;
   margin: 0 auto;
-  padding: 4rem 1.25rem;
+  padding: 72px 30px;
 }
 
-.home h1 {
-  margin: 0 0 0.5rem;
-  font-weight: 600;
+.home-heading {
+  margin: 0;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--divider);
+  color: var(--ring);
+  font-size: inherit;
+  font-weight: var(--font-weight-medium);
 }
 
-.home-intro,
-.home-empty,
-.home-meta {
+.home-empty {
+  margin: 0;
   color: var(--muted-foreground);
 }
 
 .home-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   list-style: none;
-  margin: 2rem 0 0;
+  margin: 0;
   padding: 0;
-  border-top: 1px solid var(--border);
 }
 
 .home-list li {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 0.25rem 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .home-list a {
   color: var(--foreground);
-  font-weight: 500;
-  text-underline-offset: 0.2em;
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline 1px var(--border);
+  text-underline-position: from-font;
+}
+
+.home-list a:hover {
+  text-decoration-color: currentColor;
 }
 
 .home-list a:focus-visible {
@@ -51,5 +68,7 @@ body {
   border-radius: 2px;
 }
 
-.home-meta {
+.home-list time {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
 }
