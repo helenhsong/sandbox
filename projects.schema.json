@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/helenhsong/sandbox/projects.schema.json",
+  "title": "Helen's prototype registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "projects"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "projects": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/project" }
+    }
+  },
+  "definitions": {
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "slug",
+        "repository",
+        "status",
+        "createdAt",
+        "designSource",
+        "publishedUrl"
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^https://github\\.com/helenhsong/[A-Za-z0-9._-]+$"
+        },
+        "status": {
+          "enum": ["active", "demo-ready", "published", "archived"]
+        },
+        "createdAt": { "type": "string", "format": "date" },
+        "designSource": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "reference"],
+              "properties": {
+                "type": {
+                  "enum": ["ui", "claude-design", "figma", "other"]
+                },
+                "reference": { "type": "string", "minLength": 1 }
+              }
+            }
+          ]
+        },
+        "publishedUrl": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "format": "uri" }
+          ]
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}
+
