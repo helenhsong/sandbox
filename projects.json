@@ -1,6 +1,19 @@
 {
   "$schema": "./projects.schema.json",
   "version": 1,
-  "projects": []
+  "projects": [
+    {
+      "name": "Starter",
+      "slug": "starter",
+      "repository": "https://github.com/helenhsong/starter",
+      "status": "active",
+      "createdAt": "2026-10-11",
+      "designSource": {
+        "type": "ui",
+        "reference": "default"
+      },
+      "publishedUrl": null,
+      "notes": "Construction permit tracker from the applicant's perspective. Uses the Default system's tokens and Button; other controls are project-owned."
+    }
+  ]
 }
-
