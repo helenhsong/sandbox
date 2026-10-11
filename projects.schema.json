@@ -4,13 +4,22 @@
   "title": "Helen's prototype registry",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "projects"],
+  "required": [
+    "version",
+    "projects"
+  ],
   "properties": {
-    "$schema": { "type": "string" },
-    "version": { "const": 1 },
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "const": 1
+    },
     "projects": {
       "type": "array",
-      "items": { "$ref": "#/definitions/project" }
+      "items": {
+        "$ref": "#/definitions/project"
+      }
     }
   },
   "definitions": {
@@ -20,51 +29,128 @@
       "required": [
         "name",
         "slug",
-        "repository",
         "status",
         "createdAt",
         "designSource",
         "publishedUrl"
       ],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
         "slug": {
           "type": "string",
           "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
         },
+        "path": {
+          "type": "string",
+          "pattern": "^prototypes/[a-z0-9]+(?:-[a-z0-9]+)*/$",
+          "description": "Folder of a prototype that lives in this repository."
+        },
+        "purpose": {
+          "enum": [
+            "design-challenge",
+            "client-demo",
+            "exploration",
+            "other"
+          ]
+        },
         "repository": {
           "type": "string",
-          "pattern": "^https://github\\.com/helenhsong/[A-Za-z0-9._-]+$"
+          "pattern": "^https://github\\.com/helenhsong/[A-Za-z0-9._-]+$",
+          "description": "Legacy: a prototype kept in its own repository."
         },
         "status": {
-          "enum": ["active", "demo-ready", "published", "archived"]
+          "enum": [
+            "active",
+            "demo-ready",
+            "published",
+            "archived"
+          ]
         },
-        "createdAt": { "type": "string", "format": "date" },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
         "designSource": {
           "oneOf": [
-            { "type": "null" },
+            {
+              "type": "null"
+            },
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type", "reference"],
+              "required": [
+                "type",
+                "reference"
+              ],
               "properties": {
                 "type": {
-                  "enum": ["ui", "claude-design", "figma", "other"]
+                  "enum": [
+                    "ui",
+                    "claude-design",
+                    "figma",
+                    "other"
+                  ]
                 },
-                "reference": { "type": "string", "minLength": 1 }
+                "reference": {
+                  "type": "string",
+                  "minLength": 1
+                }
               }
             }
           ]
         },
         "publishedUrl": {
           "oneOf": [
-            { "type": "null" },
-            { "type": "string", "format": "uri" }
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "format": "uri"
+            }
           ]
         },
-        "notes": { "type": "string" }
-      }
+        "notes": {
+          "type": "string"
+        },
+        "brief": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Design-challenge intake: who, what, when, where, how.",
+          "properties": {
+            "who": {
+              "type": "string"
+            },
+            "what": {
+              "type": "string"
+            },
+            "when": {
+              "type": "string"
+            },
+            "where": {
+              "type": "string"
+            },
+            "how": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "path"
+          ]
+        },
+        {
+          "required": [
+            "repository"
+          ]
+        }
+      ]
     }
   }
 }
-
