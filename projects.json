@@ -1,5 +1,23 @@
 {
   "$schema": "./projects.schema.json",
   "version": 1,
-  "projects": []
+  "projects": [
+    {
+      "name": "Tester project",
+      "slug": "tester-project",
+      "path": "prototypes/tester-project/",
+      "purpose": "design-challenge",
+      "status": "active",
+      "createdAt": "2026-10-11",
+      "designSource": {
+        "type": "ui",
+        "reference": "helenhsong/ui design-systems/default"
+      },
+      "publishedUrl": null,
+      "brief": {
+        "where": "Web app",
+        "what": "To be defined; Helen will add challenge details later."
+      }
+    }
+  ]
 }

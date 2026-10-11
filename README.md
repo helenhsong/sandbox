@@ -13,3 +13,17 @@ page of one Vite app, and the home page lists every prototype as a link. The
 - `projects.schema.json` defines its format.
 - New entries are normally added by the `helen-prototype` skill.
 
+
+## Running it
+
+```bash
+npm install
+npm run dev        # home page at /, each prototype at /prototypes/<slug>/
+npm run build      # type-checks, then builds every page into dist/
+npm run typecheck
+npm run lint
+```
+
+New prototypes start as a copy of `templates/prototype/`. They use the
+`default` system from [`@helenhsong/ui`](https://github.com/helenhsong/ui)
+unless their registry entry says otherwise.
