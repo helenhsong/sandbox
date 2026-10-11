@@ -18,6 +18,8 @@ function prototypeInputs() {
 }
 
 export default defineConfig({
+  // Set by the Pages workflow so assets resolve under /sandbox/.
+  base: process.env.BASE_PATH ?? "/",
   plugins: [react()],
   build: {
     rollupOptions: {
