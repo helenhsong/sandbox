@@ -18,6 +18,25 @@
         "where": "Web app",
         "what": "To be defined; Helen will add challenge details later."
       }
+    },
+    {
+      "name": "tester #2",
+      "slug": "tester-2",
+      "path": "prototypes/tester-2/",
+      "purpose": "design-challenge",
+      "status": "published",
+      "createdAt": "2026-10-12",
+      "designSource": {
+        "type": "ui",
+        "reference": "helenhsong/ui design-systems/default"
+      },
+      "publishedUrl": "https://helenhsong.com/sandbox/tester-2/",
+      "brief": {
+        "who": "General contractor PM running several residential jobs (assumed)",
+        "what": "See permits, tasks and inspections as one dependency lifecycle and catch blockers before they slip the schedule",
+        "where": "Desktop web, at a desk",
+        "how": "Multi-flow demo: project timeline, item detail, failed-inspection impact, unblocking, portfolio triage"
+      }
     }
   ]
 }
