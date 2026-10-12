@@ -32,12 +32,19 @@ function flatPrototypeUrls(): Plugin {
       outDir = resolve(config.root, config.build.outDir);
     },
     configureServer(server) {
-      server.middlewares.use((req, _res, next) => {
+      server.middlewares.use((req, res, next) => {
         const url = req.url ?? "";
         if (url.startsWith(base)) {
-          const slug = url.slice(base.length).split(/[/?#]/)[0];
+          const rest = url.slice(base.length);
+          const slug = rest.split(/[/?#]/)[0];
           if (slug && prototypeSlugs().includes(slug)) {
-            req.url = `${base}prototypes/${url.slice(base.length)}`;
+            // Match Pages, which redirects /<slug> to /<slug>/.
+            if (rest.length === slug.length || "?#".includes(rest[slug.length])) {
+              res.writeHead(301, { Location: `${base}${slug}/${rest.slice(slug.length)}` });
+              res.end();
+              return;
+            }
+            req.url = `${base}prototypes/${rest}`;
           }
         }
         next();
