@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>Not found</title>
+    <script>
+      // Prototypes moved from /prototypes/<slug>/ to /<slug>/.
+      if (location.pathname.includes("/prototypes/")) {
+        location.replace(location.pathname.replace("/prototypes/", "/") + location.search + location.hash);
+      }
+    </script>
+    <style>
+      body { margin: 0; padding: 4rem 1.25rem; font: 14px/1.6 "Inter", ui-sans-serif, system-ui, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <p>Page not found. <a href="/sandbox/">All prototypes</a></p>
+  </body>
+</html>

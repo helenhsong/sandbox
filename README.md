@@ -19,7 +19,7 @@ page of one Vite app, and the home page lists every prototype as a link. The
 
 ```bash
 npm install
-npm run dev        # home page at /, each prototype at /prototypes/<slug>/
+npm run dev        # home page at /, each prototype at /<slug>/
 npm run build      # type-checks, then builds every page into dist/
 npm run typecheck
 npm run lint

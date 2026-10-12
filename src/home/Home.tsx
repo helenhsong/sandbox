@@ -16,7 +16,7 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 });
 
 function href(project: Project) {
-  if (project.path) return `${import.meta.env.BASE_URL}${project.path}`;
+  if (project.path) return `${import.meta.env.BASE_URL}${project.slug}/`;
   return project.repository ?? "#";
 }
 
