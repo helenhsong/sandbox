@@ -93,8 +93,18 @@ Answers:
 - Deposit: required to start the initial work. If the deadline is missed, the client gets the deposit back. Whether each change request needs a deposit is open.
 - Outside the agreement: the agreement lives in the platform and spells out the project ask, its tier, the price, and a set price per additional edit request. A request outside it is priced from those terms.
 
+Pressure test (second "thoughts?" in Possibilities):
+
+- Working: the per-edit price makes "outside the agreement" objective, and the approval gate makes it stick.
+- The freelancer's real decision: if every request has a fixed price, the freelancer barely decides. Requests that don't fit the menu (a new page, not an edit) need a quote, and that is where the freelancer's judgment lives.
+- Deadline conflict: the refund on a missed deadline protects the client, but accepting extra work can push the deadline and penalize the freelancer for saying yes.
+- Viability: these are the freelancer's own clients, who may already have their contact details, so "platform only" may be hard to hold.
+
 ## Open questions
 
 - What context changes the experience (Present).
 - Does each change request need its own deposit?
+- Is every request priced automatically from the agreement, or does the freelancer quote ones that don't fit?
+- Does accepting a change move the deadline?
+- Own clients may already have the freelancer's phone or email; how does "platform only" hold?
 - Hard constraints (none stated).
