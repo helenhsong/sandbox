@@ -108,9 +108,17 @@ Answers:
 
 - Pricing: dynamic, by tiers of extra revisions (for example, +1 revision or +3 revisions), set in the agreement.
 
+Pressure test (third "thoughts?" in Possibilities):
+
+- Coherent now: client picks a revision tier → freelancer accepts or declines and sets the deadline shift → client approves the cost → work starts → dashboard shows the new total and date.
+- Scope: tiers cover revisions, not new scope (an extra deliverable). Keep the prototype to revision requests and mark new scope out of scope.
+- Decline: a bare "no" is what freelancers avoid today. Can the freelancer counter (a different tier or a later date) instead of only accept or decline?
+- Payment timing: is an approved tier paid at approval, or added to the final invoice? This decides whether unpaid extra work is really prevented.
+
 ## Open questions
 
 - What context changes the experience (Present).
-- Does each change request need its own deposit?
+- Is an approved tier paid at approval, or added to the final invoice?
+- Can the freelancer counter instead of only accept or decline?
 
 - Hard constraints (none stated).
