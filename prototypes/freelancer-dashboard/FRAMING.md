@@ -78,6 +78,14 @@ Options (impact / effort, placed by Claude for discussion):
 - Why not tracking agreements: not stated.
 - Main theme: enforcement.
 
+Pressure test ("thoughts?" in Possibilities):
+
+- Managing change requests: strongest case is that it sits on the exact moment of the problem. Concern: accepting or declining in a clean UI is communication, not enforcement. Something has to make the terms stick.
+- Writing the agreement: rightly ruled out as the focus, but it is a dependency. A change is only "extra" relative to the agreement, so the prototype needs one seeded.
+- Tracking agreements: strongest case is that it matches the "dashboard" prompt. Concern: it is after the fact. Works as the surrounding context where the new cost lands.
+- Risk: this direction fails if clients keep asking off-platform (text, email), because those asks never reach the flow.
+- Follow-ups: what makes the terms stick? How does the platform know a request is outside the agreement?
+
 ## Open questions
 
 - What context changes the experience (Present).
