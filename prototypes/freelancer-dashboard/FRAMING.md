@@ -100,11 +100,16 @@ Pressure test (second "thoughts?" in Possibilities):
 - Deadline conflict: the refund on a missed deadline protects the client, but accepting extra work can push the deadline and penalize the freelancer for saying yes.
 - Viability: these are the freelancer's own clients, who may already have their contact details, so "platform only" may be hard to hold.
 
+Answers:
+
+- Platform only: an assumption. Both sides use the platform, and files are sent only through it.
+- Deadline: accepting a change moves the deadline, at least by a couple of days. The agreement outlines how many working days an additional request takes, by effort size.
+- The freelancer's decision: whether to accept each new request, and how far it shifts the deadline.
+
 ## Open questions
 
 - What context changes the experience (Present).
 - Does each change request need its own deposit?
 - Is every request priced automatically from the agreement, or does the freelancer quote ones that don't fit?
-- Does accepting a change move the deadline?
-- Own clients may already have the freelancer's phone or email; how does "platform only" hold?
+
 - Hard constraints (none stated).
