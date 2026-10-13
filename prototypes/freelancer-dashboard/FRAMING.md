@@ -72,8 +72,11 @@ Options (impact / effort, placed by Claude for discussion):
 
 **Chosen:** We chose **managing a change request: the client asks for a change, sees what it would entail, the freelancer accepts or declines with clear requirements, and the dashboard updates with the new cost** because **it tackles the moment where problems happen on both sides**. The client needs to request and know what the request entails; the freelancer needs to communicate clearly whether they accept and on what terms.
 
-- Trade-off: not stated yet.
-- Rejection reasoning for the other options: not stated yet.
+- Focus: the flow from the **freelancer's** perspective. The client side appears only as the incoming request and the response they receive.
+- Trade-off: the client's own request-and-review experience is not designed deeply.
+- Why not writing the agreement: too narrow; many freelancers already write agreements. The real problem is enforcement, clear boundaries, and communication.
+- Why not tracking agreements: not stated.
+- Main theme: enforcement.
 
 ## Open questions
 
