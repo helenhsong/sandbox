@@ -47,7 +47,18 @@ Problem statement: When **a client asks for changes beyond the original agreemen
 
 Pressure test (first "thoughts?") raised: whether the client is on the platform (yes), which pain is bigger (the agreement process and unpaid extra work), and own clients versus a marketplace (own clients).
 
+Pressure test (second "thoughts?"):
+
+- Better aligned: one moment, one prioritized pain, and the client's role is explicit.
+- Timing: a running record after the fact still leaves the freelancer chasing money. Is a change agreed and priced before work starts, or tallied as it happens?
+- Client value: the outcome is only the freelancer's. The client has to join, so what do they get (no surprise bills)?
+- Scope: the prompt says a business dashboard, but the framing is one project's agreement. Across all clients, or one project?
+
 ## Open questions
+
+- Is a change agreed before work starts, or tallied afterward?
+- What does the client get from joining?
+- Dashboard across all clients, or one project?
 
 - What context changes the experience (Present).
 - Hard constraints (none stated).
