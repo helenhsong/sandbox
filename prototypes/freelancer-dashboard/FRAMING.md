@@ -43,7 +43,7 @@ We are designing for **a digital, project-based freelancer (designer, developer,
 - We assume: these are the freelancer's own clients. A marketplace for finding freelancers could exist later but is not the focus.
 - We must work within: none stated.
 
-Problem statement: When **a client asks for changes beyond the original agreement**, **a digital freelancer** wants **a shared, running record of what was agreed and what each change adds**, so **both sides can see exactly what is owed and extra work doesn't go unpaid**.
+Problem statement: When **a client asks for changes beyond the original agreement**, **a digital freelancer and their client** want **the original agreement and its pricing for changes recorded up front**, so **the client knows what each request costs and avoids surprise bills, and the freelancer gets paid for extra work**.
 
 Pressure test (first "thoughts?") raised: whether the client is on the platform (yes), which pain is bigger (the agreement process and unpaid extra work), and own clients versus a marketplace (own clients).
 
@@ -54,11 +54,13 @@ Pressure test (second "thoughts?"):
 - Client value: the outcome is only the freelancer's. The client has to join, so what do they get (no surprise bills)?
 - Scope: the prompt says a business dashboard, but the framing is one project's agreement. Across all clients, or one project?
 
-## Open questions
+Second pressure test answered:
 
-- Is a change agreed before work starts, or tallied afterward?
-- What does the client get from joining?
-- Dashboard across all clients, or one project?
+- Before or after: the original agreement plus pricing for later changes, set up front.
+- Client value: no surprise bills, and clarity on what they can ask for and what each request costs.
+- Dashboard shape: unresolved. Carried into Possibilities (writing the initial agreement, tracking agreements, or managing requests).
+
+## Open questions
 
 - What context changes the experience (Present).
 - Hard constraints (none stated).
