@@ -42,7 +42,18 @@ We are designing for **a digital, project-based freelancer (designer, developer,
 
 Draft problem statement: When **a client asks for more than was agreed mid-project**, **a digital freelancer** wants to **hold to the agreement without personally saying no**, so they can **get paid fairly for extra work and keep the client relationship good**.
 
+Pressure test (first "thoughts?"):
+
+- Working: a specific moment, a clear pain, and a real workaround (bending the rules).
+- Hidden assumption: enforcement only works if the client is in the platform too, which makes this two-sided, and the prompt says "dashboard" for the freelancer.
+- Mixed need: the statement holds two pains, unpaid extra work and the awkward conversation. They pull the design in different directions.
+- Hidden assumption: these are the freelancer's own clients, not marketplace clients (marketplaces already hold payment in escrow).
+
 ## Open questions
+
+- Does the client use this too, or only the freelancer?
+- Which pain is bigger: unpaid extra work, or having to say no?
+- The freelancer's own clients, or a marketplace?
 
 - What context changes the experience (Present).
 - Constraints and assumptions (Problem).
