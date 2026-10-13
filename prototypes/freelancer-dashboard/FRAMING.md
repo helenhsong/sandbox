@@ -60,6 +60,16 @@ Second pressure test answered:
 - Client value: no surprise bills, and clarity on what they can ask for and what each request costs.
 - Dashboard shape: unresolved. Carried into Possibilities (writing the initial agreement, tracking agreements, or managing requests).
 
+## 5. Possibilities
+
+Compared on an impact/effort matrix. Impact: value for the freelancer and client, and progress toward no unpaid extra work. Effort: complexity, dependencies, and cost to deliver.
+
+Options raised so far (not yet placed):
+
+1. A dashboard for writing the initial agreement, with pricing for changes.
+2. A dashboard for keeping track of agreements.
+3. A dashboard for managing requests.
+
 ## Open questions
 
 - What context changes the experience (Present).
