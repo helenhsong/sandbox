@@ -86,7 +86,15 @@ Pressure test ("thoughts?" in Possibilities):
 - Risk: this direction fails if clients keep asking off-platform (text, email), because those asks never reach the flow.
 - Follow-ups: what makes the terms stick? How does the platform know a request is outside the agreement?
 
+Answers:
+
+- The agreement is already in place for this flow; editing it is out of scope.
+- What makes terms stick: clients have no access to the freelancer's phone or email; files are sent only through the platform; work waits until the client approves the cost.
+- Deposit: required to start the initial work. If the deadline is missed, the client gets the deposit back. Whether each change request needs a deposit is open.
+- Outside the agreement: the agreement lives in the platform and spells out the project ask, its tier, the price, and a set price per additional edit request. A request outside it is priced from those terms.
+
 ## Open questions
 
 - What context changes the experience (Present).
+- Does each change request need its own deposit?
 - Hard constraints (none stated).
