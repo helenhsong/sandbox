@@ -36,24 +36,18 @@ We are designing for **a digital, project-based freelancer (designer, developer,
 
 ## 4. Problem
 
-- Need: the agreed scope, revisions, and payments hold without the freelancer personally enforcing them.
-- Pain point: when clients push boundaries, there is no way to enforce the agreement, so the rules bend.
-- Constraints and assumptions: open.
+- Need: a clear, shared record of the original agreement and every change to it, so both sides see what is owed.
+- Pain point (prioritized): managing the agreement process. Keeping track of how many changes pile onto the original agreement leads to unpaid extra work.
+- Saying no becomes easy once there is a clear reason to point to.
+- We assume: the client uses the platform too; entering the agreement requires it. The freelancer is the primary user and the client is a required secondary user.
+- We assume: these are the freelancer's own clients. A marketplace for finding freelancers could exist later but is not the focus.
+- We must work within: none stated.
 
-Draft problem statement: When **a client asks for more than was agreed mid-project**, **a digital freelancer** wants to **hold to the agreement without personally saying no**, so they can **get paid fairly for extra work and keep the client relationship good**.
+Problem statement: When **a client asks for changes beyond the original agreement**, **a digital freelancer** wants **a shared, running record of what was agreed and what each change adds**, so **both sides can see exactly what is owed and extra work doesn't go unpaid**.
 
-Pressure test (first "thoughts?"):
-
-- Working: a specific moment, a clear pain, and a real workaround (bending the rules).
-- Hidden assumption: enforcement only works if the client is in the platform too, which makes this two-sided, and the prompt says "dashboard" for the freelancer.
-- Mixed need: the statement holds two pains, unpaid extra work and the awkward conversation. They pull the design in different directions.
-- Hidden assumption: these are the freelancer's own clients, not marketplace clients (marketplaces already hold payment in escrow).
+Pressure test (first "thoughts?") raised: whether the client is on the platform (yes), which pain is bigger (the agreement process and unpaid extra work), and own clients versus a marketplace (own clients).
 
 ## Open questions
 
-- Does the client use this too, or only the freelancer?
-- Which pain is bigger: unpaid extra work, or having to say no?
-- The freelancer's own clients, or a marketplace?
-
 - What context changes the experience (Present).
-- Constraints and assumptions (Problem).
+- Hard constraints (none stated).
