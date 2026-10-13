@@ -30,6 +30,19 @@ We are designing for **a digital, project-based freelancer (designer, developer,
 
 - Situation (assumed): mid-project, a client asks for more revisions or extra work beyond the agreement.
 
+- Current journey: **client asks for more, often off-platform → freelancer points to what was agreed → nothing enforces it → rules bend, and the freelancer absorbs the extra work or has an awkward push-back conversation.**
+- Breakdown: going off-platform; the agreement exists but has no teeth.
+- Open: what context changes the experience.
+
+## 4. Problem
+
+- Need: the agreed scope, revisions, and payments hold without the freelancer personally enforcing them.
+- Pain point: when clients push boundaries, there is no way to enforce the agreement, so the rules bend.
+- Constraints and assumptions: open.
+
+Draft problem statement: When **a client asks for more than was agreed mid-project**, **a digital freelancer** wants to **hold to the agreement without personally saying no**, so they can **get paid fairly for extra work and keep the client relationship good**.
+
 ## Open questions
 
-- What happens today from that ask to the outcome, and what context changes it (Present).
+- What context changes the experience (Present).
+- Constraints and assumptions (Problem).
