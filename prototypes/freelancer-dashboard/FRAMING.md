@@ -64,11 +64,16 @@ Second pressure test answered:
 
 Compared on an impact/effort matrix. Impact: value for the freelancer and client, and progress toward no unpaid extra work. Effort: complexity, dependencies, and cost to deliver.
 
-Options raised so far (not yet placed):
+Options (impact / effort, placed by Claude for discussion):
 
-1. A dashboard for writing the initial agreement, with pricing for changes.
-2. A dashboard for keeping track of agreements.
-3. A dashboard for managing requests.
+1. Writing the initial agreement, with pricing for changes. Medium impact (sets up the rules but doesn't help at the moment of a change) / medium effort.
+2. Tracking agreements across clients. Medium impact (visibility, after the fact) / lower effort.
+3. **Managing change requests.** High impact (sits on the exact moment in the problem statement, for both sides) / medium effort (two sides, accept/decline, cost update).
+
+**Chosen:** We chose **managing a change request: the client asks for a change, sees what it would entail, the freelancer accepts or declines with clear requirements, and the dashboard updates with the new cost** because **it tackles the moment where problems happen on both sides**. The client needs to request and know what the request entails; the freelancer needs to communicate clearly whether they accept and on what terms.
+
+- Trade-off: not stated yet.
+- Rejection reasoning for the other options: not stated yet.
 
 ## Open questions
 
