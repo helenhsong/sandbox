@@ -106,10 +106,11 @@ Answers:
 - Deadline: accepting a change moves the deadline, at least by a couple of days. The agreement outlines how many working days an additional request takes, by effort size.
 - The freelancer's decision: whether to accept each new request, and how far it shifts the deadline.
 
+- Pricing: dynamic, by tiers of extra revisions (for example, +1 revision or +3 revisions), set in the agreement.
+
 ## Open questions
 
 - What context changes the experience (Present).
 - Does each change request need its own deposit?
-- Is every request priced automatically from the agreement, or does the freelancer quote ones that don't fit?
 
 - Hard constraints (none stated).
