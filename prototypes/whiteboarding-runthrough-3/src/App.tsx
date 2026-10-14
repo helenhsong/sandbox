@@ -149,11 +149,9 @@ function Hero({ onShop }: { onShop: () => void }) {
               <div className="meta">Queen size</div>
             </div>
             <div className="hero-actions">
+              <Button onClick={onShop}>Choose your size</Button>
               <Button variant="outline" nativeButton={false} render={<a href="#compare" />}>
                 See how it compares
-              </Button>
-              <Button onClick={onShop}>
-                Choose your size
               </Button>
             </div>
           </div>

@@ -209,6 +209,7 @@ a {
 main h1.hero-title {
   max-width: 14ch;
   font-size: 32px;
+  font-weight: 500;
   line-height: 110%;
 }
 @media (min-width: 768px) {
@@ -265,12 +266,9 @@ main h1.hero-title {
   fill: var(--border);
 }
 .hero-buy {
-  width: 100%;
   margin-top: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  justify-items: start;
   gap: 16px;
 }
 .price {
@@ -283,7 +281,6 @@ main h1.hero-title {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
 /* Mattress illustration */
