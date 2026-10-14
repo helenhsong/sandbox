@@ -28,7 +28,9 @@ export function App() {
   const timers = useRef<number[]>([]);
 
   useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), []);
-  useEffect(() => window.scrollTo(0, 0), [view.name]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [view.name]);
   useEffect(() => {
     if (!toast) return;
     const t = window.setTimeout(() => setToast(null), 8000);
