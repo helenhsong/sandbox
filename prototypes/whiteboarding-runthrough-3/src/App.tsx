@@ -1,19 +1,15 @@
 import { useEffect, useState } from "react";
+import heroImage from "./assets/hero.jpg";
 import {
   Badge,
   Button,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
   Spinner,
 } from "@helenhsong/ui";
 import {
-  ArrowRight,
   Award,
   Check,
+  ChevronLeft,
+  ChevronRight,
   CircleCheck,
   HeartHandshake,
   Leaf,
@@ -48,14 +44,11 @@ const SECTIONS = [
 ];
 
 export function App() {
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const openSizes = () => setSheetOpen(true);
-
   return (
     <>
-      <Header onShop={openSizes} />
+      <Header />
       <main>
-        <Hero onShop={openSizes} />
+        <Hero />
         <Features />
         <PressReviews />
         <CustomerReviews />
@@ -63,12 +56,11 @@ export function App() {
         <Feel />
         <Values />
         <Compare />
-        <Closing onShop={openSizes} />
+        <ChooseSize />
       </main>
       <footer className="site-footer">
         <span>© 2026 {PRODUCT.brand}. Prototype with sample content.</span>
       </footer>
-      <SizeSheet open={sheetOpen} onOpenChange={setSheetOpen} />
     </>
   );
 }
@@ -76,7 +68,9 @@ export function App() {
 function useActiveSection() {
   const [active, setActive] = useState<string | null>(null);
   useEffect(() => {
-    const els = SECTIONS.map((s) => document.getElementById(s.id)).filter(Boolean) as HTMLElement[];
+    // Also watch the hero and the size section, which aren't in the nav, so nothing stays highlighted over them.
+    const ids = ["top", ...SECTIONS.map((s) => s.id), "buy"];
+    const els = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
       (entries) => {
         const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
@@ -90,7 +84,7 @@ function useActiveSection() {
   return active;
 }
 
-function Header({ onShop }: { onShop: () => void }) {
+function Header() {
   const active = useActiveSection();
   return (
     <header className="site-header">
@@ -105,7 +99,9 @@ function Header({ onShop }: { onShop: () => void }) {
             </a>
           ))}
         </nav>
-        <Button onClick={onShop}>Choose your size</Button>
+        <Button nativeButton={false} render={<a href="#buy" />}>
+          Choose your size
+        </Button>
       </div>
     </header>
   );
@@ -123,9 +119,13 @@ function Stars({ value, size = 16 }: { value: number; size?: number }) {
 
 const HERO_REASONS = ["Sleeps cooler than all-foam mattresses", "Firmer support under your lower back", "100-night trial, free delivery"];
 
-function Hero({ onShop }: { onShop: () => void }) {
+function Hero() {
   return (
     <section id="top" className="hero">
+      {/* Full-bleed photo that fades into the page instead of sitting in a box. */}
+      <div className="hero-media">
+        <img src={heroImage} alt="The Saltmoor Hybrid on a low oak platform bed in a bright bedroom" width={2000} height={1116} />
+      </div>
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <h1 className="hero-title">Sleep cool. Wake up without the backache.</h1>
@@ -149,36 +149,17 @@ function Hero({ onShop }: { onShop: () => void }) {
               <div className="meta">Queen size</div>
             </div>
             <div className="hero-actions">
-              <Button onClick={onShop}>Choose your size</Button>
+              <Button nativeButton={false} render={<a href="#buy" />}>
+                Choose your size
+              </Button>
               <Button variant="outline" nativeButton={false} render={<a href="#compare" />}>
                 See how it compares
               </Button>
             </div>
           </div>
         </div>
-        <MattressArt />
       </div>
     </section>
-  );
-}
-
-function MattressArt() {
-  return (
-    <div className="art" role="img" aria-label="Illustration of the Saltmoor Hybrid mattress on a bed frame">
-      <div className="art-room">
-        <div className="art-pillows">
-          <span />
-          <span />
-        </div>
-        <div className="art-mattress">
-          <div className="art-top" />
-          <div className="art-side">
-            <span className="art-quilt" />
-          </div>
-        </div>
-        <div className="art-frame" />
-      </div>
-    </div>
   );
 }
 
@@ -268,9 +249,19 @@ function PressReviews() {
 
 type Filter = "all" | Sleeper;
 
+const REVIEWS_PER_PAGE = 4;
+const REVIEWS_BY_DATE = [...REVIEWS].sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+
 function CustomerReviews() {
   const [filter, setFilter] = useState<Filter>("all");
-  const shown = filter === "all" ? REVIEWS : REVIEWS.filter((r) => r.tag === filter);
+  const [page, setPage] = useState(0);
+  const matching = filter === "all" ? REVIEWS_BY_DATE : REVIEWS_BY_DATE.filter((r) => r.tag === filter);
+  const pages = Math.max(1, Math.ceil(matching.length / REVIEWS_PER_PAGE));
+  const shown = matching.slice(page * REVIEWS_PER_PAGE, (page + 1) * REVIEWS_PER_PAGE);
+  const choose = (f: Filter) => {
+    setFilter(f);
+    setPage(0);
+  };
   const filters: Filter[] = ["all", "back-pain", "hot", "couple", "eco"];
 
   return (
@@ -294,10 +285,10 @@ function CustomerReviews() {
               ))}
             </div>
           </div>
-          <div>
+          <div className="reviews-col">
             <div className="chips" role="group" aria-label="Filter reviews by sleeper">
               {filters.map((f) => (
-                <button key={f} type="button" className="chip" aria-pressed={filter === f} onClick={() => setFilter(f)}>
+                <button key={f} type="button" className="chip" aria-pressed={filter === f} onClick={() => choose(f)}>
                   {f === "all" ? "All" : SLEEPER_LABELS[f]}
                 </button>
               ))}
@@ -305,7 +296,7 @@ function CustomerReviews() {
             {shown.length === 0 ? (
               <div className="empty">
                 <p>No reviews from {filter === "all" ? "customers" : SLEEPER_LABELS[filter].toLowerCase()} yet.</p>
-                <Button variant="outline" onClick={() => setFilter("all")}>
+                <Button variant="outline" onClick={() => choose("all")}>
                   Show all reviews
                 </Button>
               </div>
@@ -330,6 +321,24 @@ function CustomerReviews() {
                 ))}
               </div>
             )}
+            {/* The row's height is always reserved so the page doesn't shift; its controls only appear when there's more than one page. */}
+            <div className="review-pager">
+              {pages > 1 && (
+                <>
+                  <span className="meta">
+                    {page * REVIEWS_PER_PAGE + 1}–{page * REVIEWS_PER_PAGE + shown.length} of {matching.length}
+                  </span>
+                  <div className="review-pager-actions">
+                    <Button variant="outline" size="icon" aria-label="Previous reviews" disabled={page === 0} onClick={() => setPage(page - 1)}>
+                      <ChevronLeft size={16} aria-hidden />
+                    </Button>
+                    <Button variant="outline" size="icon" aria-label="Next reviews" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>
+                      <ChevronRight size={16} aria-hidden />
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -504,99 +513,69 @@ function Compare() {
   );
 }
 
-function Closing({ onShop }: { onShop: () => void }) {
-  return (
-    <section className="closing">
-      <div className="wrap closing-inner">
-        <div>
-          <h2 className="section-title">Try it for 100 nights.</h2>
-          <p>
-            <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · Free delivery
-          </p>
-        </div>
-        <Button onClick={onShop}>
-          Choose your size <ArrowRight size={16} aria-hidden />
-        </Button>
-      </div>
-    </section>
-  );
-}
-
-function SizeSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+function ChooseSize() {
   const [size, setSize] = useState("queen");
   const [state, setState] = useState<"choose" | "adding" | "added">("choose");
   const selected = SIZES.find((s) => s.id === size)!;
+  // Top-down footprint drawn to scale inside an 84" × 88" frame, so sizes compare honestly.
+  const footprint = { width: `${(selected.w / 84) * 100}%`, height: `${(selected.l / 88) * 100}%` };
 
-  useEffect(() => {
-    if (!open) {
-      const t = window.setTimeout(() => setState("choose"), 200);
-      return () => clearTimeout(t);
-    }
-  }, [open]);
-
+  const pick = (id: string) => {
+    setSize(id);
+    setState("choose");
+  };
   const add = () => {
     setState("adding");
     window.setTimeout(() => setState("added"), 700);
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="size-sheet">
-        {state === "added" ? (
-          <>
-            <SheetHeader>
-              <SheetTitle>Added to cart</SheetTitle>
-              <SheetDescription>The {selected.label} is in your cart. Checkout isn't part of this prototype.</SheetDescription>
-            </SheetHeader>
-            <div className="sheet-body">
-              <div className="added">
-                <CircleCheck size={20} aria-hidden className="yes" />
-                <div>
-                  <div className="added-name">
-                    {PRODUCT.name}, {selected.label}
-                  </div>
-                  <div className="meta">
-                    {selected.dims} · {money(selected.price)}
-                  </div>
-                </div>
+    <section id="buy" className="section buy" aria-labelledby="buy-title">
+      <div className="wrap buy-grid">
+        <div className="size-stage" aria-hidden>
+          <div className="size-frame">
+            <div className="size-footprint" style={footprint}>
+              <div className="size-pillows">
+                <span />
+                {selected.w >= 54 && <span />}
               </div>
-              <p className="meta">Includes a 100-night home trial, free delivery and a 10-year warranty.</p>
             </div>
-            <SheetFooter className="sheet-footer">
-              <Button onClick={() => onOpenChange(false)}>Keep browsing</Button>
-            </SheetFooter>
-          </>
-        ) : (
-          <>
-            <SheetHeader>
-              <SheetTitle>Choose your size</SheetTitle>
-              <SheetDescription>{PRODUCT.name} · 12" medium-firm</SheetDescription>
-            </SheetHeader>
-            <div className="sheet-body">
-              <fieldset className="sizes">
-                <legend className="sr-only">Size</legend>
-                {SIZES.map((s) => (
-                  <label key={s.id} className="size-option" data-checked={size === s.id || undefined}>
-                    <input type="radio" name="size" value={s.id} checked={size === s.id} onChange={() => setSize(s.id)} />
-                    <span className="size-label">{s.label}</span>
-                    <span className="meta">{s.dims}</span>
-                    <span className="size-price">{money(s.price)}</span>
-                  </label>
-                ))}
-              </fieldset>
+          </div>
+          <p className="meta">Top view, to scale</p>
+        </div>
+        <div className="buy-panel">
+          <h2 id="buy-title" className="section-title">
+            Choose your size.
+          </h2>
+          <div className="chips size-chips" role="group" aria-label="Size">
+            {SIZES.map((s) => (
+              <button key={s.id} type="button" className="chip" aria-pressed={size === s.id} onClick={() => pick(s.id)}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <div>
+            <div className="price">{money(selected.price)}</div>
+            <div className="meta">
+              {selected.label} · {selected.dims} · 12" thick
             </div>
-            <SheetFooter className="sheet-footer">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button onClick={add} disabled={state === "adding"} aria-busy={state === "adding"}>
-                {state === "adding" && <Spinner aria-hidden />}
-                Add to cart · {money(selected.price)}
-              </Button>
-            </SheetFooter>
-          </>
-        )}
-      </SheetContent>
-    </Sheet>
+          </div>
+          {/* The button keeps its size in every state so nothing below it moves. */}
+          <div className="buy-action">
+            <Button className="buy-button" onClick={add} disabled={state !== "choose"} aria-busy={state === "adding"}>
+              {state === "adding" && <Spinner aria-hidden />}
+              {state === "added" && <CircleCheck size={16} aria-hidden />}
+              {state === "added" ? "In your cart" : "Add to cart"}
+            </Button>
+            <span className="meta" role="status">
+              {state === "added" ? `The ${selected.label} is in your cart. Checkout isn't part of this prototype.` : ""}
+            </span>
+          </div>
+          <p className="meta buy-assurance">
+            <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · 100-night trial · Free delivery
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

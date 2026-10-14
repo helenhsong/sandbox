@@ -11,14 +11,14 @@ export const money = (n: number) => usd.format(n);
 export const QUEEN_PRICE = 1200;
 export const COMPETITOR_PRICE = 1095;
 
-export type Size = { id: string; label: string; dims: string; price: number };
+export type Size = { id: string; label: string; dims: string; w: number; l: number; price: number };
 
 export const SIZES: Size[] = [
-  { id: "twin", label: "Twin", dims: '38" × 75"', price: 799 },
-  { id: "full", label: "Full", dims: '54" × 75"', price: 1049 },
-  { id: "queen", label: "Queen", dims: '60" × 80"', price: QUEEN_PRICE },
-  { id: "king", label: "King", dims: '76" × 80"', price: 1499 },
-  { id: "cal-king", label: "Cal King", dims: '72" × 84"', price: 1499 },
+  { id: "twin", label: "Twin", dims: '38" × 75"', w: 38, l: 75, price: 799 },
+  { id: "full", label: "Full", dims: '54" × 75"', w: 54, l: 75, price: 1049 },
+  { id: "queen", label: "Queen", dims: '60" × 80"', w: 60, l: 80, price: QUEEN_PRICE },
+  { id: "king", label: "King", dims: '76" × 80"', w: 76, l: 80, price: 1499 },
+  { id: "cal-king", label: "Cal King", dims: '72" × 84"', w: 72, l: 84, price: 1499 },
 ];
 
 export const LAYERS = [
@@ -55,6 +55,16 @@ export const REVIEWS: Review[] = [
   { name: "Elena V.", tag: "eco", rating: 4, date: "Aug 30, 2026", title: "No smell out of the box", body: "I have a toddler and was careful about what we bring home. The certifications sold me." },
   { name: "Chris L.", tag: "back-pain", rating: 5, date: "Aug 22, 2026", title: "Supportive without being a brick", body: "Back sleeper with a herniated disc. Firm where it matters, soft enough on top." },
   { name: "Dana K.", tag: "hot", rating: 4, date: "Aug 15, 2026", title: "Cooler than my old hybrid", body: "Took a week to adjust to the firmness, but I sleep through the night now." },
+  { name: "Marcus O.", tag: "back-pain", rating: 5, date: "Aug 9, 2026", title: "Hips finally feel level", body: "Side and back sleeper. The firmer middle keeps me from sinking, and the ache is gone." },
+  { name: "Renee W.", tag: "back-pain", rating: 4, date: "Jul 30, 2026", title: "Firm, in a good way", body: "Took a few nights to get used to. Now my back doesn't wake me at 4am." },
+  { name: "Sofia M.", tag: "hot", rating: 5, date: "Jul 24, 2026", title: "No more night sweats", body: "I run hot and live without AC. This is the first bed that doesn't trap heat." },
+  { name: "Ben A.", tag: "hot", rating: 5, date: "Jul 18, 2026", title: "Cool to the touch all night", body: "The latex top stays cool even in July. I stopped sleeping on top of the covers." },
+  { name: "Lia & Tom", tag: "couple", rating: 5, date: "Aug 4, 2026", title: "Two light sleepers, zero complaints", body: "We both toss around. Neither of us feels the other move anymore." },
+  { name: "Grace H.", tag: "couple", rating: 4, date: "Jul 27, 2026", title: "Edge support matters", body: "We can both sit on the edge without sliding off. Big upgrade from our foam bed." },
+  { name: "Ahmed & Noor", tag: "couple", rating: 5, date: "Jul 12, 2026", title: "Different sleepers, both happy", body: "He likes firm, I like a little give. The latex top somehow works for both of us." },
+  { name: "Jun P.", tag: "eco", rating: 5, date: "Aug 12, 2026", title: "Materials I can actually verify", body: "Looked up every certification before buying. They all check out." },
+  { name: "Hannah B.", tag: "eco", rating: 5, date: "Jul 21, 2026", title: "No fiberglass was the dealbreaker", body: "Our last mattress leaked fiberglass when the cover tore. Never again." },
+  { name: "Owen R.", tag: "eco", rating: 4, date: "Jul 9, 2026", title: "Worth paying more for clean materials", body: "Pricey, but I feel good about what my kids are sleeping next to." },
 ];
 
 export const RATING_BARS = [
