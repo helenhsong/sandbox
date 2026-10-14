@@ -7,6 +7,8 @@ import {
 import {
   Award,
   Check,
+  ChevronLeft,
+  ChevronRight,
   CircleCheck,
   HeartHandshake,
   Leaf,
@@ -263,9 +265,19 @@ function PressReviews() {
 
 type Filter = "all" | Sleeper;
 
+const REVIEWS_PER_PAGE = 4;
+const REVIEWS_BY_DATE = [...REVIEWS].sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+
 function CustomerReviews() {
   const [filter, setFilter] = useState<Filter>("all");
-  const shown = filter === "all" ? REVIEWS : REVIEWS.filter((r) => r.tag === filter);
+  const [page, setPage] = useState(0);
+  const matching = filter === "all" ? REVIEWS_BY_DATE : REVIEWS_BY_DATE.filter((r) => r.tag === filter);
+  const pages = Math.max(1, Math.ceil(matching.length / REVIEWS_PER_PAGE));
+  const shown = matching.slice(page * REVIEWS_PER_PAGE, (page + 1) * REVIEWS_PER_PAGE);
+  const choose = (f: Filter) => {
+    setFilter(f);
+    setPage(0);
+  };
   const filters: Filter[] = ["all", "back-pain", "hot", "couple", "eco"];
 
   return (
@@ -289,10 +301,10 @@ function CustomerReviews() {
               ))}
             </div>
           </div>
-          <div>
+          <div className="reviews-col">
             <div className="chips" role="group" aria-label="Filter reviews by sleeper">
               {filters.map((f) => (
-                <button key={f} type="button" className="chip" aria-pressed={filter === f} onClick={() => setFilter(f)}>
+                <button key={f} type="button" className="chip" aria-pressed={filter === f} onClick={() => choose(f)}>
                   {f === "all" ? "All" : SLEEPER_LABELS[f]}
                 </button>
               ))}
@@ -300,7 +312,7 @@ function CustomerReviews() {
             {shown.length === 0 ? (
               <div className="empty">
                 <p>No reviews from {filter === "all" ? "customers" : SLEEPER_LABELS[filter].toLowerCase()} yet.</p>
-                <Button variant="outline" onClick={() => setFilter("all")}>
+                <Button variant="outline" onClick={() => choose("all")}>
                   Show all reviews
                 </Button>
               </div>
@@ -325,6 +337,21 @@ function CustomerReviews() {
                 ))}
               </div>
             )}
+            <div className="review-pager">
+              <span className="meta">
+                {matching.length === 0
+                  ? "No reviews"
+                  : `${page * REVIEWS_PER_PAGE + 1}–${page * REVIEWS_PER_PAGE + shown.length} of ${matching.length}`}
+              </span>
+              <div className="review-pager-actions">
+                <Button variant="outline" size="icon" aria-label="Previous reviews" disabled={page === 0} onClick={() => setPage(page - 1)}>
+                  <ChevronLeft size={16} aria-hidden />
+                </Button>
+                <Button variant="outline" size="icon" aria-label="Next reviews" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>
+                  <ChevronRight size={16} aria-hidden />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -546,20 +573,17 @@ function ChooseSize() {
               {selected.label} · {selected.dims} · 12" thick
             </div>
           </div>
-          {state === "added" ? (
-            <div className="added" role="status">
-              <CircleCheck size={20} aria-hidden className="yes" />
-              <div>
-                <div className="added-name">The {selected.label} is in your cart.</div>
-                <div className="meta">Checkout isn't part of this prototype.</div>
-              </div>
-            </div>
-          ) : (
-            <Button onClick={add} disabled={state === "adding"} aria-busy={state === "adding"}>
+          {/* The button keeps its size in every state so nothing below it moves. */}
+          <div className="buy-action">
+            <Button className="buy-button" onClick={add} disabled={state !== "choose"} aria-busy={state === "adding"}>
               {state === "adding" && <Spinner aria-hidden />}
-              Add to cart
+              {state === "added" && <CircleCheck size={16} aria-hidden />}
+              {state === "added" ? "In your cart" : "Add to cart"}
             </Button>
-          )}
+            <span className="meta" role="status">
+              {state === "added" ? `The ${selected.label} is in your cart. Checkout isn't part of this prototype.` : ""}
+            </span>
+          </div>
           <p className="meta buy-assurance">
             <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · 100-night trial · Free delivery
           </p>

@@ -630,14 +630,45 @@ main h2.section-title {
     padding: 0 16px;
   }
 }
+/* Fixed slots: four cards of a set height per page, so switching filters or pages never changes the section's height. */
+.review-list,
+.reviews-col .empty {
+  min-height: calc(4 * var(--review-h) + 3 * 16px);
+}
+.reviews-col {
+  --review-h: 184px;
+}
 .review-list {
   display: grid;
   gap: 16px;
+  grid-auto-rows: var(--review-h);
+  align-content: start;
 }
 @media (min-width: 700px) {
-  .review-list {
-    grid-template-columns: 1fr 1fr;
+  .review-list,
+  .reviews-col .empty {
+    min-height: calc(2 * var(--review-h) + 16px);
   }
+  .review-list {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+.review p {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.review-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+.review-pager-actions {
+  display: flex;
+  gap: 8px;
 }
 .review {
   display: grid;
@@ -674,6 +705,7 @@ main h2.section-title {
 }
 .empty {
   display: grid;
+  align-content: center;
   justify-items: start;
   gap: 12px;
   padding: 32px;
@@ -930,6 +962,17 @@ main h2.section-title {
 .size-chips {
   margin-bottom: 0;
 }
+.buy-action {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+.buy-action [role="status"] {
+  min-height: 3em;
+}
+.buy-button {
+  min-width: 132px;
+}
 .buy-assurance {
   display: inline-flex;
   flex-wrap: wrap;
@@ -943,14 +986,3 @@ main h2.section-title {
   color: var(--muted-foreground);
 }
 
-.added {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 16px;
-  border-radius: var(--r-md);
-  background: var(--tint);
-}
-.added-name {
-  font-weight: 600;
-}
