@@ -5,7 +5,7 @@
 ## 1. Purpose
 
 - User need: _open_
-- Company need: _open_
+- Company need: Amazon sees a business opportunity. A lower barrier brings more people into self-publishing, which grows a revenue source for Amazon (Helen suggested publishing fees).
 - In this session, we hope to: _open_
 
 ## Confirmed
@@ -15,7 +15,9 @@
 
 ## Assumed
 
+- Team assumption: this is a net new self-publishing feature on Amazon. Note: Kindle Direct Publishing already exists and earns through royalty share rather than upfront fees.
+
 ## Open
 
-- Why this needs solving for the user, and why Amazon wants to solve it.
+- Why this needs solving for the user.
 - Session goal.
