@@ -124,7 +124,7 @@ function Hero() {
     <section id="top" className="hero">
       {/* Full-bleed photo that fades into the page instead of sitting in a box. */}
       <div className="hero-media">
-        <img src={heroImage} alt="The Saltmoor Hybrid on a low oak platform bed in a bright bedroom" width={1600} height={1195} />
+        <img src={heroImage} alt="The Saltmoor Hybrid on a low oak platform bed in a bright bedroom" width={2000} height={1116} />
       </div>
       <div className="wrap hero-grid">
         <div className="hero-copy">

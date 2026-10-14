@@ -11,7 +11,7 @@ Photorealistic product photograph of a premium hybrid mattress on a low natural 
 ## Settings
 
 - Model: Figma Weave, Nano Banana 2.1
-- Seed: 4207
+- Seed: 4207 for v1 (4:3); 4217 for the 16:9 blend hero in use
 - Format: JPEG, 2K
 - After the hero is approved, every later shot passes the hero image as its reference.
 
@@ -19,5 +19,5 @@ Photorealistic product photograph of a premium hybrid mattress on a low natural 
 
 | File | Used in | Aspect | Angle and styling | Status |
 | --- | --- | --- | --- | --- |
-| `src/assets/hero.jpg` | Hero, full-bleed and masked into the page | 4:3 (v1) or 16:9 (blend shot) | Three-quarter view from slightly above at mattress height. Two plain white linen pillows, no duvet. Bed in the right two-thirds, plain wall on the left so the fade lands on empty space. | v1 generated |
+| `src/assets/hero.jpg` | Hero, full-bleed and masked into the page | 4:3 (v1) or 16:9 (blend shot) | Three-quarter view from slightly above at mattress height. Two plain white linen pillows, no duvet. Bed in the right two-thirds, plain wall on the left so the fade lands on empty space. | 16:9 generated and in use |
 | `src/assets/layers.jpg` | Features | 4:3 | Cutaway corner showing the layers | Not started |
