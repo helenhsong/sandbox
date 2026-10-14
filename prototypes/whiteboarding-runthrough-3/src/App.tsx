@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import heroImage from "./assets/hero.jpg";
 import { Badge, Button, Spinner } from "@helenhsong/ui";
 import {
@@ -39,7 +39,57 @@ const SECTIONS = [
   { id: "compare", label: "Compare" },
 ];
 
+// Standalone landing page, Linear-style motion: text stays put; items inside each visual
+// enter in sequence the first time the visual scrolls into view. Nothing is hidden until
+// this runs, and reduced motion skips it in CSS.
+const REVEAL_VISUALS: [visual: string, items: string][] = [
+  [".section-head", ":scope > *"],
+  [".layers", ".layer"],
+  [".review-list", ".review"],
+  [".compare tbody", "tr"],
+  [".size-stage", ".size-frame"],
+];
+
+function useReveal() {
+  // Layout effect, so items are hidden before the first paint instead of showing, then snapping away.
+  useLayoutEffect(() => {
+    if (!("IntersectionObserver" in window)) return;
+    const root = document.documentElement;
+    const visuals: HTMLElement[] = [];
+    for (const [visual, items] of REVEAL_VISUALS) {
+      document.querySelectorAll<HTMLElement>(visual).forEach((el) => {
+        el.querySelectorAll<HTMLElement>(items).forEach((item, i) => {
+          item.classList.add("reveal-item");
+          item.style.setProperty("--reveal-index", String(Math.min(i, 7)));
+        });
+        // Anything on screen at load plays its entrance right away (it is hidden before the
+        // first paint, so it never flashes); everything else waits until it scrolls into view.
+        if (el.getBoundingClientRect().top < window.innerHeight) {
+          requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-visible")));
+        } else {
+          visuals.push(el);
+        }
+      });
+    }
+    root.classList.add("motion");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+    visuals.forEach((el) => observer.observe(el));
+    // Keep the motion class on cleanup so a re-run (StrictMode) doesn't flash items.
+    return () => observer.disconnect();
+  }, []);
+}
+
 export function App() {
+  useReveal();
   return (
     <>
       <Header />
@@ -752,15 +802,21 @@ function ChooseSize() {
               </Button>
               {/* One reserved line under the button: the reassurance, swapped for the cart confirmation once added. */}
               <p className="meta buy-note" role="status">
-                {state === "added" ? (
-                  `The ${selected.label} is in your cart. Checkout isn't part of this prototype.`
-                ) : (
-                  <>
-                    <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating}{" "}
-                    from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews ·
-                    100-night trial · Free delivery
-                  </>
-                )}
+                <span
+                  key={state === "added" ? "added" : "default"}
+                  className="buy-note-text"
+                >
+                  {state === "added" ? (
+                    `The ${selected.label} is in your cart. Checkout isn't part of this prototype.`
+                  ) : (
+                    <>
+                      <Stars value={PRODUCT.rating} size={14} />{" "}
+                      {PRODUCT.rating} from{" "}
+                      {PRODUCT.reviewCount.toLocaleString("en-US")} reviews ·
+                      100-night trial · Free delivery
+                    </>
+                  )}
+                </span>
               </p>
             </div>
           </div>
