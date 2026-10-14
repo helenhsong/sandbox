@@ -12,6 +12,7 @@ import {
 } from "@helenhsong/ui";
 import {
   ArrowRight,
+  Award,
   Check,
   CircleCheck,
   HeartHandshake,
@@ -120,12 +121,14 @@ function Stars({ value, size = 16 }: { value: number; size?: number }) {
   );
 }
 
+const HERO_REASONS = ["Sleeps cooler than all-foam mattresses", "Firmer support under your lower back", "100-night trial, free delivery"];
+
 function Hero({ onShop }: { onShop: () => void }) {
   return (
     <section id="top" className="hero">
-      <div className="wrap hero-stack">
-        <h1 className="hero-title">Sleep cool. Wake up without the backache.</h1>
-        <div className="hero-sub">
+      <div className="wrap hero-grid">
+        <div className="hero-copy">
+          <h1 className="hero-title">Sleep cool. Wake up without the backache.</h1>
           <p className="lede">Natural latex over zoned coils.</p>
           <a className="rating-line" href="#reviews">
             <Stars value={PRODUCT.rating} />
@@ -133,19 +136,24 @@ function Hero({ onShop }: { onShop: () => void }) {
               {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews
             </span>
           </a>
-        </div>
-        <div className="hero-buy">
-          <div>
-            <div className="price">{money(QUEEN_PRICE)}</div>
-            <div className="meta">Queen · 100-night trial · Free delivery</div>
-          </div>
-          <div className="hero-actions">
-            <Button variant="outline" size="lg" nativeButton={false} render={<a href="#compare" />}>
-              See how it compares
-            </Button>
-            <Button size="lg" onClick={onShop}>
-              Choose your size
-            </Button>
+          <ul className="hero-reasons">
+            {HERO_REASONS.map((r) => (
+              <li key={r}>
+                <Check size={16} aria-hidden /> {r}
+              </li>
+            ))}
+          </ul>
+          <div className="hero-buy">
+            <div>
+              <div className="price">{money(QUEEN_PRICE)}</div>
+              <div className="meta">Queen size</div>
+            </div>
+            <div className="hero-actions">
+              <Button onClick={onShop}>Choose your size</Button>
+              <Button variant="outline" nativeButton={false} render={<a href="#compare" />}>
+                See how it compares
+              </Button>
+            </div>
           </div>
         </div>
         <MattressArt />
@@ -170,9 +178,6 @@ function MattressArt() {
         </div>
         <div className="art-frame" />
       </div>
-      <div className="art-tag">
-        <Snowflake size={16} aria-hidden /> Sleeps cooler than all-foam mattresses
-      </div>
     </div>
   );
 }
@@ -186,9 +191,9 @@ const FEATURES = [
 
 function Features() {
   return (
-    <section id="features" className="section">
+    <section id="features" className="section tinted">
       <div className="wrap">
-        <SectionHead title="Built to fix the things other mattresses get wrong" />
+        <SectionHead title="Built to fix what other mattresses get wrong." body="Five layers, each with one job." />
         <div className="features-grid">
           <div className="layers" aria-label="Mattress layers, top to bottom">
             {LAYERS.map((l, i) => (
@@ -217,11 +222,13 @@ function Features() {
   );
 }
 
-function SectionHead({ title, body }: { title: string; body?: string }) {
+function SectionHead({ id, title, body }: { id?: string; title: string; body?: string }) {
   return (
     <div className="section-head">
-      <h2>{title}</h2>
-      {body && <p className="section-body">{body}</p>}
+      <h2 id={id} className="section-title">
+        {title}
+        {body && <span className="section-title-sub"> {body}</span>}
+      </h2>
     </div>
   );
 }
@@ -230,13 +237,15 @@ function PressReviews() {
   return (
     <section className="section press" aria-labelledby="press-title">
       <div className="wrap">
-        <p className="eyebrow" id="press-title">
-          What the experts say
-        </p>
+        <SectionHead id="press-title" title="What the experts say." body="Independent testers on how it sleeps." />
         <div className="press-grid">
           {PRESS.map((p) => (
             <figure key={p.source} className="press-card">
-              {p.award && <Badge variant="secondary">{p.award}</Badge>}
+              {p.award && (
+                <p className="press-award">
+                  <Award size={14} aria-hidden /> {p.award}
+                </p>
+              )}
               <blockquote>“{p.quote}”</blockquote>
               <figcaption>{p.source}</figcaption>
             </figure>
@@ -257,7 +266,7 @@ function CustomerReviews() {
   return (
     <section id="reviews" className="section">
       <div className="wrap">
-        <SectionHead title="People who sleep like you, in their own words" />
+        <SectionHead title="People who sleep like you." body="In their own words." />
         <div className="reviews-grid">
           <div className="rating-summary">
             <div className="big-rating">{PRODUCT.rating}</div>
@@ -332,7 +341,7 @@ function Fit() {
       <div className="wrap">
         <SectionHead
           title="Is it right for you?"
-          body="We'd rather you know now than send it back. Here's who loves it, and who might not."
+          body="Here's who loves it, and who might not."
         />
         <div className="fit-grid">
           <div className="fit-card">
@@ -383,9 +392,7 @@ function Feel() {
   return (
     <section className="section" aria-labelledby="feel-title">
       <div className="wrap">
-        <div className="section-head">
-          <h2 id="feel-title">Thickness, firmness and warmth</h2>
-        </div>
+        <SectionHead id="feel-title" title="Thickness, firmness and warmth." body="Medium-firm, and it sleeps cool." />
         <div className="feel-grid">
           <div className="scale">
             <div className="scale-head">
@@ -412,10 +419,7 @@ function Values() {
   return (
     <section className="section tinted" aria-labelledby="values-title">
       <div className="wrap">
-        <div className="section-head">
-          <h2 id="values-title">What your mattress supports</h2>
-          <p className="section-body">A bed you'll spend a third of your life on, made by people who are paid fairly.</p>
-        </div>
+        <SectionHead id="values-title" title="What your mattress supports." body="Organic materials, made by people paid a living wage." />
         <div className="stats">
           {stats.map((s) => (
             <div key={s.label} className="stat">
@@ -453,8 +457,8 @@ function Compare() {
     <section id="compare" className="section">
       <div className="wrap">
         <SectionHead
-          title={`Why it's worth ${money(QUEEN_PRICE - COMPETITOR_PRICE)} more than the best-selling foam mattress`}
-          body="Compared with the best-selling foam mattress in its price range, Queen size."
+          title={`Why it's worth ${money(QUEEN_PRICE - COMPETITOR_PRICE)} more.`}
+          body="Side by side with the best-selling foam mattress, Queen size."
         />
         <div className="compare">
           <table>
@@ -495,12 +499,12 @@ function Closing({ onShop }: { onShop: () => void }) {
     <section className="closing">
       <div className="wrap closing-inner">
         <div>
-          <h2>Try it for 100 nights</h2>
+          <h2 className="section-title">Try it for 100 nights.</h2>
           <p>
             <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · Free delivery
           </p>
         </div>
-        <Button size="lg" onClick={onShop}>
+        <Button onClick={onShop}>
           Choose your size <ArrowRight size={16} aria-hidden />
         </Button>
       </div>

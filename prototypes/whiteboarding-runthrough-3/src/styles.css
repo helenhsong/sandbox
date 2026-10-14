@@ -4,7 +4,7 @@
   /* Whiteboarding prototypes use Geist for all text, including library components. */
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-sans);
-  --tint: oklch(97.5% 0.008 75);
+  --tint: oklch(96.5% 0.007 75);
   --sand: oklch(93% 0.02 75);
   --sand-deep: oklch(86% 0.035 70);
   --sea: oklch(45% 0.06 220);
@@ -183,38 +183,55 @@ a {
 
 /* Hero */
 .hero {
-  background: linear-gradient(180deg, var(--tint), var(--background));
+  background: var(--background);
   padding: 32px 0 48px;
 }
-.hero-stack {
+.hero-grid {
   display: grid;
-  gap: 20px;
+  gap: 32px;
+  align-items: center;
+}
+.hero-copy {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
 }
 @media (min-width: 900px) {
   .hero {
-    padding: 72px 0 80px;
+    padding: 40px 0 48px;
   }
-  .hero-stack {
-    gap: 24px;
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 48px;
   }
 }
-/* Hero: short headline, one-line subtitle with a small link on the right, then CTA row and a full-width visual. */
+/* Hero: compact for a physical product. Short headline, proof and reasons to buy beside a modest image, all in the first screen. */
 main h1.hero-title {
   max-width: 14ch;
+  font-size: 32px;
+  font-weight: 500;
   line-height: 110%;
 }
 @media (min-width: 768px) {
   main h1.hero-title {
     font-size: 48px;
-    max-width: 16ch;
   }
 }
-.hero-sub {
+.hero-reasons {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hero-reasons li {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px 24px;
+  align-items: center;
+  gap: 8px;
+}
+.hero-reasons svg {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
 }
 .lede {
   color: var(--muted-foreground);
@@ -249,20 +266,14 @@ main h1.hero-title {
   fill: var(--border);
 }
 .hero-buy {
-  width: 100%;
   margin-top: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  justify-items: start;
   gap: 16px;
-  padding: 16px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
 }
 .price {
   letter-spacing: -0.02em;
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 600;
   line-height: 130%;
 }
@@ -270,26 +281,17 @@ main h1.hero-title {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
 /* Mattress illustration */
 .art {
   position: relative;
   aspect-ratio: 4 / 3;
-  margin-top: 16px;
   border-radius: var(--r-lg);
   background: radial-gradient(120% 90% at 70% 10%, oklch(96% 0.02 220), var(--sand));
   overflow: hidden;
 }
-@media (min-width: 768px) {
-  .art {
-    aspect-ratio: 21 / 9;
-  }
-  .art-room {
-    inset: 18% 26% 12% 26%;
-  }
-}
+
 .art-room {
   position: absolute;
   inset: 22% 10% 16% 10%;
@@ -367,24 +369,36 @@ main h1.hero-title {
 
 /* Sections */
 .section {
-  padding: 56px 0;
+  padding: 40px 0;
 }
 .section.tinted {
   background: var(--tint);
 }
 @media (min-width: 900px) {
   .section {
-    padding: 88px 0;
+    padding: 64px 0;
   }
 }
 .section-head {
-  display: grid;
-  gap: 8px;
-  max-width: 640px;
-  margin-bottom: 32px;
+  max-width: 760px;
+  margin-bottom: 24px;
 }
-.section-body {
+main h2.section-title {
+  font-weight: 500;
+  line-height: 120%;
+  text-wrap: pretty;
+}
+.section-title-sub {
   color: var(--muted-foreground);
+}
+@media (min-width: 768px) {
+  .section-head {
+    margin-bottom: 40px;
+  }
+  main h2.section-title {
+    font-size: 32px;
+    line-height: 115%;
+  }
 }
 
 /* Features */
@@ -473,10 +487,9 @@ main h1.hero-title {
   background: var(--foreground);
   color: var(--background);
 }
-.press .eyebrow {
+.press .section-title-sub {
   color: inherit;
-  opacity: 0.7;
-  margin-bottom: 24px;
+  opacity: 0.6;
 }
 .press-grid {
   display: grid;
@@ -499,6 +512,14 @@ main h1.hero-title {
 }
 .press-card blockquote {
   line-height: 160%;
+}
+.press-award {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.6;
 }
 .press-card figcaption {
   font-size: 12px;
@@ -529,7 +550,7 @@ main h1.hero-title {
 }
 .big-rating {
   letter-spacing: -0.02em;
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 600;
   line-height: 1;
 }
@@ -758,7 +779,7 @@ main h1.hero-title {
 }
 .stat-value {
   letter-spacing: -0.02em;
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 600;
   line-height: 130%;
 }
@@ -841,7 +862,7 @@ main h1.hero-title {
   gap: 24px;
 }
 .closing p {
-  margin-top: 4px;
+  margin-top: 12px;
   color: var(--muted-foreground);
 }
 .site-footer {
