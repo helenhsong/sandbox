@@ -186,19 +186,26 @@ a {
   background: linear-gradient(180deg, var(--tint), var(--background));
   padding: 32px 0 48px;
 }
-.hero-stack {
+.hero-grid {
   display: grid;
-  gap: 20px;
+  gap: 32px;
+  align-items: center;
+}
+.hero-copy {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
 }
 @media (min-width: 900px) {
   .hero {
-    padding: 72px 0 80px;
+    padding: 48px 0 56px;
   }
-  .hero-stack {
-    gap: 24px;
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 48px;
   }
 }
-/* Hero: short headline, one-line subtitle with a small link on the right, then CTA row and a full-width visual. */
+/* Hero: compact for a physical product. Short headline, proof and reasons to buy beside a modest image, all in the first screen. */
 main h1.hero-title {
   max-width: 14ch;
   line-height: 110%;
@@ -206,15 +213,23 @@ main h1.hero-title {
 @media (min-width: 768px) {
   main h1.hero-title {
     font-size: 48px;
-    max-width: 16ch;
   }
 }
-.hero-sub {
+.hero-reasons {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hero-reasons li {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px 24px;
+  align-items: center;
+  gap: 8px;
+}
+.hero-reasons svg {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
 }
 .lede {
   color: var(--muted-foreground);
@@ -256,9 +271,6 @@ main h1.hero-title {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
 }
 .price {
   letter-spacing: -0.02em;
@@ -277,19 +289,11 @@ main h1.hero-title {
 .art {
   position: relative;
   aspect-ratio: 4 / 3;
-  margin-top: 16px;
   border-radius: var(--r-lg);
   background: radial-gradient(120% 90% at 70% 10%, oklch(96% 0.02 220), var(--sand));
   overflow: hidden;
 }
-@media (min-width: 768px) {
-  .art {
-    aspect-ratio: 21 / 9;
-  }
-  .art-room {
-    inset: 18% 26% 12% 26%;
-  }
-}
+
 .art-room {
   position: absolute;
   inset: 22% 10% 16% 10%;
