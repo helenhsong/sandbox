@@ -6,7 +6,12 @@
 
 - User need: writers face many barriers and a lot of time to get published. They want an easier way to publish and distribute their writing than going through a publishing company.
 - Company need: Amazon sees a business opportunity. A lower barrier brings more people into self-publishing, which grows a revenue source for Amazon (Helen suggested publishing fees). The feature could also be a selling point for other Amazon offerings.
-- In this session, we hope to: _open_
+- In this session, we hope to: get a working prototype we could test with a client as if it were the real new experience.
+
+## 2. Person
+
+- Primary user: _open_
+- What matters most: _open_
 
 ## Captured for later Ps
 
@@ -24,4 +29,3 @@
 
 ## Open
 
-- Session goal.
