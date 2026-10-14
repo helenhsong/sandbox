@@ -98,8 +98,6 @@ a {
 .eyebrow {
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--muted-foreground);
 }
 .meta {
@@ -499,8 +497,6 @@ a {
 .press-card figcaption {
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   opacity: 0.75;
 }
 
@@ -585,11 +581,6 @@ a {
     height: 44px;
     padding: 0 16px;
   }
-}
-.chip-count {
-  font-size: 12px;
-  opacity: 0.7;
-  font-variant-numeric: tabular-nums;
 }
 .review-list {
   display: grid;

@@ -5,17 +5,21 @@ export const PRODUCT = {
   reviewCount: 6214,
 };
 
+const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+export const money = (n: number) => usd.format(n);
+
+export const QUEEN_PRICE = 1200;
+export const COMPETITOR_PRICE = 1095;
+
 export type Size = { id: string; label: string; dims: string; price: number };
 
 export const SIZES: Size[] = [
   { id: "twin", label: "Twin", dims: '38" × 75"', price: 799 },
   { id: "full", label: "Full", dims: '54" × 75"', price: 1049 },
-  { id: "queen", label: "Queen", dims: '60" × 80"', price: 1200 },
+  { id: "queen", label: "Queen", dims: '60" × 80"', price: QUEEN_PRICE },
   { id: "king", label: "King", dims: '76" × 80"', price: 1499 },
   { id: "cal-king", label: "Cal King", dims: '72" × 84"', price: 1499 },
 ];
-
-export const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 
 export const LAYERS = [
   { name: "Organic cotton cover", detail: "GOTS certified, breathable" },
@@ -39,7 +43,7 @@ export const SLEEPER_LABELS: Record<Sleeper, string> = {
   "back-pain": "Back pain",
   hot: "Hot sleepers",
   couple: "Couples",
-  eco: "Clean materials",
+  eco: "Eco-conscious",
 };
 
 export type Review = { name: string; tag: Sleeper; rating: number; date: string; title: string; body: string };
@@ -62,7 +66,7 @@ export const RATING_BARS = [
 ];
 
 export const COMPARE_ROWS: { label: string; ours: string | boolean; theirs: string | boolean }[] = [
-  { label: "Price (Queen)", ours: "$1,200", theirs: "$1,095" },
+  { label: "Price (Queen)", ours: money(QUEEN_PRICE), theirs: money(COMPETITOR_PRICE) },
   { label: "Construction", ours: "Latex + zoned coils", theirs: "Memory foam layers" },
   { label: "Sleeps cool", ours: true, theirs: false },
   { label: "Zoned lower-back support", ours: true, theirs: false },

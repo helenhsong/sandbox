@@ -27,8 +27,10 @@ import {
 import {
   COMPARE_ROWS,
   LAYERS,
+  COMPETITOR_PRICE,
   PRESS,
   PRODUCT,
+  QUEEN_PRICE,
   RATING_BARS,
   REVIEWS,
   SIZES,
@@ -63,7 +65,7 @@ export function App() {
         <Closing onShop={openSizes} />
       </main>
       <footer className="site-footer">
-        <span>© 2026 {PRODUCT.brand} Sleep. Prototype with sample content.</span>
+        <span>© 2026 {PRODUCT.brand}. Prototype with sample content.</span>
       </footer>
       <SizeSheet open={sheetOpen} onOpenChange={setSheetOpen} />
     </>
@@ -136,7 +138,7 @@ function Hero({ onShop }: { onShop: () => void }) {
           </a>
           <div className="hero-buy">
             <div>
-              <div className="price">{money(1200)}</div>
+              <div className="price">{money(QUEEN_PRICE)}</div>
               <div className="meta">Queen · other sizes from {money(799)}</div>
             </div>
             <div className="hero-actions">
@@ -183,7 +185,7 @@ function MattressArt() {
         <div className="art-frame" />
       </div>
       <div className="art-tag">
-        <Snowflake size={16} aria-hidden /> Sleeps cooler than all-foam
+        <Snowflake size={16} aria-hidden /> Sleeps cooler than all-foam mattresses
       </div>
     </div>
   );
@@ -244,7 +246,7 @@ function PressReviews() {
     <section className="section press" aria-labelledby="press-title">
       <div className="wrap">
         <p className="eyebrow" id="press-title">
-          What the reviewers say
+          What the experts say
         </p>
         <div className="press-grid">
           {PRESS.map((p) => (
@@ -266,7 +268,6 @@ function CustomerReviews() {
   const [filter, setFilter] = useState<Filter>("all");
   const shown = filter === "all" ? REVIEWS : REVIEWS.filter((r) => r.tag === filter);
   const filters: Filter[] = ["all", "back-pain", "hot", "couple", "eco"];
-  const count = (f: Filter) => (f === "all" ? REVIEWS.length : REVIEWS.filter((r) => r.tag === f).length);
 
   return (
     <section id="reviews" className="section">
@@ -280,7 +281,7 @@ function CustomerReviews() {
             <div className="bars">
               {RATING_BARS.map((b) => (
                 <div key={b.stars} className="bar-row">
-                  <span className="meta">{b.stars} star</span>
+                  <span className="meta">{b.stars} {b.stars === 1 ? "star" : "stars"}</span>
                   <span className="bar">
                     <span style={{ width: `${b.pct}%` }} />
                   </span>
@@ -294,13 +295,12 @@ function CustomerReviews() {
               {filters.map((f) => (
                 <button key={f} type="button" className="chip" aria-pressed={filter === f} onClick={() => setFilter(f)}>
                   {f === "all" ? "All" : SLEEPER_LABELS[f]}
-                  <span className="chip-count">{count(f)}</span>
                 </button>
               ))}
             </div>
             {shown.length === 0 ? (
               <div className="empty">
-                <p>No reviews for this filter yet.</p>
+                <p>No reviews from {filter === "all" ? "customers" : SLEEPER_LABELS[filter].toLowerCase()} yet.</p>
                 <Button variant="outline" onClick={() => setFilter("all")}>
                   Show all reviews
                 </Button>
@@ -362,7 +362,7 @@ function Fit() {
             </ul>
           </div>
           <div className="fit-card">
-            <h3>Maybe not for you</h3>
+            <h3>Not ideal for</h3>
             <ul>
               {notFor.map((g) => (
                 <li key={g}>
@@ -409,7 +409,7 @@ function Feel() {
               <h3>Thickness</h3>
               <span className="scale-value">12"</span>
             </div>
-            <p className="meta">Standard sheets fit. Average all-foam beds are 10".</p>
+            <p className="meta">Standard sheets fit. Average all-foam mattresses are 10".</p>
           </div>
           <Scale label="Firmness" value={6} max={10} left="Soft" right="Firm" display="Medium-firm · 6/10" />
           <Scale label="Warmth" value={2.5} max={10} left="Cool" right="Warm" display="Sleeps cool" />
@@ -431,7 +431,7 @@ function Values() {
       <div className="wrap">
         <div className="section-head">
           <p className="eyebrow">Sustainability, health and values</p>
-          <h2 id="values-title">What your $1,200 supports</h2>
+          <h2 id="values-title">What your mattress supports</h2>
           <p className="section-body">A bed you'll spend a third of your life on, made by people who are paid fairly.</p>
         </div>
         <div className="stats">
@@ -472,8 +472,8 @@ function Compare() {
       <div className="wrap">
         <SectionHead
           eyebrow="Side by side"
-          title="Why it's worth $105 more than the best-selling foam bed"
-          body="Compared with the most popular all-foam mattress in its price range."
+          title={`Why it's worth ${money(QUEEN_PRICE - COMPETITOR_PRICE)} more than the best-selling foam mattress`}
+          body="Compared with the best-selling foam mattress in its price range, Queen size."
         />
         <div className="compare">
           <table>
@@ -485,7 +485,7 @@ function Compare() {
                 <th scope="col" className="ours">
                   {PRODUCT.brand}
                 </th>
-                <th scope="col">Best-selling foam</th>
+                <th scope="col">Best-selling foam mattress</th>
               </tr>
             </thead>
             <tbody>
@@ -503,7 +503,7 @@ function Compare() {
             </tbody>
           </table>
         </div>
-        <p className="meta compare-note">Over 10 years, that's less than a dollar a month more, for a bed built to outlast it.</p>
+        <p className="meta compare-note">Over 10 years, that's less than a dollar a month more, for a bed built to outlast the foam one.</p>
       </div>
     </section>
   );
@@ -551,7 +551,7 @@ function SizeSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (o: bo
           <>
             <SheetHeader>
               <SheetTitle>Added to cart</SheetTitle>
-              <SheetDescription>Your mattress is saved. Checkout isn't part of this prototype.</SheetDescription>
+              <SheetDescription>The {selected.label} is in your cart. Checkout isn't part of this prototype.</SheetDescription>
             </SheetHeader>
             <div className="sheet-body">
               <div className="added">

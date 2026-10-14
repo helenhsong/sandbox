@@ -1,6 +1,6 @@
 # Whiteboarding Runthrough 3: polish pass
 
-Checked in the rendered preview at 1280px and 375px (touch), including the size picker's choose, adding and added states. No horizontal scroll and no console errors at either width. `helen-copy` isn't available in this environment, so the copy pass followed helen-polish's Copy and content checklist.
+Checked in the rendered preview at 1280px and 375px (touch), including the size picker's choose, adding and added states. No horizontal scroll and no console errors at either width. `helen-copy` wasn't installed in the cloud session, so it was run in Review mode on Helen's Mac (rows 13 to 25) and the fixes applied here.
 
 | # | Area | Before | After | Why | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -16,6 +16,19 @@ Checked in the rendered preview at 1280px and 375px (touch), including the size 
 | 10 | Copy | "back ache" | "backache" | Spelling | Fixed |
 | 11 | Copy | "about a dollar a month more" ($105 over 10 years is $0.88/month) | "less than a dollar a month more, for a bed built to outlast it" | The claim was wrong | Fixed |
 | 12 | Layout | Feature text column could overflow beside its icon | Icon `flex-shrink: 0`, text column `min-width: 0` | Long labels wrap instead of pushing layout | Fixed |
+| 13 | Copy | Filter chips "All 6" beside "6,214 verified reviews" | Chip counts removed | Counts contradicted the review total | Fixed |
+| 14 | Copy | "What your $1,200 supports" | "What your mattress supports" | $1,200 is only the Queen price | Fixed |
+| 15 | Copy | Added sheet: "Your mattress is saved." | "The Queen is in your cart." (selected size) | One verb through the flow: add, added, in your cart | Fixed |
+| 16 | Copy | Competitor called "foam bed", "most popular all-foam mattress", "Best-selling foam" | "best-selling foam mattress" everywhere; category is "all-foam mattresses" | One name per object | Fixed |
+| 17 | Copy | "built to outlast it" | "built to outlast the foam one" | "it" was ambiguous | Fixed |
+| 18 | Copy | Press eyebrow "What the reviewers say" | "What the experts say" | Collided with Customer reviews below | Fixed |
+| 19 | Copy | Footer "Saltmoor Sleep" | "Saltmoor" | One brand name | Fixed |
+| 20 | Copy | "Maybe not for you" | "Not ideal for" | Parallel with "Great for" | Fixed |
+| 21 | Copy | "5 star" … "1 star" | "5 stars" … "1 star" | Plurals | Fixed |
+| 22 | Copy | Eyebrows and press sources in all caps | Sentence case, weight and color for emphasis | No all caps unless the system uses it | Fixed |
+| 23 | Copy | Filter chip "Clean materials" | "Eco-conscious" | Every other chip names a kind of shopper | Fixed |
+| 24 | Copy | Empty filter: "No reviews for this filter yet." | "No reviews from {filter} yet." | Names what's filtered | Fixed |
+| 25 | Copy | Prices via toLocaleString; $1,200, $1,095 and $105 hardcoded | `Intl.NumberFormat` currency; compare price and difference derived from shared constants | Locale formatting, no drifting figures | Fixed |
 
 ## Open decisions
 
