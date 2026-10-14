@@ -56,3 +56,21 @@ There is no entry point to self-publishing today (in this net-new framing).
 - Open: what "ready to publish" includes (manuscript only, or also cover, formatting, price).
 - Open: which existing Amazon surface the entry point lives in.
 - Open: success signal, to be set at Prototype & Proof.
+
+## 5. Possibilities
+
+Compared by impact (value to the first-time publisher, progress on clear steps, business benefit) and effort (complexity, dependencies, cost).
+
+| Option (Helen's) | Impact | Effort |
+| --- | --- | --- |
+| A. Upfront "steps to publish" overview that feels simple and low-pressure | High: speaks directly to "doesn't know the steps" | Low |
+| B. Guided publishing flow that collects everything needed to publish | High: it is the core of the feature | High |
+| C. Entry points in several places near books | High: discoverability | Low to medium |
+| D. Banner for the first few visits after launch, targeted at people interested in books and writing | Medium to high: discoverability for the right people | Medium: needs purchase and browsing signals |
+| E. First-book promotion: a couple of free months of Kindle Unlimited | Medium: motivation, plus business acquisition | Low to medium: promo and billing |
+| F. Dashboard of all published books | Medium: post-publish value | Medium |
+| G. Author profile showing an author's other work | Medium: more sales for the author's other books | Medium |
+
+- Hard constraint that could change the decision: F and G come after publishing, which the team scoped out for now.
+- Helen's stated needs: good entry points in multiple places, a promotion, a clear view of the steps, and a walkthrough of everything needed to publish.
+- Direction: not chosen yet.
