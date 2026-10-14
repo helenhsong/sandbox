@@ -268,8 +268,19 @@ main h1.hero-title {
   flex-shrink: 0;
   color: var(--muted-foreground);
 }
+/* Landing-page type scale (Linear's 48 : 24 : 15): a description under a title is about half its size, in a softened foreground. */
 .lede {
-  color: var(--muted-foreground);
+  --description: color-mix(in oklch, var(--foreground) 72%, var(--background));
+  color: var(--description);
+  font-size: 16px;
+  line-height: 145%;
+}
+@media (min-width: 768px) {
+  .lede {
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    line-height: 135%;
+  }
 }
 .rating-line {
   display: inline-flex;
@@ -429,9 +440,15 @@ main h2.section-title {
   max-width: none;
 }
 .section-split-body {
-  color: var(--muted-foreground);
-  line-height: 160%;
-  max-width: 60ch;
+  color: color-mix(in oklch, var(--foreground) 72%, var(--background));
+  font-size: 16px;
+  line-height: 150%;
+  max-width: 52ch;
+}
+@media (min-width: 768px) {
+  .section-split-body {
+    font-size: 18px;
+  }
 }
 @media (min-width: 900px) {
   .section-head-split {
