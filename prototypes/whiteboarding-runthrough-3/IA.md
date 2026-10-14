@@ -82,7 +82,7 @@ Landing page (one product)
 
 ## Design system
 
-`@helenhsong/ui`, Maia treatment (consumer product), Inter, Lucide icons. Illustrations are drawn in CSS since no product photography exists.
+`@helenhsong/ui`, Maia treatment (consumer product), Geist (Whiteboarding default), Lucide icons. Illustrations are drawn in CSS since no product photography exists.
 
 ## Wayfinding
 
