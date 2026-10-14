@@ -2,6 +2,7 @@ import { Fragment, type ReactNode } from "react";
 import {
   Badge,
   Breadcrumb,
+  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
@@ -62,7 +63,7 @@ export function StoreHeader({ notices, active, onHome, onLanding, onBooks, onNot
           amazon <span className="proto-tag">Prototype</span>
         </button>
         <span className="deliver">
-          <MapPin size={16} aria-hidden /> Deliver to Maya · Seattle 98101
+          <MapPin size={14} aria-hidden /> Deliver to Maya · Seattle 98101
         </span>
         <div className="search" role="search">
           <input aria-label="Search Amazon" placeholder="Search Amazon" />
@@ -98,7 +99,7 @@ export function StoreHeader({ notices, active, onHome, onLanding, onBooks, onNot
 
         <DropdownMenu>
           <DropdownMenuTrigger className="bar-btn account">
-            <User size={20} aria-hidden />
+            <User size={16} aria-hidden />
             <span>Hello, Maya</span>
             <ChevronDown size={16} aria-hidden />
           </DropdownMenuTrigger>
@@ -132,34 +133,88 @@ export function StoreHeader({ notices, active, onHome, onLanding, onBooks, onNot
   );
 }
 
-export function Breadcrumbs({ items }: { items: { label: string; onClick?: () => void }[] }) {
+export type CrumbPage = "home" | "landing" | "books";
+
+/** One hierarchy for every breadcrumb, so each trail starts at the same root and lists every ancestor. */
+const CRUMBS: Record<CrumbPage, { label: string; parent?: CrumbPage }> = {
+  home: { label: "Amazon.com" },
+  landing: { label: "Self-publishing", parent: "home" },
+  books: { label: "Your books", parent: "landing" },
+};
+
+function trailTo(page: CrumbPage) {
+  const trail: CrumbPage[] = [];
+  for (let p: CrumbPage | undefined = page; p; p = CRUMBS[p].parent) trail.unshift(p);
+  return trail;
+}
+
+export function Breadcrumbs({ page, onNavigate }: { page: CrumbPage; onNavigate: (to: CrumbPage) => void }) {
+  const trail = trailTo(page);
   return (
     <Breadcrumb className="crumbs">
       <BreadcrumbList>
-        {items.map((it, i) => (
-          <Fragment key={it.label}>
-            {i > 0 && <BreadcrumbSeparator />}
-            <BreadcrumbItem>
-              {it.onClick ? <BreadcrumbLink render={<button className="crumb-link" onClick={it.onClick} />}>{it.label}</BreadcrumbLink> : <BreadcrumbPage>{it.label}</BreadcrumbPage>}
-            </BreadcrumbItem>
-          </Fragment>
-        ))}
+        {trail.map((p, i) => {
+          const isFirst = i === 0;
+          const isLast = i === trail.length - 1;
+          // On narrow screens the middle collapses to an ellipsis; the root and current page stay.
+          const middle = !isFirst && !isLast;
+          return (
+            <Fragment key={p}>
+              {i === 1 && trail.length > 2 && (
+                <>
+                  <BreadcrumbSeparator className="crumb-collapse" />
+                  <BreadcrumbItem className="crumb-collapse">
+                    <BreadcrumbEllipsis />
+                  </BreadcrumbItem>
+                </>
+              )}
+              {!isFirst && <BreadcrumbSeparator className={middle ? "crumb-middle" : undefined} />}
+              <BreadcrumbItem className={middle ? "crumb-middle" : undefined}>
+                {isLast ? (
+                  <BreadcrumbPage>{CRUMBS[p].label}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink render={<button className="crumb-link" onClick={() => onNavigate(p)} />}>{CRUMBS[p].label}</BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </Fragment>
+          );
+        })}
       </BreadcrumbList>
     </Breadcrumb>
   );
 }
 
-export function Field({ label, hint, error, children, htmlFor }: { label: string; hint?: string; error?: string; children: ReactNode; htmlFor?: string }) {
+type FieldProps = {
+  label: string;
+  hint?: string;
+  error?: string;
+  children: ReactNode;
+  htmlFor?: string;
+  /** Control that acts on the field (e.g. "Write with AI"), placed on the label row. */
+  action?: ReactNode;
+  /** Status of the value (e.g. a character count), placed under the input beside the hint. */
+  status?: ReactNode;
+};
+
+export function Field({ label, hint, error, children, htmlFor, action, status }: FieldProps) {
   return (
     <div className="field">
-      <Label htmlFor={htmlFor}>{label}</Label>
+      <div className="field-head">
+        <Label htmlFor={htmlFor}>{label}</Label>
+        {action}
+      </div>
       {children}
-      {error ? (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      ) : (
-        hint && <p className="hint">{hint}</p>
+      {(error || hint || status) && (
+        <div className="field-foot">
+          {error ? (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          ) : (
+            hint && <p className="hint">{hint}</p>
+          )}
+          {status && <span className="field-status">{status}</span>}
+        </div>
       )}
     </div>
   );

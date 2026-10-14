@@ -16,6 +16,13 @@ import {
 } from "./data";
 import { BookCover, Field } from "./ui";
 
+/** File names differ at the end (extension, version), so truncate the middle. */
+function middleTruncate(name: string, max = 40) {
+  if (name.length <= max) return name;
+  const tail = 14;
+  return `${name.slice(0, max - tail - 1)}…${name.slice(-tail)}`;
+}
+
 const STEP_NAMES = ["Book details", "Cover", "Audience and price", "Review and submit"];
 
 type Props = {
@@ -156,11 +163,28 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
               <Field label="Author name" htmlFor="author" hint="As it should appear on the cover and listing." error={errors.author}>
                 <Input id="author" value={book.author} onChange={(e) => set({ author: e.target.value })} aria-invalid={!!errors.author} />
               </Field>
-              <Field label="Manuscript" htmlFor="manuscript" hint=".docx, .epub, or .pdf, up to 650 MB." error={errors.manuscript}>
+              <Field
+                label="Manuscript"
+                htmlFor="manuscript"
+                error={errors.manuscript}
+                action={
+                  !book.manuscript && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => set({ manuscript: `${(book.title || "manuscript").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.docx` })}
+                    >
+                      Use sample (prototype)
+                    </Button>
+                  )
+                }
+              >
                 {book.manuscript ? (
                   <div className="file-row">
                     <FileText size={16} aria-hidden />
-                    <span>{book.manuscript}</span>
+                    <span className="file-name" title={book.manuscript}>
+                      {middleTruncate(book.manuscript)}
+                    </span>
                     <span className="meta">Uploaded</span>
                     <Button variant="outline" size="sm" onClick={() => set({ manuscript: null })}>
                       Replace
@@ -170,7 +194,8 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
                   <label className={`dropzone${errors.manuscript ? " is-invalid" : ""}`}>
                     <Upload size={20} aria-hidden />
                     <span className="strong">Upload manuscript</span>
-                    <span className="meta">or drag a file here</span>
+                    <span className="meta">Or drag a file here</span>
+                    <span className="meta">.docx, .epub or .pdf, up to 650 MB</span>
                     <input
                       id="manuscript"
                       type="file"
@@ -183,23 +208,24 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
                     />
                   </label>
                 )}
-                {!book.manuscript && (
-                  <button className="link small" onClick={() => set({ manuscript: `${(book.title || "manuscript").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.docx` })}>
-                    Use a sample manuscript (prototype)
-                  </button>
-                )}
               </Field>
-              <Field label="Description" htmlFor="description" hint="Shown on your book's page. 150–4,000 characters." error={errors.description}>
-                <div className="label-row">
-                  <span className="meta">{book.description.length.toLocaleString()} characters</span>
+              <Field
+                label="Description"
+                htmlFor="description"
+                hint="Shown on your book's page."
+                error={errors.description}
+                status={`${book.description.length.toLocaleString()} / 4,000`}
+                action={
                   <Button variant="outline" size="sm" onClick={generate} disabled={generating}>
                     {generating ? <Spinner /> : <Sparkles size={16} aria-hidden />}
                     {generating ? "Writing…" : book.description ? "Rewrite with AI" : "Write with AI"}
                   </Button>
-                </div>
+                }
+              >
                 <Textarea
                   id="description"
                   rows={6}
+                  maxLength={4000}
                   value={book.description}
                   onChange={(e) => set({ description: e.target.value })}
                   aria-invalid={!!errors.description}
@@ -289,7 +315,7 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
                 {[
                   { label: "Title", value: book.title + (book.subtitle ? `: ${book.subtitle}` : ""), step: 1 },
                   { label: "Author", value: book.author, step: 1 },
-                  { label: "Manuscript", value: book.manuscript ?? "—", step: 1 },
+                  { label: "Manuscript", value: book.manuscript ? middleTruncate(book.manuscript) : "—", step: 1 },
                   { label: "Cover", value: book.cover.kind === "upload" ? book.cover.name : `${TEMPLATES[book.cover.id].name} template`, step: 2 },
                   { label: "Audience", value: book.audience ? AUDIENCE[book.audience].label : "—", step: 3 },
                   { label: "Price", value: `$${book.price}`, step: 3 },

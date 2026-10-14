@@ -99,7 +99,7 @@ export function Books(p: Props) {
 
   return (
     <main className="page books">
-      <Breadcrumbs items={[{ label: "Self-publishing", onClick: p.onLanding }, { label: "Your books" }]} />
+      <Breadcrumbs page="books" onNavigate={(to) => (to === "home" ? p.onHome() : p.onLanding())} />
       <div className="page-head">
         <div>
           <h1>Your books</h1>
@@ -140,10 +140,12 @@ export function Books(p: Props) {
             <EmptyDescription>Books you start or submit show up here, with their review status and sales once they're live.</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button onClick={p.onNew}>Publish your first book</Button>
-            <button className="link small" onClick={p.onLoadSamples}>
-              Load sample books (prototype)
-            </button>
+            <div className="actions center">
+              <Button variant="outline" onClick={p.onLoadSamples}>
+                Load sample books (prototype)
+              </Button>
+              <Button onClick={p.onNew}>Publish your first book</Button>
+            </div>
           </EmptyContent>
         </Empty>
       ) : (
@@ -152,7 +154,7 @@ export function Books(p: Props) {
             {(["all", ...VIEW_ORDER] as View[]).map((v) => (
               <TabsTrigger key={v} value={v} className="tab">
                 {v === "all" ? "All" : STATUS_LABEL[v]}
-                <span className="count">{v === "all" ? p.books.length : counts[v]}</span>
+                <span className="count">{(v === "all" ? p.books.length : counts[v]).toLocaleString()}</span>
               </TabsTrigger>
             ))}
           </TabsList>

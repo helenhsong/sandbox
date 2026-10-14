@@ -1,5 +1,5 @@
 import { Button, Card } from "@helenhsong/ui";
-import { ArrowRight, Bot, Check, Clock, FileText, Gift, Image, PenLine, Tag, UserCheck } from "lucide-react";
+import { ArrowRight, Bot, Check, Clock, FileText, Gift, UserCheck } from "lucide-react";
 import { BookCover, Breadcrumbs } from "./ui";
 
 export function Home({ onStart }: { onStart: () => void }) {
@@ -40,16 +40,16 @@ export function Home({ onStart }: { onStart: () => void }) {
 }
 
 const STEPS = [
-  { icon: PenLine, title: "Add your book details", time: "About 10 min", text: "Title, author name, your manuscript, and a description. AI can draft the description for you." },
-  { icon: Image, title: "Choose a cover", time: "About 5 min", text: "Pick a ready-made template or upload your own design." },
-  { icon: Tag, title: "Set audience and price", time: "About 5 min", text: "Rate your book for general readers, adults, or children, and choose a price." },
-  { icon: UserCheck, title: "Submit for review", time: "About 2 min", text: "Choose a fast AI review or a human review. Approved books publish with one click." },
+  { title: "Add your book details", time: "About 10 min", text: "Title, author name, your manuscript, and a description. AI can draft the description for you." },
+  { title: "Choose a cover", time: "About 5 min", text: "Pick a ready-made template or upload your own design." },
+  { title: "Set audience and price", time: "About 5 min", text: "Rate your book for general readers, adults, or children, and choose a price." },
+  { title: "Submit for review", time: "About 2 min", text: "Choose a fast AI review or a human review. Approved books publish with one click." },
 ];
 
 export function Landing({ onStart, onBooks, onHome, hasBooks }: { onStart: () => void; onBooks: () => void; onHome: () => void; hasBooks: boolean }) {
   return (
     <main className="page landing">
-      <Breadcrumbs items={[{ label: "Amazon", onClick: onHome }, { label: "Self-publishing" }]} />
+      <Breadcrumbs page="landing" onNavigate={onHome} />
       <section className="landing-hero">
         <div>
           <h1>Publish your book on Amazon</h1>
@@ -81,12 +81,13 @@ export function Landing({ onStart, onBooks, onHome, hasBooks }: { onStart: () =>
             <li key={s.title}>
               <Card className="step-card">
               <div className="step-top">
-                <span className="step-num">{i + 1}</span>
+                <span className="step-num" aria-hidden>
+                  {i + 1}
+                </span>
                 <span className="meta">
                   <Clock size={12} aria-hidden /> {s.time}
                 </span>
               </div>
-              <s.icon size={20} aria-hidden />
               <h3>{s.title}</h3>
               <p className="muted">{s.text}</p>
               </Card>
