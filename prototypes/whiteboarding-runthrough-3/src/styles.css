@@ -1016,6 +1016,8 @@ main h2.section-title {
   border-radius: 10px;
   background: linear-gradient(180deg, #fff, oklch(97% 0.005 75));
   box-shadow: 0 10px 24px oklch(40% 0.03 70 / 0.16);
+  /* Width and height animate on purpose (Helen's call, 2026-10-14): the frame is a fixed size so nothing else moves,
+     and a scale transform would stretch the pillows and shadow mid-change. */
   transition:
     width 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
     height 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
