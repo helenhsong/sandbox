@@ -81,6 +81,17 @@ We chose **entry points in several places near books, an upfront steps overview,
 
 ## 6. Prototype & Proof
 
-- What the prototype shows: _open_
-- Step-by-step flow: _open_
-- Success signal: _open_
+Helen's flow:
+
+1. On Amazon, the user sees a promotion tile to self-publish a book, shown to people interested in writing, reading, or Kindles. CTA: "Start your journey."
+2. Landing page breaks down self-publishing and its steps. It should feel simple.
+3. CTA enters the publishing flow. The user adds book info. The description can be AI-generated. Covers come from templates or the user's upload. The book gets an audience rating: adults, children, or general.
+4. The user submits the book for Amazon review: a standard check that content doesn't break the terms or include inappropriate material, and that the rating fits. An AI check is faster; writers who prefer can choose human review. A dashboard shows book status, sales, and more.
+5. The user is notified by email and on Amazon that the book was submitted.
+6. Within 24 hours the book is approved or denied (AI review may be faster). Once approved, the user clicks Publish. Content is locked after submission, so changes need a Resubmit.
+7. The book is published, with confetti, and a confirmation screen. A button goes to the published-books dashboard to check sales and the listing.
+
+**Storyboard:** Promotion tile → steps landing page → guided book setup → review submission → approval → Publish → confirmation and dashboard.
+
+- Scope change: a published-books dashboard is back in, as the place to track review status and, after publishing, sales and the listing.
+- Success signal: _open_ (not stated)
