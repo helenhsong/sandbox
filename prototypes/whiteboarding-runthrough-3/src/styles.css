@@ -1141,26 +1141,10 @@ main h2.section-title {
 }
 
 /* Linear-style motion (standalone landing page only): text never fades; items inside each
-   visual rise in from a slight blur, staggered, once. On load the hero copy and first-screen visuals settle in gently; start states are set before first paint so nothing flashes. */
+   visual rise in from a slight blur, staggered, once; visuals already on screen at load never hide. The hero photo fades in gently on load. */
 @media (prefers-reduced-motion: no-preference) {
   .motion .hero-media {
     animation: visual-in 900ms cubic-bezier(0.25, 0.1, 0.25, 1) 100ms both;
-  }
-  .site-header {
-    animation: visual-in 600ms cubic-bezier(0.25, 0.1, 0.25, 1) both;
-  }
-  /* The hero copy settles in on load, one group after another, so the first screen isn't static. */
-  .motion .hero-copy > * {
-    animation: copy-in 700ms cubic-bezier(0.25, 0.1, 0.25, 1) both;
-  }
-  .motion .hero-copy > :nth-child(1) {
-    animation-delay: 80ms;
-  }
-  .motion .hero-copy > :nth-child(2) {
-    animation-delay: 200ms;
-  }
-  .motion .hero-copy > :nth-child(3) {
-    animation-delay: 320ms;
   }
   .motion .reveal-item {
     opacity: 0;
@@ -1177,11 +1161,36 @@ main h2.section-title {
     transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     transition-delay: calc(var(--reveal-index, 0) * 60ms);
   }
+  .motion .no-transition .reveal-item {
+    transition: none;
+  }
 }
-@keyframes copy-in {
+/* Load entrance for the first screen: the header, then the hero copy group by group, rise
+   softly into place, so the page opens with life instead of appearing all at once. CSS-only,
+   so it starts from the first paint and still ends visible without JavaScript. */
+@media (prefers-reduced-motion: no-preference) {
+  .site-header {
+    animation: visual-in 600ms cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  }
+  .hero-intro,
+  .hero-proof,
+  .hero-buy {
+    animation: content-in 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .hero-intro {
+    animation-delay: 120ms;
+  }
+  .hero-proof {
+    animation-delay: 240ms;
+  }
+  .hero-buy {
+    animation-delay: 360ms;
+  }
+}
+@keyframes content-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
     filter: blur(2px);
   }
 }

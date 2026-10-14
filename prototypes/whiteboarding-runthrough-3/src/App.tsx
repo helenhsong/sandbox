@@ -62,11 +62,10 @@ function useReveal() {
           item.classList.add("reveal-item");
           item.style.setProperty("--reveal-index", String(Math.min(i, 7)));
         });
-        // Visuals on screen at load enter right away (hidden before first paint, so nothing flashes);
-        // the rest wait until they scroll into view.
+        // Anything on screen at load plays its entrance right away (it is hidden before the
+        // first paint, so it never flashes); everything else waits until it scrolls into view.
         if (el.getBoundingClientRect().top < window.innerHeight) {
-          // A short pause lets the hero copy lead.
-          window.setTimeout(() => el.classList.add("is-visible"), 300);
+          requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-visible")));
         } else {
           visuals.push(el);
         }
