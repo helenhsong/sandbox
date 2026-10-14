@@ -73,4 +73,14 @@ Compared by impact (value to the first-time publisher, progress on clear steps, 
 
 - Hard constraint that could change the decision: F and G come after publishing, which the team scoped out for now.
 - Helen's stated needs: good entry points in multiple places, a promotion, a clear view of the steps, and a walkthrough of everything needed to publish.
-- Direction: not chosen yet.
+
+We chose **entry points in several places near books, an upfront steps overview, a guided publishing flow, and a first-book promotion** because a barrier that looks low makes first-time authors more willing to go ahead and feel less pressure (Helen). Trade-off: not stated.
+
+- Set aside for now: dashboard of published books and author profile (after publishing, out of scope).
+- Reasoning for ruling out other options: not stated.
+
+## 6. Prototype & Proof
+
+- What the prototype shows: _open_
+- Step-by-step flow: _open_
+- Success signal: _open_
