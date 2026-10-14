@@ -43,6 +43,7 @@ const SECTIONS = [
 // enter in sequence the first time the visual scrolls into view. Nothing is hidden until
 // this runs, and reduced motion skips it in CSS.
 const REVEAL_VISUALS: [visual: string, items: string][] = [
+  [".section-head", ":scope > *"],
   [".layers", ".layer"],
   [".review-list", ".review"],
   [".compare tbody", "tr"],
