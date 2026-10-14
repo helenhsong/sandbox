@@ -37,6 +37,25 @@
         "where": "Desktop web, at a desk",
         "how": "Multi-flow demo: project timeline, item detail, failed-inspection impact, unblocking, portfolio triage"
       }
+    },
+    {
+      "name": "Whiteboarding Runthrough 1",
+      "slug": "whiteboarding-runthrough-1",
+      "path": "prototypes/whiteboarding-runthrough-1/",
+      "purpose": "design-challenge",
+      "status": "published",
+      "createdAt": "2026-10-14",
+      "designSource": {
+        "type": "ui",
+        "reference": "helenhsong/ui design-systems/default"
+      },
+      "publishedUrl": "https://helenhsong.com/sandbox/whiteboarding-runthrough-1/",
+      "brief": {
+        "who": "First-time self-publisher whose book is finished and ready to publish",
+        "what": "No place to self-publish and no idea what the steps are; make publishing on Amazon clear and simple",
+        "where": "Amazon desktop web, entry point inside the existing storefront",
+        "how": "Web only; scope ends at publishing; success signal not yet stated"
+      }
     }
   ]
 }
