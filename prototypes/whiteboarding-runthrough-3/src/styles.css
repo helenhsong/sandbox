@@ -1074,13 +1074,26 @@ main h2.section-title {
   gap: 8px;
 }
 .buy-note {
+  min-height: 3.2em;
+  margin: 0;
+}
+.buy-note-text {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  min-height: 3.2em;
   align-content: flex-start;
-  margin: 0;
+  gap: 6px;
+}
+/* The note under Add to cart cross-fades when it swaps for the cart confirmation. */
+@media (prefers-reduced-motion: no-preference) {
+  .buy-note-text {
+    animation: note-in 200ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+}
+@keyframes note-in {
+  from {
+    opacity: 0;
+  }
 }
 @media (min-width: 900px) {
   .buy-note {

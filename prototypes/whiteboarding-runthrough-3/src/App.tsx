@@ -800,15 +800,21 @@ function ChooseSize() {
               </Button>
               {/* One reserved line under the button: the reassurance, swapped for the cart confirmation once added. */}
               <p className="meta buy-note" role="status">
-                {state === "added" ? (
-                  `The ${selected.label} is in your cart. Checkout isn't part of this prototype.`
-                ) : (
-                  <>
-                    <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating}{" "}
-                    from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews ·
-                    100-night trial · Free delivery
-                  </>
-                )}
+                <span
+                  key={state === "added" ? "added" : "default"}
+                  className="buy-note-text"
+                >
+                  {state === "added" ? (
+                    `The ${selected.label} is in your cart. Checkout isn't part of this prototype.`
+                  ) : (
+                    <>
+                      <Stars value={PRODUCT.rating} size={14} />{" "}
+                      {PRODUCT.rating} from{" "}
+                      {PRODUCT.reviewCount.toLocaleString("en-US")} reviews ·
+                      100-night trial · Free delivery
+                    </>
+                  )}
+                </span>
               </p>
             </div>
           </div>
