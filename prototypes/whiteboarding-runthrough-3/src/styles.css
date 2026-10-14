@@ -1,4 +1,4 @@
-/* Type scale: 12 meta · 14 body · 16 section label/h3 · 24 h2 (32 hero h1 on desktop). Weights 400/500/600. */
+/* Type scale (4 sizes): 12 meta · 14 body and h3 · 24 h2, prices, stats · 32 hero h1 and big rating. Weights 400/500/600. */
 :root {
   --tint: oklch(97.5% 0.008 75);
   --sand: oklch(93% 0.02 75);
@@ -44,22 +44,22 @@ figure,
 blockquote {
   margin: 0;
 }
-h1 {
+main h1 {
   font-size: 24px;
   font-weight: 600;
   line-height: 125%;
   text-wrap: balance;
 }
-h2 {
+main h2 {
   font-size: 24px;
   font-weight: 600;
   line-height: 130%;
   text-wrap: balance;
 }
-h3 {
-  font-size: 16px;
+main h3 {
+  font-size: 14px;
   font-weight: 600;
-  line-height: 140%;
+  line-height: 150%;
 }
 p {
   text-wrap: pretty;
@@ -89,8 +89,9 @@ a {
   .wrap {
     padding: 0 32px;
   }
-  h1 {
+  main h1 {
     font-size: 32px;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -99,7 +100,7 @@ a {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--sea);
+  color: var(--muted-foreground);
 }
 .meta {
   font-size: 12px;
@@ -122,7 +123,7 @@ a {
   gap: 24px;
 }
 .brand {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-decoration: none;
@@ -153,8 +154,19 @@ a {
   color: var(--muted-foreground);
   font-weight: 500;
 }
-.header-nav a:hover {
-  color: var(--foreground);
+@media (hover: hover) and (pointer: fine) {
+  .header-nav a:hover {
+    color: var(--foreground);
+  }
+  .chip:hover {
+    background: var(--muted);
+  }
+  .chip[aria-pressed="true"]:hover {
+    background: var(--foreground);
+  }
+  .size-option:hover {
+    background: var(--muted);
+  }
 }
 .header-nav a[aria-current] {
   color: var(--foreground);
@@ -194,7 +206,6 @@ a {
   justify-items: start;
 }
 .lede {
-  font-size: 16px;
   color: var(--muted-foreground);
   max-width: 48ch;
 }
@@ -204,8 +215,15 @@ a {
   gap: 8px;
   text-decoration: none;
 }
-.rating-line:hover span {
+.rating-line span {
   text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--border);
+}
+@media (hover: hover) and (pointer: fine) {
+  .rating-line:hover span {
+    text-decoration-color: currentColor;
+  }
 }
 .stars {
   display: inline-flex;
@@ -431,15 +449,19 @@ a {
 .feature-icon {
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
   border-radius: 12px;
   display: grid;
   place-items: center;
-  background: var(--sea-soft);
-  color: var(--sea);
+  background: var(--muted);
+  color: var(--foreground);
 }
 .feature p {
   color: var(--muted-foreground);
   margin-top: 4px;
+}
+.feature > div {
+  min-width: 0;
 }
 
 /* Press */
@@ -448,7 +470,8 @@ a {
   color: var(--background);
 }
 .press .eyebrow {
-  color: oklch(80% 0.05 220);
+  color: inherit;
+  opacity: 0.7;
   margin-bottom: 24px;
 }
 .press-grid {
@@ -471,8 +494,7 @@ a {
   background: color-mix(in oklch, var(--background) 8%, transparent);
 }
 .press-card blockquote {
-  font-size: 16px;
-  line-height: 150%;
+  line-height: 160%;
 }
 .press-card figcaption {
   font-size: 12px;
@@ -553,13 +575,16 @@ a {
   font-weight: 500;
   cursor: pointer;
 }
-.chip:hover {
-  background: var(--muted);
-}
 .chip[aria-pressed="true"] {
   background: var(--foreground);
   border-color: var(--foreground);
   color: var(--background);
+}
+@media (pointer: coarse) {
+  .chip {
+    height: 44px;
+    padding: 0 16px;
+  }
 }
 .chip-count {
   font-size: 12px;
@@ -731,7 +756,7 @@ a {
   border: 1px solid var(--border);
 }
 .stat svg {
-  color: var(--yes);
+  color: var(--muted-foreground);
 }
 .stat-value {
   font-size: 24px;
@@ -753,13 +778,12 @@ a {
 }
 .compare table {
   width: 100%;
-  min-width: 520px;
   border-collapse: collapse;
 }
 .compare th,
 .compare td {
   text-align: left;
-  padding: 14px 16px;
+  padding: 12px;
   border-bottom: 1px solid var(--border);
 }
 .compare tbody tr:last-child th,
@@ -793,6 +817,12 @@ a {
   color: var(--no);
   font-weight: 400;
 }
+@media (min-width: 600px) {
+  .compare th,
+  .compare td {
+    padding: 14px 16px;
+  }
+}
 .compare-note {
   margin-top: 12px;
 }
@@ -824,9 +854,12 @@ a {
 .size-sheet {
   display: flex;
   flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
 }
 .sheet-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 0 16px 16px;
   display: grid;
@@ -850,9 +883,6 @@ a {
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   cursor: pointer;
-}
-.size-option:hover {
-  background: var(--muted);
 }
 .size-option[data-checked] {
   border-color: var(--foreground);

@@ -8,6 +8,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
+  Spinner,
 } from "@helenhsong/ui";
 import {
   ArrowRight,
@@ -123,7 +124,7 @@ function Hero({ onShop }: { onShop: () => void }) {
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <p className="eyebrow">{PRODUCT.name}</p>
-          <h1>Sleep cool. Wake up without the back ache.</h1>
+          <h1>Sleep cool. Wake up without the backache.</h1>
           <p className="lede">
             Natural latex over zoned coils that hold your lower back and hips level, in a mattress that breathes instead of trapping heat.
           </p>
@@ -482,9 +483,9 @@ function Compare() {
                   <span className="sr-only">Feature</span>
                 </th>
                 <th scope="col" className="ours">
-                  {PRODUCT.name}
+                  {PRODUCT.brand}
                 </th>
-                <th scope="col">Best-selling all-foam</th>
+                <th scope="col">Best-selling foam</th>
               </tr>
             </thead>
             <tbody>
@@ -502,7 +503,7 @@ function Compare() {
             </tbody>
           </table>
         </div>
-        <p className="meta compare-note">Over 10 years, that's about a dollar a month more for a bed that lasts longer.</p>
+        <p className="meta compare-note">Over 10 years, that's less than a dollar a month more, for a bed built to outlast it.</p>
       </div>
     </section>
   );
@@ -593,8 +594,9 @@ function SizeSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (o: bo
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button onClick={add} disabled={state === "adding"}>
-                {state === "adding" ? "Adding…" : `Add to cart · ${money(selected.price)}`}
+              <Button onClick={add} disabled={state === "adding"} aria-busy={state === "adding"}>
+                {state === "adding" && <Spinner aria-hidden />}
+                Add to cart · {money(selected.price)}
               </Button>
             </SheetFooter>
           </>
