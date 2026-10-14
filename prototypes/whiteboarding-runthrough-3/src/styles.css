@@ -366,19 +366,19 @@ main h1.hero-title {
 
 /* Sections */
 .section {
-  padding: 40px 0;
+  padding: 56px 0;
 }
 .section.tinted {
   background: var(--tint);
 }
 @media (min-width: 900px) {
   .section {
-    padding: 64px 0;
+    padding: 80px 0;
   }
 }
 .section-head {
   max-width: 760px;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 main h2.section-title {
   font-weight: 500;
@@ -410,7 +410,7 @@ main h2.section-title {
 }
 @media (min-width: 768px) {
   .section-head {
-    margin-bottom: 40px;
+    margin-bottom: 56px;
   }
   main h2.section-title {
     font-size: 32px;
