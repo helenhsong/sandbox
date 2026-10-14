@@ -1,5 +1,5 @@
 /* Type scale (4 sizes): 12 meta · 14 body and h3 · 24 h2, prices, stats · 32 hero h1 and big rating. Weights 400/500/600.
-   Text 20px and larger uses letter-spacing -0.02em; smaller text stays at 0. */
+   Text 20px and larger uses letter-spacing -0.02em (-0.03em at 48px) and line-height 104 to 115%; smaller text stays at 0. */
 :root {
   /* Whiteboarding prototypes use Geist for all text, including library components. */
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
@@ -53,14 +53,14 @@ main h1 {
   font-size: 24px;
   letter-spacing: -0.02em;
   font-weight: 600;
-  line-height: 125%;
+  line-height: 115%;
   text-wrap: balance;
 }
 main h2 {
   font-size: 24px;
   letter-spacing: -0.02em;
   font-weight: 600;
-  line-height: 130%;
+  line-height: 115%;
   text-wrap: balance;
 }
 main h3 {
@@ -243,11 +243,13 @@ main h1.hero-title {
   max-width: 14ch;
   font-size: 32px;
   font-weight: 500;
-  line-height: 110%;
+  line-height: 108%;
 }
 @media (min-width: 768px) {
   main h1.hero-title {
     font-size: 48px;
+    line-height: 104%;
+    letter-spacing: -0.03em;
   }
 }
 .hero-reasons {
@@ -308,7 +310,7 @@ main h1.hero-title {
   letter-spacing: -0.02em;
   font-size: 32px;
   font-weight: 500;
-  line-height: 130%;
+  line-height: 110%;
 }
 .hero-actions {
   display: flex;
@@ -418,7 +420,7 @@ main h1.hero-title {
 }
 main h2.section-title {
   font-weight: 500;
-  line-height: 120%;
+  line-height: 112%;
   text-wrap: pretty;
 }
 .section-head-split {
@@ -450,7 +452,7 @@ main h2.section-title {
   }
   main h2.section-title {
     font-size: 32px;
-    line-height: 115%;
+    line-height: 108%;
   }
 }
 
@@ -867,7 +869,7 @@ main h2.section-title {
   letter-spacing: -0.02em;
   font-size: 32px;
   font-weight: 500;
-  line-height: 130%;
+  line-height: 110%;
 }
 .certs {
   display: flex;
