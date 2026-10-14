@@ -75,6 +75,25 @@
         "where": "Amazon desktop web, entry point inside the existing storefront",
         "how": "Web only; scope ends at publishing; success signal assumed: reaches Submitted for review on the first try without leaving the flow"
       }
+    },
+    {
+      "name": "Whiteboarding Runthrough 3",
+      "slug": "whiteboarding-runthrough-3",
+      "path": "prototypes/whiteboarding-runthrough-3/",
+      "purpose": "whiteboarding",
+      "status": "active",
+      "createdAt": "2026-10-14",
+      "designSource": {
+        "type": "ui",
+        "reference": "shadcn/base-maia"
+      },
+      "publishedUrl": null,
+      "brief": {
+        "who": "Social media shoppers who tap through from a post or ad",
+        "what": "Convince them a $1,200 hybrid mattress is worth it over cheaper options, and show who it fits, so they buy with confidence instead of leaving or returning it",
+        "where": "Responsive public landing page, single product",
+        "how": "Can't change the mattress; purchase flow out of scope; proof: conversion, time on page, revenue, with return rate as guardrail"
+      }
     }
   ]
 }
