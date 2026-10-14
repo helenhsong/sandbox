@@ -188,7 +188,7 @@ function Features() {
   return (
     <section id="features" className="section">
       <div className="wrap">
-        <SectionHead eyebrow="What makes it different" title="Built to fix the things other mattresses get wrong" />
+        <SectionHead title="Built to fix the things other mattresses get wrong" />
         <div className="features-grid">
           <div className="layers" aria-label="Mattress layers, top to bottom">
             {LAYERS.map((l, i) => (
@@ -217,10 +217,9 @@ function Features() {
   );
 }
 
-function SectionHead({ eyebrow, title, body }: { eyebrow: string; title: string; body?: string }) {
+function SectionHead({ title, body }: { title: string; body?: string }) {
   return (
     <div className="section-head">
-      <p className="eyebrow">{eyebrow}</p>
       <h2>{title}</h2>
       {body && <p className="section-body">{body}</p>}
     </div>
@@ -258,7 +257,7 @@ function CustomerReviews() {
   return (
     <section id="reviews" className="section">
       <div className="wrap">
-        <SectionHead eyebrow="Customer reviews" title="People who sleep like you, in their own words" />
+        <SectionHead title="People who sleep like you, in their own words" />
         <div className="reviews-grid">
           <div className="rating-summary">
             <div className="big-rating">{PRODUCT.rating}</div>
@@ -332,7 +331,6 @@ function Fit() {
     <section id="fit" className="section tinted">
       <div className="wrap">
         <SectionHead
-          eyebrow="Who it's for"
           title="Is it right for you?"
           body="We'd rather you know now than send it back. Here's who loves it, and who might not."
         />
@@ -386,7 +384,6 @@ function Feel() {
     <section className="section" aria-labelledby="feel-title">
       <div className="wrap">
         <div className="section-head">
-          <p className="eyebrow">How it feels</p>
           <h2 id="feel-title">Thickness, firmness and warmth</h2>
         </div>
         <div className="feel-grid">
@@ -416,7 +413,6 @@ function Values() {
     <section className="section tinted" aria-labelledby="values-title">
       <div className="wrap">
         <div className="section-head">
-          <p className="eyebrow">Sustainability, health and values</p>
           <h2 id="values-title">What your mattress supports</h2>
           <p className="section-body">A bed you'll spend a third of your life on, made by people who are paid fairly.</p>
         </div>
@@ -457,7 +453,6 @@ function Compare() {
     <section id="compare" className="section">
       <div className="wrap">
         <SectionHead
-          eyebrow="Side by side"
           title={`Why it's worth ${money(QUEEN_PRICE - COMPETITOR_PRICE)} more than the best-selling foam mattress`}
           body="Compared with the best-selling foam mattress in its price range, Queen size."
         />
