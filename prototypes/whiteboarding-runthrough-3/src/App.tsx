@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import heroImage from "./assets/hero.jpg";
 import { Badge, Button, Spinner } from "@helenhsong/ui";
 import {
@@ -50,7 +50,8 @@ const REVEAL_VISUALS: [visual: string, items: string][] = [
 ];
 
 function useReveal() {
-  useEffect(() => {
+  // Layout effect, so items are hidden before the first paint instead of showing, then snapping away.
+  useLayoutEffect(() => {
     if (!("IntersectionObserver" in window)) return;
     const root = document.documentElement;
     const visuals: HTMLElement[] = [];
@@ -60,7 +61,12 @@ function useReveal() {
           item.classList.add("reveal-item");
           item.style.setProperty("--reveal-index", String(Math.min(i, 7)));
         });
-        visuals.push(el);
+        // Anything already on screen at load stays as it is; only visuals below the fold reveal.
+        if (el.getBoundingClientRect().top < window.innerHeight) {
+          el.classList.add("is-visible", "no-transition");
+        } else {
+          visuals.push(el);
+        }
       });
     }
     root.classList.add("motion");
@@ -75,10 +81,8 @@ function useReveal() {
       { rootMargin: "0px 0px -10% 0px" },
     );
     visuals.forEach((el) => observer.observe(el));
-    return () => {
-      observer.disconnect();
-      root.classList.remove("motion");
-    };
+    // Keep the motion class on cleanup so a re-run (StrictMode) doesn't flash items.
+    return () => observer.disconnect();
   }, []);
 }
 
