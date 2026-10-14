@@ -39,7 +39,44 @@ const SECTIONS = [
   { id: "compare", label: "Compare" },
 ];
 
+// Standalone landing page, so content fades in: the hero on load, each section's blocks as they scroll into view.
+// Nothing is hidden until this runs, and reduced motion skips it in CSS.
+function useReveal() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const blocks = document.querySelectorAll<HTMLElement>(
+      "main > section:not(.hero) .wrap > *",
+    );
+    if (!("IntersectionObserver" in window)) return;
+    root.classList.add("motion");
+    blocks.forEach((el) => {
+      const index = Array.prototype.indexOf.call(
+        el.parentElement?.children ?? [],
+        el,
+      );
+      el.classList.add("reveal");
+      el.style.setProperty("--reveal-delay", `${Math.min(index, 2) * 80}ms`);
+    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+    blocks.forEach((el) => observer.observe(el));
+    return () => {
+      observer.disconnect();
+      root.classList.remove("motion");
+    };
+  }, []);
+}
+
 export function App() {
+  useReveal();
   return (
     <>
       <Header />
