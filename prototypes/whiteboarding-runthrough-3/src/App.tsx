@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import heroImage from "./assets/hero.jpg";
 import {
   Badge,
   Button,
@@ -121,6 +122,10 @@ const HERO_REASONS = ["Sleeps cooler than all-foam mattresses", "Firmer support 
 function Hero() {
   return (
     <section id="top" className="hero">
+      {/* Full-bleed photo that fades into the page instead of sitting in a box. */}
+      <div className="hero-media">
+        <img src={heroImage} alt="The Saltmoor Hybrid on a low oak platform bed in a bright bedroom" width={1600} height={1195} />
+      </div>
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <h1 className="hero-title">Sleep cool. Wake up without the backache.</h1>
@@ -153,29 +158,8 @@ function Hero() {
             </div>
           </div>
         </div>
-        <MattressArt />
       </div>
     </section>
-  );
-}
-
-function MattressArt() {
-  return (
-    <div className="art" role="img" aria-label="Illustration of the Saltmoor Hybrid mattress on a bed frame">
-      <div className="art-room">
-        <div className="art-pillows">
-          <span />
-          <span />
-        </div>
-        <div className="art-mattress">
-          <div className="art-top" />
-          <div className="art-side">
-            <span className="art-quilt" />
-          </div>
-        </div>
-        <div className="art-frame" />
-      </div>
-    </div>
   );
 }
 
