@@ -712,51 +712,58 @@ function ChooseSize() {
           <p className="meta">Top view, to scale</p>
         </div>
         <div className="buy-panel">
-          <h2 id="buy-title" className="section-title">
-            Choose your size.
-          </h2>
-          <div className="chips size-chips" role="group" aria-label="Size">
-            {SIZES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                className="chip"
-                aria-pressed={size === s.id}
-                onClick={() => pick(s.id)}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-          <div>
-            <div className="price">{money(selected.price)}</div>
-            <div className="meta">
-              {selected.label} · {selected.dims} · 12" thick
+          {/* Two groups spaced by relationship: picking a size, then buying it. */}
+          <div className="buy-choose">
+            <h2 id="buy-title" className="section-title">
+              Choose your size.
+            </h2>
+            <div className="chips size-chips" role="group" aria-label="Size">
+              {SIZES.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className="chip"
+                  aria-pressed={size === s.id}
+                  onClick={() => pick(s.id)}
+                >
+                  {s.label}
+                </button>
+              ))}
             </div>
           </div>
-          {/* The button keeps its size in every state so nothing below it moves. */}
-          <div className="buy-action">
-            <Button
-              className="buy-button"
-              onClick={add}
-              disabled={state !== "choose"}
-              aria-busy={state === "adding"}
-            >
-              {state === "adding" && <Spinner aria-hidden />}
-              {state === "added" && <CircleCheck size={16} aria-hidden />}
-              {state === "added" ? "In your cart" : "Add to cart"}
-            </Button>
-            <span className="meta" role="status">
-              {state === "added"
-                ? `The ${selected.label} is in your cart. Checkout isn't part of this prototype.`
-                : ""}
-            </span>
+          <div className="buy-purchase">
+            <div className="buy-price">
+              <div className="price">{money(selected.price)}</div>
+              <div className="meta">
+                {selected.label} · {selected.dims} · 12" thick
+              </div>
+            </div>
+            {/* The button keeps its size in every state so nothing below it moves. */}
+            <div className="buy-action">
+              <Button
+                className="buy-button"
+                onClick={add}
+                disabled={state !== "choose"}
+                aria-busy={state === "adding"}
+              >
+                {state === "adding" && <Spinner aria-hidden />}
+                {state === "added" && <CircleCheck size={16} aria-hidden />}
+                {state === "added" ? "In your cart" : "Add to cart"}
+              </Button>
+              {/* One reserved line under the button: the reassurance, swapped for the cart confirmation once added. */}
+              <p className="meta buy-note" role="status">
+                {state === "added" ? (
+                  `The ${selected.label} is in your cart. Checkout isn't part of this prototype.`
+                ) : (
+                  <>
+                    <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating}{" "}
+                    from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews ·
+                    100-night trial · Free delivery
+                  </>
+                )}
+              </p>
+            </div>
           </div>
-          <p className="meta buy-assurance">
-            <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from{" "}
-            {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · 100-night
-            trial · Free delivery
-          </p>
         </div>
       </div>
     </section>
