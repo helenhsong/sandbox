@@ -12,6 +12,7 @@ import {
 } from "@helenhsong/ui";
 import {
   ArrowRight,
+  Award,
   Check,
   CircleCheck,
   HeartHandshake,
@@ -148,10 +149,10 @@ function Hero({ onShop }: { onShop: () => void }) {
               <div className="meta">Queen size</div>
             </div>
             <div className="hero-actions">
-              <Button variant="outline" size="lg" nativeButton={false} render={<a href="#compare" />}>
+              <Button variant="outline" nativeButton={false} render={<a href="#compare" />}>
                 See how it compares
               </Button>
-              <Button size="lg" onClick={onShop}>
+              <Button onClick={onShop}>
                 Choose your size
               </Button>
             </div>
@@ -242,7 +243,11 @@ function PressReviews() {
         <div className="press-grid">
           {PRESS.map((p) => (
             <figure key={p.source} className="press-card">
-              {p.award && <Badge variant="secondary">{p.award}</Badge>}
+              {p.award && (
+                <p className="press-award">
+                  <Award size={14} aria-hidden /> {p.award}
+                </p>
+              )}
               <blockquote>“{p.quote}”</blockquote>
               <figcaption>{p.source}</figcaption>
             </figure>
@@ -501,7 +506,7 @@ function Closing({ onShop }: { onShop: () => void }) {
             <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · Free delivery
           </p>
         </div>
-        <Button size="lg" onClick={onShop}>
+        <Button onClick={onShop}>
           Choose your size <ArrowRight size={16} aria-hidden />
         </Button>
       </div>

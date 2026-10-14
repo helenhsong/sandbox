@@ -198,7 +198,7 @@ a {
 }
 @media (min-width: 900px) {
   .hero {
-    padding: 48px 0 56px;
+    padding: 40px 0 48px;
   }
   .hero-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -371,19 +371,19 @@ main h1.hero-title {
 
 /* Sections */
 .section {
-  padding: 56px 0;
+  padding: 40px 0;
 }
 .section.tinted {
   background: var(--tint);
 }
 @media (min-width: 900px) {
   .section {
-    padding: 88px 0;
+    padding: 64px 0;
   }
 }
 .section-head {
   max-width: 960px;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 main h2.section-title {
   line-height: 115%;
@@ -394,7 +394,7 @@ main h2.section-title {
 }
 @media (min-width: 768px) {
   .section-head {
-    margin-bottom: 56px;
+    margin-bottom: 40px;
   }
   main h2.section-title {
     font-size: 48px;
@@ -513,6 +513,14 @@ main h2.section-title {
 }
 .press-card blockquote {
   line-height: 160%;
+}
+.press-award {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.6;
 }
 .press-card figcaption {
   font-size: 12px;
