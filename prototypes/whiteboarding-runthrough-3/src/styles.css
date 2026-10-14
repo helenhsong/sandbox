@@ -208,6 +208,7 @@ a {
 /* Hero: compact for a physical product. Short headline, proof and reasons to buy beside a modest image, all in the first screen. */
 main h1.hero-title {
   max-width: 14ch;
+  font-size: 32px;
   line-height: 110%;
 }
 @media (min-width: 768px) {
