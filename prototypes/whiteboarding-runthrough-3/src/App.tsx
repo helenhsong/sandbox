@@ -65,7 +65,9 @@ export function App() {
 function useActiveSection() {
   const [active, setActive] = useState<string | null>(null);
   useEffect(() => {
-    const els = SECTIONS.map((s) => document.getElementById(s.id)).filter(Boolean) as HTMLElement[];
+    // Also watch the hero and the size section, which aren't in the nav, so nothing stays highlighted over them.
+    const ids = ["top", ...SECTIONS.map((s) => s.id), "buy"];
+    const els = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
       (entries) => {
         const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);

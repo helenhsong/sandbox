@@ -71,8 +71,11 @@ main h3 {
 p {
   text-wrap: pretty;
 }
-a {
-  color: inherit;
+/* Layered so library components rendered as links (Button render={<a/>}) keep their own text color. */
+@layer base {
+  a {
+    color: inherit;
+  }
 }
 :focus-visible {
   outline: 2px solid var(--ring, #2563eb);
