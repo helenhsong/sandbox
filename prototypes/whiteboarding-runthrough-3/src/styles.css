@@ -1,4 +1,5 @@
-/* Type scale (4 sizes): 12 meta · 14 body and h3 · 24 h2, prices, stats · 32 hero h1 and big rating. Weights 400/500/600. */
+/* Type scale (4 sizes): 12 meta · 14 body and h3 · 24 h2, prices, stats · 32 hero h1 and big rating. Weights 400/500/600.
+   Text 20px and larger uses letter-spacing -0.02em; smaller text stays at 0. */
 :root {
   /* Whiteboarding prototypes use Geist for all text, including library components. */
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
@@ -50,12 +51,14 @@ blockquote {
 }
 main h1 {
   font-size: 24px;
+  letter-spacing: -0.02em;
   font-weight: 600;
   line-height: 125%;
   text-wrap: balance;
 }
 main h2 {
   font-size: 24px;
+  letter-spacing: -0.02em;
   font-weight: 600;
   line-height: 130%;
   text-wrap: balance;
@@ -95,7 +98,6 @@ a {
   }
   main h1 {
     font-size: 32px;
-    letter-spacing: -0.01em;
   }
 }
 
@@ -252,6 +254,7 @@ a {
   border-bottom: 1px solid var(--border);
 }
 .price {
+  letter-spacing: -0.02em;
   font-size: 24px;
   font-weight: 600;
   line-height: 130%;
@@ -526,6 +529,7 @@ a {
   justify-items: start;
 }
 .big-rating {
+  letter-spacing: -0.02em;
   font-size: 32px;
   font-weight: 600;
   line-height: 1;
@@ -754,6 +758,7 @@ a {
   color: var(--muted-foreground);
 }
 .stat-value {
+  letter-spacing: -0.02em;
   font-size: 24px;
   font-weight: 600;
   line-height: 130%;
