@@ -25,8 +25,8 @@ There is no entry point to self-publishing today (in this net-new framing).
 
 - **The person needs:** a place to self-publish, and to understand the steps.
 - **The pain point is:** there is nowhere to publish, and they have never published a book, so they don't know the steps.
-- **We assume:** this is a net-new Amazon feature; the user is a first-time publisher.
-- **We must work within:** _open_
+- **We assume:** this is a net-new Amazon feature; the user is a first-time publisher; most authors write on a laptop or computer.
+- **We must work within:** web only for now (mobile out of scope); the entry point sits inside the existing Amazon experience; scope ends at publishing, and everything after (sales, listing management) is handled separately later.
 
 > When **their book is finished and ready to publish**, **a first-time self-publisher** wants **a clear place on Amazon to publish it, with steps they can follow**, so they can **get the book in front of readers without going through a publishing company**.
 
@@ -35,7 +35,7 @@ There is no entry point to self-publishing today (in this net-new framing).
 ## Captured for later Ps
 
 - Returning users publish rarely, so they probably experience the flow as if they were new again.
-- Possible scope (brainstormed, not decided): sales tracking at the end of the flow; managing how the book is displayed on Amazon, such as its description.
+- Out of scope for now (team constraint): sales tracking and managing the listing after publishing.
 
 ## Confirmed
 
@@ -48,3 +48,11 @@ There is no entry point to self-publishing today (in this net-new framing).
 
 ## Open
 
+
+## Problem review (thoughts?)
+
+- Framing is consistent: person, current path, and scope constraint line up.
+- Of the two pain points, "doesn't know the steps" carries the problem; "no place to publish" goes away once the feature exists.
+- Open: what "ready to publish" includes (manuscript only, or also cover, formatting, price).
+- Open: which existing Amazon surface the entry point lives in.
+- Open: success signal, to be set at Prototype & Proof.
