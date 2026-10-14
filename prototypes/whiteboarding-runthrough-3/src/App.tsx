@@ -193,7 +193,7 @@ const FEATURES = [
 
 function Features() {
   return (
-    <section id="features" className="section">
+    <section id="features" className="section tinted">
       <div className="wrap">
         <SectionHead title="Built to fix what other mattresses get wrong." body="Five layers, each with one job." />
         <div className="features-grid">
@@ -339,7 +339,7 @@ function Fit() {
   ];
   const notFor = ["Strict side sleepers who want a plush, sink-in feel", "Sleepers under about 130 lb, who may find it too firm"];
   return (
-    <section id="fit" className="section tinted">
+    <section id="fit" className="section">
       <div className="wrap">
         <SectionHead
           title="Is it right for you?"
@@ -392,7 +392,7 @@ function Scale({ label, value, max, left, right, display }: { label: string; val
 
 function Feel() {
   return (
-    <section className="section" aria-labelledby="feel-title">
+    <section className="section tinted" aria-labelledby="feel-title">
       <div className="wrap">
         <SectionHead id="feel-title" title="Thickness, firmness and warmth." body="Medium-firm, and it sleeps cool." />
         <div className="feel-grid">
@@ -419,7 +419,7 @@ function Values() {
     { icon: HeartHandshake, value: "Living wage", label: "for every maker in our North Carolina factory" },
   ];
   return (
-    <section className="section tinted" aria-labelledby="values-title">
+    <section className="section" aria-labelledby="values-title">
       <div className="wrap">
         <SectionHead id="values-title" title="What your mattress supports." body="Organic materials, made by people paid a living wage." />
         <div className="stats">
@@ -456,7 +456,7 @@ function Cell({ v }: { v: string | boolean }) {
 
 function Compare() {
   return (
-    <section id="compare" className="section">
+    <section id="compare" className="section tinted">
       <div className="wrap">
         <SectionHead
           title={`Why it's worth ${money(QUEEN_PRICE - COMPETITOR_PRICE)} more.`}
