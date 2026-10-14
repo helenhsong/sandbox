@@ -337,20 +337,23 @@ function CustomerReviews() {
                 ))}
               </div>
             )}
+            {/* The row's height is always reserved so the page doesn't shift; its controls only appear when there's more than one page. */}
             <div className="review-pager">
-              <span className="meta">
-                {matching.length === 0
-                  ? "No reviews"
-                  : `${page * REVIEWS_PER_PAGE + 1}–${page * REVIEWS_PER_PAGE + shown.length} of ${matching.length}`}
-              </span>
-              <div className="review-pager-actions">
-                <Button variant="outline" size="icon" aria-label="Previous reviews" disabled={page === 0} onClick={() => setPage(page - 1)}>
-                  <ChevronLeft size={16} aria-hidden />
-                </Button>
-                <Button variant="outline" size="icon" aria-label="Next reviews" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>
-                  <ChevronRight size={16} aria-hidden />
-                </Button>
-              </div>
+              {pages > 1 && (
+                <>
+                  <span className="meta">
+                    {page * REVIEWS_PER_PAGE + 1}–{page * REVIEWS_PER_PAGE + shown.length} of {matching.length}
+                  </span>
+                  <div className="review-pager-actions">
+                    <Button variant="outline" size="icon" aria-label="Previous reviews" disabled={page === 0} onClick={() => setPage(page - 1)}>
+                      <ChevronLeft size={16} aria-hidden />
+                    </Button>
+                    <Button variant="outline" size="icon" aria-label="Next reviews" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>
+                      <ChevronRight size={16} aria-hidden />
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

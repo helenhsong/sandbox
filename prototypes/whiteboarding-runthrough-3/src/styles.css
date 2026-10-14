@@ -660,6 +660,7 @@ main h2.section-title {
   overflow: hidden;
 }
 .review-pager {
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
