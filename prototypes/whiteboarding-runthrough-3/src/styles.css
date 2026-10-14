@@ -1026,8 +1026,28 @@ main h2.section-title {
 }
 .buy-panel {
   display: grid;
-  gap: 16px;
+  gap: 32px;
   justify-items: start;
+}
+.buy-choose,
+.buy-purchase {
+  display: grid;
+  justify-items: start;
+}
+.buy-choose {
+  gap: 16px;
+}
+.buy-purchase {
+  gap: 16px;
+}
+.buy-price {
+  display: grid;
+  gap: 4px;
+}
+@media (min-width: 900px) {
+  .buy-panel {
+    gap: 40px;
+  }
 }
 .size-chips {
   margin-bottom: 0;
@@ -1037,17 +1057,22 @@ main h2.section-title {
   justify-items: start;
   gap: 8px;
 }
-.buy-action [role="status"] {
-  min-height: 3em;
-}
-.buy-button {
-  min-width: 132px;
-}
-.buy-assurance {
-  display: inline-flex;
+.buy-note {
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
+  min-height: 3.2em;
+  align-content: flex-start;
+  margin: 0;
+}
+@media (min-width: 900px) {
+  .buy-note {
+    min-height: 1.6em;
+  }
+}
+.buy-button {
+  min-width: 132px;
 }
 .site-footer {
   padding: 24px 16px;
