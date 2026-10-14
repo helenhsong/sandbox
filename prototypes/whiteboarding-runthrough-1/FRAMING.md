@@ -10,13 +10,32 @@
 
 ## 2. Person
 
-- Primary user: _open_
-- What matters most: _open_
+We are designing for **a first-time self-publisher who already knows they want to self-publish and has a finished book ready to go**, because they need a clear place to publish it.
+
+- What matters most: a place to self-publish, with steps they can follow. Tracking sales and similar things can come at the end.
+- Not the focus: returning users, and people who discover the feature before they have written anything and want to learn the process.
+
+## 3. Present
+
+**Book is ready to publish → looks for a way to self-publish on Amazon → finds nothing, so has nowhere to publish.**
+
+There is no entry point to self-publishing today (in this net-new framing).
+
+## 4. Problem
+
+- **The person needs:** a place to self-publish, and to understand the steps.
+- **The pain point is:** there is nowhere to publish, and they have never published a book, so they don't know the steps.
+- **We assume:** this is a net-new Amazon feature; the user is a first-time publisher.
+- **We must work within:** _open_
+
+> When **their book is finished and ready to publish**, **a first-time self-publisher** wants **a clear place on Amazon to publish it, with steps they can follow**, so they can **get the book in front of readers without going through a publishing company**.
+
+> Business benefit: more self-published books on Amazon grows a revenue source (fees or a share of sales), and the feature can be a selling point for other Amazon offerings.
 
 ## Captured for later Ps
 
-- Person (leaning, not yet chosen): likely new users. Returning users publish rarely, so they probably experience the flow as if they were new again. Frequent publishers are mostly short-story writers.
-- Possible scope (brainstormed, not decided): sales numbers; managing how the book is displayed on Amazon, such as its description.
+- Returning users publish rarely, so they probably experience the flow as if they were new again.
+- Possible scope (brainstormed, not decided): sales tracking at the end of the flow; managing how the book is displayed on Amazon, such as its description.
 
 ## Confirmed
 
