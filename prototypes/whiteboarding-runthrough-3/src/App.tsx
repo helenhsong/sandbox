@@ -39,24 +39,31 @@ const SECTIONS = [
   { id: "compare", label: "Compare" },
 ];
 
-// Standalone landing page, so content fades in: the hero on load, each section's blocks as they scroll into view.
-// Nothing is hidden until this runs, and reduced motion skips it in CSS.
+// Standalone landing page, Linear-style motion: text stays put; items inside each visual
+// enter in sequence the first time the visual scrolls into view. Nothing is hidden until
+// this runs, and reduced motion skips it in CSS.
+const REVEAL_VISUALS: [visual: string, items: string][] = [
+  [".layers", ".layer"],
+  [".review-list", ".review"],
+  [".compare tbody", "tr"],
+  [".size-stage", ".size-frame"],
+];
+
 function useReveal() {
   useEffect(() => {
-    const root = document.documentElement;
-    const blocks = document.querySelectorAll<HTMLElement>(
-      "main > section:not(.hero) .wrap > *",
-    );
     if (!("IntersectionObserver" in window)) return;
+    const root = document.documentElement;
+    const visuals: HTMLElement[] = [];
+    for (const [visual, items] of REVEAL_VISUALS) {
+      document.querySelectorAll<HTMLElement>(visual).forEach((el) => {
+        el.querySelectorAll<HTMLElement>(items).forEach((item, i) => {
+          item.classList.add("reveal-item");
+          item.style.setProperty("--reveal-index", String(Math.min(i, 7)));
+        });
+        visuals.push(el);
+      });
+    }
     root.classList.add("motion");
-    blocks.forEach((el) => {
-      const index = Array.prototype.indexOf.call(
-        el.parentElement?.children ?? [],
-        el,
-      );
-      el.classList.add("reveal");
-      el.style.setProperty("--reveal-delay", `${Math.min(index, 2) * 80}ms`);
-    });
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -67,7 +74,7 @@ function useReveal() {
       },
       { rootMargin: "0px 0px -10% 0px" },
     );
-    blocks.forEach((el) => observer.observe(el));
+    visuals.forEach((el) => observer.observe(el));
     return () => {
       observer.disconnect();
       root.classList.remove("motion");

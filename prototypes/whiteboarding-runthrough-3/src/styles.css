@@ -1097,42 +1097,30 @@ main h2.section-title {
   color: var(--muted-foreground);
 }
 
-/* Fade-in motion (standalone landing page only). Rarely seen, so it runs longer than UI feedback, with a strong ease-out. */
+/* Linear-style motion (standalone landing page only): text never fades; items inside each
+   visual rise in from a slight blur, staggered, once. The hero photo fades in on load. */
 @media (prefers-reduced-motion: no-preference) {
-  .motion .hero-copy > *,
   .motion .hero-media {
-    animation: fade-up 600ms cubic-bezier(0.23, 1, 0.32, 1) both;
+    animation: visual-in 500ms cubic-bezier(0.23, 1, 0.32, 1) both;
   }
-  .motion .hero-copy > :nth-child(2) {
-    animation-delay: 80ms;
-  }
-  .motion .hero-copy > :nth-child(3) {
-    animation-delay: 160ms;
-  }
-  .motion .hero-media {
-    animation-name: fade-in;
-    animation-duration: 600ms;
-  }
-  .reveal {
+  .motion .reveal-item {
     opacity: 0;
-    transform: translateY(12px);
-    transition:
-      opacity 600ms cubic-bezier(0.23, 1, 0.32, 1) var(--reveal-delay, 0ms),
-      transform 600ms cubic-bezier(0.23, 1, 0.32, 1) var(--reveal-delay, 0ms);
+    transform: translateY(8px);
+    filter: blur(2px);
+    transition-property: opacity, transform, filter;
+    transition-duration: 400ms;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    transition-delay: calc(var(--reveal-index, 0) * 80ms);
   }
-  .reveal.is-visible {
+  .motion .is-visible .reveal-item {
     opacity: 1;
     transform: none;
+    filter: none;
   }
 }
-@keyframes fade-up {
+@keyframes visual-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
-  }
-}
-@keyframes fade-in {
-  from {
-    opacity: 0;
+    filter: blur(2px);
   }
 }
