@@ -56,6 +56,25 @@
         "where": "Amazon desktop web, entry point inside the existing storefront",
         "how": "Web only; scope ends at publishing; success signal not yet stated"
       }
+    },
+    {
+      "name": "Whiteboarding Runthrough 2",
+      "slug": "whiteboarding-runthrough-2",
+      "path": "prototypes/whiteboarding-runthrough-2/",
+      "purpose": "whiteboarding",
+      "status": "published",
+      "createdAt": "2026-10-14",
+      "designSource": {
+        "type": "ui",
+        "reference": "shadcn/base-maia"
+      },
+      "publishedUrl": "https://helenhsong.com/sandbox/whiteboarding-runthrough-2/",
+      "brief": {
+        "who": "First-time self-publisher whose book is finished and ready to publish",
+        "what": "No place to self-publish and no idea what the steps are; make publishing on Amazon clear and simple",
+        "where": "Amazon desktop web, entry point inside the existing storefront",
+        "how": "Web only; scope ends at publishing; success signal assumed: reaches Submitted for review on the first try without leaving the flow"
+      }
     }
   ]
 }
