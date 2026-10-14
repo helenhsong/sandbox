@@ -1,4 +1,4 @@
-/* Type scale (4 sizes): 12 meta · 14 body and h3 · 24 h2, prices, stats · 32 hero h1 and big rating. Weights 400/500/600.
+/* Landing-page type scale (Linear 48 : 24 : 15). Desktop: 14 meta and body · 18 section descriptions · 24 hero lede · 32 section titles, prices, stats · 48 hero h1. Weights 400/500.
    Text 20px and larger uses letter-spacing -0.02em (-0.03em at 48px) and line-height 104 to 115%; smaller text stays at 0. */
 :root {
   /* Whiteboarding prototypes use Geist for all text, including library components. */
@@ -102,12 +102,12 @@ p {
 }
 
 .eyebrow {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--muted-foreground);
 }
 .meta {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted-foreground);
 }
 
@@ -207,8 +207,25 @@ p {
 }
 .hero-copy {
   display: grid;
-  gap: 16px;
+  gap: 32px;
   justify-items: start;
+}
+.hero-intro {
+  display: grid;
+  gap: 12px;
+}
+.hero-proof {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+@media (min-width: 900px) {
+  .hero-copy {
+    gap: 40px;
+  }
+  .hero-intro {
+    gap: 16px;
+  }
 }
 @media (min-width: 900px) {
   .hero {
@@ -312,7 +329,6 @@ main h1.hero-title {
   fill: var(--border);
 }
 .hero-buy {
-  margin-top: 8px;
   display: grid;
   justify-items: start;
   gap: 16px;
@@ -407,7 +423,7 @@ main h1.hero-title {
   padding: 6px 12px;
   border-radius: 999px;
   background: #fff;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--sea);
   box-shadow: 0 2px 8px oklch(40% 0.03 70 / 0.12);
@@ -501,7 +517,7 @@ main h2.section-title {
   font-weight: 600;
 }
 .layer-detail {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted-foreground);
 }
 .layer-0 {
@@ -589,12 +605,12 @@ main h2.section-title {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   opacity: 0.6;
 }
 .press-card figcaption {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   opacity: 0.75;
 }
@@ -634,7 +650,8 @@ main h2.section-title {
 }
 .bar-row {
   display: grid;
-  grid-template-columns: 44px 1fr 32px;
+  grid-template-columns: 52px 1fr 36px;
+  white-space: nowrap;
   align-items: center;
   gap: 8px;
 }
@@ -753,7 +770,7 @@ main h2.section-title {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--yes);
 }
 .empty {
@@ -1035,7 +1052,7 @@ main h2.section-title {
 .site-footer {
   padding: 24px 16px;
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted-foreground);
 }
 

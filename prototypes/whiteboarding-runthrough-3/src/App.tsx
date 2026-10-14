@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import heroImage from "./assets/hero.jpg";
-import {
-  Badge,
-  Button,
-  Spinner,
-} from "@helenhsong/ui";
+import { Badge, Button, Spinner } from "@helenhsong/ui";
 import {
   Award,
   Check,
@@ -70,10 +66,14 @@ function useActiveSection() {
   useEffect(() => {
     // Also watch the hero and the size section, which aren't in the nav, so nothing stays highlighted over them.
     const ids = ["top", ...SECTIONS.map((s) => s.id), "buy"];
-    const els = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+    const els = ids
+      .map((id) => document.getElementById(id))
+      .filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
       (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
         if (visible[0]) setActive(visible[0].target.id);
       },
       { rootMargin: "-40% 0px -55% 0px" },
@@ -94,7 +94,11 @@ function Header() {
         </a>
         <nav aria-label="Sections" className="header-nav">
           {SECTIONS.map((s) => (
-            <a key={s.id} href={`#${s.id}`} aria-current={active === s.id ? "location" : undefined}>
+            <a
+              key={s.id}
+              href={`#${s.id}`}
+              aria-current={active === s.id ? "location" : undefined}
+            >
               {s.label}
             </a>
           ))}
@@ -111,38 +115,60 @@ function Stars({ value, size = 16 }: { value: number; size?: number }) {
   return (
     <span className="stars" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((i) => (
-        <Star key={i} size={size} aria-hidden className={i <= Math.round(value) ? "on" : "off"} />
+        <Star
+          key={i}
+          size={size}
+          aria-hidden
+          className={i <= Math.round(value) ? "on" : "off"}
+        />
       ))}
     </span>
   );
 }
 
-const HERO_REASONS = ["Sleeps cooler than all-foam mattresses", "Firmer support under your lower back", "100-night trial, free delivery"];
+const HERO_REASONS = [
+  "Sleeps cooler than all-foam mattresses",
+  "Firmer support under your lower back",
+  "100-night trial, free delivery",
+];
 
 function Hero() {
   return (
     <section id="top" className="hero">
       {/* Full-bleed photo that fades into the page instead of sitting in a box. */}
       <div className="hero-media">
-        <img src={heroImage} alt="The Saltmoor Hybrid on a low oak platform bed in a bright bedroom" width={2000} height={1116} />
+        <img
+          src={heroImage}
+          alt="The Saltmoor Hybrid on a low oak platform bed in a bright bedroom"
+          width={2000}
+          height={1116}
+        />
       </div>
       <div className="wrap hero-grid">
         <div className="hero-copy">
-          <h1 className="hero-title">Sleep cool. Wake up without the backache.</h1>
-          <p className="lede">Natural latex over zoned coils.</p>
-          <a className="rating-line" href="#reviews">
-            <Stars value={PRODUCT.rating} />
-            <span>
-              {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews
-            </span>
-          </a>
-          <ul className="hero-reasons">
-            {HERO_REASONS.map((r) => (
-              <li key={r}>
-                <Check size={16} aria-hidden /> {r}
-              </li>
-            ))}
-          </ul>
+          {/* Three groups spaced by relationship: the message, the proof, the purchase. */}
+          <div className="hero-intro">
+            <h1 className="hero-title">
+              Sleep cool. Wake up without the backache.
+            </h1>
+            <p className="lede">Natural latex over zoned coils.</p>
+          </div>
+          <div className="hero-proof">
+            <a className="rating-line" href="#reviews">
+              <Stars value={PRODUCT.rating} />
+              <span>
+                {PRODUCT.rating} from{" "}
+                {PRODUCT.reviewCount.toLocaleString("en-US")} reviews
+              </span>
+            </a>
+            <ul className="hero-reasons">
+              {HERO_REASONS.map((r) => (
+                <li key={r}>
+                  <Check size={16} aria-hidden /> {r}
+                </li>
+              ))}
+            </ul>
+          </div>
           <div className="hero-buy">
             <div>
               <div className="price">{money(QUEEN_PRICE)}</div>
@@ -152,7 +178,11 @@ function Hero() {
               <Button nativeButton={false} render={<a href="#buy" />}>
                 Choose your size
               </Button>
-              <Button variant="outline" nativeButton={false} render={<a href="#compare" />}>
+              <Button
+                variant="outline"
+                nativeButton={false}
+                render={<a href="#compare" />}
+              >
                 See how it compares
               </Button>
             </div>
@@ -164,17 +194,36 @@ function Hero() {
 }
 
 const FEATURES = [
-  { icon: Spline, title: "Zoned support", body: "Firmer coils under your lower back and hips keep your spine aligned, so you wake up without stiffness." },
-  { icon: Snowflake, title: "Sleeps cool", body: "Latex and wrapped coils let air move through the bed instead of holding your body heat." },
-  { icon: Users, title: "Quiet for two", body: "Every coil is wrapped on its own, so one partner's movement doesn't reach the other." },
-  { icon: Leaf, title: "Clean materials", body: "Organic cotton, natural latex and wool. No fiberglass and no chemical flame retardants." },
+  {
+    icon: Spline,
+    title: "Zoned support",
+    body: "Firmer coils under your lower back and hips keep your spine aligned, so you wake up without stiffness.",
+  },
+  {
+    icon: Snowflake,
+    title: "Sleeps cool",
+    body: "Latex and wrapped coils let air move through the bed instead of holding your body heat.",
+  },
+  {
+    icon: Users,
+    title: "Quiet for two",
+    body: "Every coil is wrapped on its own, so one partner's movement doesn't reach the other.",
+  },
+  {
+    icon: Leaf,
+    title: "Clean materials",
+    body: "Organic cotton, natural latex and wool. No fiberglass and no chemical flame retardants.",
+  },
 ];
 
 function Features() {
   return (
     <section id="features" className="section tinted">
       <div className="wrap">
-        <SectionHead title="Built to fix what other mattresses get wrong." body="Five layers, each with one job." />
+        <SectionHead
+          title="Built to fix what other mattresses get wrong."
+          body="Five layers, each with one job."
+        />
         <div className="features-grid">
           <div className="layers" aria-label="Mattress layers, top to bottom">
             {LAYERS.map((l, i) => (
@@ -203,7 +252,17 @@ function Features() {
   );
 }
 
-function SectionHead({ id, title, body, split }: { id?: string; title: string; body?: string; split?: boolean }) {
+function SectionHead({
+  id,
+  title,
+  body,
+  split,
+}: {
+  id?: string;
+  title: string;
+  body?: string;
+  split?: boolean;
+}) {
   if (split) {
     return (
       <div className="section-head section-head-split">
@@ -228,7 +287,11 @@ function PressReviews() {
   return (
     <section className="section press" aria-labelledby="press-title">
       <div className="wrap">
-        <SectionHead id="press-title" title="What the experts say." body="Independent testers on how it sleeps." />
+        <SectionHead
+          id="press-title"
+          title="What the experts say."
+          body="Independent testers on how it sleeps."
+        />
         <div className="press-grid">
           {PRESS.map((p) => (
             <figure key={p.source} className="press-card">
@@ -250,14 +313,22 @@ function PressReviews() {
 type Filter = "all" | Sleeper;
 
 const REVIEWS_PER_PAGE = 4;
-const REVIEWS_BY_DATE = [...REVIEWS].sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+const REVIEWS_BY_DATE = [...REVIEWS].sort(
+  (a, b) => Date.parse(b.date) - Date.parse(a.date),
+);
 
 function CustomerReviews() {
   const [filter, setFilter] = useState<Filter>("all");
   const [page, setPage] = useState(0);
-  const matching = filter === "all" ? REVIEWS_BY_DATE : REVIEWS_BY_DATE.filter((r) => r.tag === filter);
+  const matching =
+    filter === "all"
+      ? REVIEWS_BY_DATE
+      : REVIEWS_BY_DATE.filter((r) => r.tag === filter);
   const pages = Math.max(1, Math.ceil(matching.length / REVIEWS_PER_PAGE));
-  const shown = matching.slice(page * REVIEWS_PER_PAGE, (page + 1) * REVIEWS_PER_PAGE);
+  const shown = matching.slice(
+    page * REVIEWS_PER_PAGE,
+    (page + 1) * REVIEWS_PER_PAGE,
+  );
   const choose = (f: Filter) => {
     setFilter(f);
     setPage(0);
@@ -267,16 +338,23 @@ function CustomerReviews() {
   return (
     <section id="reviews" className="section">
       <div className="wrap">
-        <SectionHead title="People who sleep like you." body="In their own words." />
+        <SectionHead
+          title="People who sleep like you."
+          body="In their own words."
+        />
         <div className="reviews-grid">
           <div className="rating-summary">
             <div className="big-rating">{PRODUCT.rating}</div>
             <Stars value={PRODUCT.rating} size={20} />
-            <p className="meta">{PRODUCT.reviewCount.toLocaleString("en-US")} verified reviews</p>
+            <p className="meta">
+              {PRODUCT.reviewCount.toLocaleString("en-US")} verified reviews
+            </p>
             <div className="bars">
               {RATING_BARS.map((b) => (
                 <div key={b.stars} className="bar-row">
-                  <span className="meta">{b.stars} {b.stars === 1 ? "star" : "stars"}</span>
+                  <span className="meta">
+                    {b.stars} {b.stars === 1 ? "star" : "stars"}
+                  </span>
                   <span className="bar">
                     <span style={{ width: `${b.pct}%` }} />
                   </span>
@@ -286,16 +364,32 @@ function CustomerReviews() {
             </div>
           </div>
           <div className="reviews-col">
-            <div className="chips" role="group" aria-label="Filter reviews by sleeper">
+            <div
+              className="chips"
+              role="group"
+              aria-label="Filter reviews by sleeper"
+            >
               {filters.map((f) => (
-                <button key={f} type="button" className="chip" aria-pressed={filter === f} onClick={() => choose(f)}>
+                <button
+                  key={f}
+                  type="button"
+                  className="chip"
+                  aria-pressed={filter === f}
+                  onClick={() => choose(f)}
+                >
                   {f === "all" ? "All" : SLEEPER_LABELS[f]}
                 </button>
               ))}
             </div>
             {shown.length === 0 ? (
               <div className="empty">
-                <p>No reviews from {filter === "all" ? "customers" : SLEEPER_LABELS[filter].toLowerCase()} yet.</p>
+                <p>
+                  No reviews from{" "}
+                  {filter === "all"
+                    ? "customers"
+                    : SLEEPER_LABELS[filter].toLowerCase()}{" "}
+                  yet.
+                </p>
                 <Button variant="outline" onClick={() => choose("all")}>
                   Show all reviews
                 </Button>
@@ -326,13 +420,27 @@ function CustomerReviews() {
               {pages > 1 && (
                 <>
                   <span className="meta">
-                    {page * REVIEWS_PER_PAGE + 1}–{page * REVIEWS_PER_PAGE + shown.length} of {matching.length}
+                    {page * REVIEWS_PER_PAGE + 1}–
+                    {page * REVIEWS_PER_PAGE + shown.length} of{" "}
+                    {matching.length}
                   </span>
                   <div className="review-pager-actions">
-                    <Button variant="outline" size="icon" aria-label="Previous reviews" disabled={page === 0} onClick={() => setPage(page - 1)}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="Previous reviews"
+                      disabled={page === 0}
+                      onClick={() => setPage(page - 1)}
+                    >
                       <ChevronLeft size={16} aria-hidden />
                     </Button>
-                    <Button variant="outline" size="icon" aria-label="Next reviews" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="Next reviews"
+                      disabled={page >= pages - 1}
+                      onClick={() => setPage(page + 1)}
+                    >
                       <ChevronRight size={16} aria-hidden />
                     </Button>
                   </div>
@@ -354,7 +462,10 @@ function Fit() {
     "Couples, or light sleepers who share a bed",
     "People who want certified natural materials",
   ];
-  const notFor = ["Strict side sleepers who want a plush, sink-in feel", "Sleepers under about 130 lb, who may find it too firm"];
+  const notFor = [
+    "Strict side sleepers who want a plush, sink-in feel",
+    "Sleepers under about 130 lb, who may find it too firm",
+  ];
   return (
     <section id="fit" className="section tinted">
       <div className="wrap">
@@ -389,7 +500,21 @@ function Fit() {
   );
 }
 
-function Scale({ label, value, max, left, right, display }: { label: string; value: number; max: number; left: string; right: string; display: string }) {
+function Scale({
+  label,
+  value,
+  max,
+  left,
+  right,
+  display,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  left: string;
+  right: string;
+  display: string;
+}) {
   return (
     <div className="scale">
       <div className="scale-head">
@@ -397,7 +522,10 @@ function Scale({ label, value, max, left, right, display }: { label: string; val
         <span className="scale-value">{display}</span>
       </div>
       <div className="scale-track" aria-hidden>
-        <span className="scale-dot" style={{ left: `${(value / max) * 100}%` }} />
+        <span
+          className="scale-dot"
+          style={{ left: `${(value / max) * 100}%` }}
+        />
       </div>
       <div className="scale-ends meta">
         <span>{left}</span>
@@ -411,17 +539,38 @@ function Feel() {
   return (
     <section className="section" aria-labelledby="feel-title">
       <div className="wrap">
-        <SectionHead split id="feel-title" title="How it feels" body="Medium-firm, 12 inches thick, and it sleeps cool. Firm enough to keep your back aligned, with a latex top that gives where your shoulders and hips need it." />
+        <SectionHead
+          split
+          id="feel-title"
+          title="How it feels"
+          body="Medium-firm, 12 inches thick, and it sleeps cool. Firm enough to keep your back aligned, with a latex top that gives where your shoulders and hips need it."
+        />
         <div className="feel-grid">
           <div className="scale">
             <div className="scale-head">
               <h3>Thickness</h3>
               <span className="scale-value">12"</span>
             </div>
-            <p className="meta">Standard sheets fit. Average all-foam mattresses are 10".</p>
+            <p className="meta">
+              Standard sheets fit. Average all-foam mattresses are 10".
+            </p>
           </div>
-          <Scale label="Firmness" value={6} max={10} left="Soft" right="Firm" display="Medium-firm · 6/10" />
-          <Scale label="Warmth" value={2.5} max={10} left="Cool" right="Warm" display="Sleeps cool" />
+          <Scale
+            label="Firmness"
+            value={6}
+            max={10}
+            left="Soft"
+            right="Firm"
+            display="Medium-firm · 6/10"
+          />
+          <Scale
+            label="Warmth"
+            value={2.5}
+            max={10}
+            left="Cool"
+            right="Warm"
+            display="Sleeps cool"
+          />
         </div>
       </div>
     </section>
@@ -431,14 +580,27 @@ function Feel() {
 function Values() {
   const stats = [
     { icon: Leaf, value: "100%", label: "organic cotton cover" },
-    { icon: ShieldCheck, value: "0", label: "chemical flame retardants or fiberglass" },
+    {
+      icon: ShieldCheck,
+      value: "0",
+      label: "chemical flame retardants or fiberglass",
+    },
     { icon: Recycle, value: "80%", label: "recycled steel in every coil" },
-    { icon: HeartHandshake, value: "Living wage", label: "for every maker in our North Carolina factory" },
+    {
+      icon: HeartHandshake,
+      value: "Living wage",
+      label: "for every maker in our North Carolina factory",
+    },
   ];
   return (
     <section className="section tinted" aria-labelledby="values-title">
       <div className="wrap">
-        <SectionHead split id="values-title" title="What your mattress supports" body="Certified organic cotton and latex, no chemical flame retardants, and a North Carolina factory where every maker earns a living wage." />
+        <SectionHead
+          split
+          id="values-title"
+          title="What your mattress supports"
+          body="Certified organic cotton and latex, no chemical flame retardants, and a North Carolina factory where every maker earns a living wage."
+        />
         <div className="stats">
           {stats.map((s) => (
             <div key={s.label} className="stat">
@@ -507,7 +669,10 @@ function Compare() {
             </tbody>
           </table>
         </div>
-        <p className="meta compare-note">Over 10 years, that's less than a dollar a month more, for a bed built to outlast the foam one.</p>
+        <p className="meta compare-note">
+          Over 10 years, that's less than a dollar a month more, for a bed built
+          to outlast the foam one.
+        </p>
       </div>
     </section>
   );
@@ -518,7 +683,10 @@ function ChooseSize() {
   const [state, setState] = useState<"choose" | "adding" | "added">("choose");
   const selected = SIZES.find((s) => s.id === size)!;
   // Top-down footprint drawn to scale inside an 84" × 88" frame, so sizes compare honestly.
-  const footprint = { width: `${(selected.w / 84) * 100}%`, height: `${(selected.l / 88) * 100}%` };
+  const footprint = {
+    width: `${(selected.w / 84) * 100}%`,
+    height: `${(selected.l / 88) * 100}%`,
+  };
 
   const pick = (id: string) => {
     setSize(id);
@@ -549,7 +717,13 @@ function ChooseSize() {
           </h2>
           <div className="chips size-chips" role="group" aria-label="Size">
             {SIZES.map((s) => (
-              <button key={s.id} type="button" className="chip" aria-pressed={size === s.id} onClick={() => pick(s.id)}>
+              <button
+                key={s.id}
+                type="button"
+                className="chip"
+                aria-pressed={size === s.id}
+                onClick={() => pick(s.id)}
+              >
                 {s.label}
               </button>
             ))}
@@ -562,17 +736,26 @@ function ChooseSize() {
           </div>
           {/* The button keeps its size in every state so nothing below it moves. */}
           <div className="buy-action">
-            <Button className="buy-button" onClick={add} disabled={state !== "choose"} aria-busy={state === "adding"}>
+            <Button
+              className="buy-button"
+              onClick={add}
+              disabled={state !== "choose"}
+              aria-busy={state === "adding"}
+            >
               {state === "adding" && <Spinner aria-hidden />}
               {state === "added" && <CircleCheck size={16} aria-hidden />}
               {state === "added" ? "In your cart" : "Add to cart"}
             </Button>
             <span className="meta" role="status">
-              {state === "added" ? `The ${selected.label} is in your cart. Checkout isn't part of this prototype.` : ""}
+              {state === "added"
+                ? `The ${selected.label} is in your cart. Checkout isn't part of this prototype.`
+                : ""}
             </span>
           </div>
           <p className="meta buy-assurance">
-            <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · 100-night trial · Free delivery
+            <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from{" "}
+            {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · 100-night
+            trial · Free delivery
           </p>
         </div>
       </div>
