@@ -42,10 +42,17 @@ export function App() {
 
   const upsert = (b: Book) => setBooks((all) => (all.some((x) => x.id === b.id) ? all.map((x) => (x.id === b.id ? b : x)) : [b, ...all]));
 
+  // Read the latest books from timers and handlers without re-creating them.
+  const booksRef = useRef(books);
+  useEffect(() => {
+    booksRef.current = books;
+  }, [books]);
+
   const decide = useCallback((book: Book, approve: boolean) => {
-    setBooks((all) =>
-      all.map((x) => (x.id === book.id && x.status === "review" ? { ...x, status: approve ? "approved" : "changes", reason: approve ? null : CHANGES_REASON } : x)),
-    );
+    const current = booksRef.current.find((x) => x.id === book.id);
+    // Ignore a result for a book that was already decided, or resubmitted since.
+    if (!current || current.status !== "review" || current.submittedAt?.getTime() !== book.submittedAt?.getTime()) return;
+    setBooks((all) => all.map((x) => (x.id === book.id ? { ...x, status: approve ? "approved" : "changes", reason: approve ? null : CHANGES_REASON } : x)));
     const text = approve ? `“${book.title}” was approved. It's ready to publish.` : `“${book.title}” needs changes before it can be published.`;
     setNotices((n) => [{ id: crypto.randomUUID(), bookId: book.id, text, at: new Date(), read: false }, ...n]);
     setToast({ text, bookId: book.id });
@@ -64,6 +71,7 @@ export function App() {
   };
 
   const publish = (b: Book) => {
+    setToast(null);
     upsert({ ...b, status: "published", publishedAt: new Date() });
     notify(b.id, `“${b.title}” is live on Amazon.`);
     setOpenId(null);
@@ -120,7 +128,10 @@ export function App() {
           banner={bannerBook?.status === "review" ? bannerBook : null}
           onDismissBanner={() => setBanner(null)}
           openId={openId}
-          setOpenId={setOpenId}
+          setOpenId={(id) => {
+            if (id && id === toast?.bookId) setToast(null);
+            setOpenId(id);
+          }}
           onNewBook={startNew}
           onEdit={edit}
           onPublish={publish}

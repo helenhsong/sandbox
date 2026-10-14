@@ -67,7 +67,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
           </p>
         </div>
         <div className="hero-actions">
-          <Button size="lg" onClick={onStart}>
+          <Button size="lg" variant="secondary" onClick={onStart}>
             Start publishing <ArrowRight size={16} aria-hidden="true" />
           </Button>
         </div>

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@helenhsong/ui";
 import { BookPlus, CircleCheck, Clock, Lock, Mail, Rocket, ShieldCheck, Sparkles, TriangleAlert, X } from "lucide-react";
-import { COVER_TEMPLATES, RATING_LABEL, READER, STATUS_LABEL, dueBy, formatDate, type Book, type Status } from "./data";
-import { Cover, StatusBadge } from "./ui";
+import { COVER_TEMPLATES, RATING_LABEL, READER, STATUS_LABEL, dueBy, formatDate, formatPrice, type Book, type Status } from "./data";
+import { Cover, StatusBadge, useScrollLock } from "./ui";
 
 export type Tab = Status | "all";
 const TABS: Tab[] = ["approved", "review", "changes", "draft", "published", "all"];
@@ -45,7 +45,7 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
         <div className="banner" role="status">
           <CircleCheck size={20} aria-hidden="true" />
           <div>
-            <p className="strong">“{banner.title}” was submitted for review</p>
+            <p className="strong clamp">“{banner.title}” was submitted for review</p>
             <p className="muted">
               {banner.reviewType === "ai" ? "AI review usually takes a few minutes." : "A reviewer will finish within 24 hours."} We'll let you know here
               and by email at {READER.email}.
@@ -81,6 +81,7 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
               <p className="muted">No books {tab === "all" ? "" : `in ${STATUS_LABEL[tab as Status].toLowerCase()}`} right now.</p>
             </div>
           ) : (
+            <div className="table-wrap">
             <table className="table">
               <thead>
                 <tr>
@@ -106,7 +107,7 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
                       <button className="link-reset book-cell" onClick={() => setOpenId(b.id)}>
                         <Cover book={b} size="sm" />
                         <span>
-                          <span className="strong block">{b.title || "Untitled"}</span>
+                          <span className="strong clamp" title={b.title}>{b.title || "Untitled"}</span>
                           <span className="muted meta">{b.author}</span>
                         </span>
                       </button>
@@ -129,7 +130,7 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
                     {tab === "published" && <td>{formatDate(b.publishedAt)}</td>}
                     {tab === "published" && <td className="num">{b.sales}</td>}
                     {tab === "draft" && <td>{b.manuscript ? "Cover" : "Book details"}</td>}
-                    <td className="num">${Number.parseFloat(b.price || "0").toFixed(2)}</td>
+                    <td className="num">{formatPrice(b.price)}</td>
                     <td className="row-actions">
                       <RowAction b={b} onOpen={() => setOpenId(b.id)} onEdit={() => onEdit(b)} />
                     </td>
@@ -137,6 +138,7 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </>
       )}
@@ -159,6 +161,7 @@ function RowAction({ b, onOpen, onEdit }: { b: Book; onOpen: () => void; onEdit:
 
 function BookSheet({ book, onClose, onEdit, onPublish, onDecide }: { book: Book; onClose: () => void; onEdit: (b: Book) => void; onPublish: (b: Book) => void; onDecide: (b: Book, approve: boolean) => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  useScrollLock();
   useEffect(() => {
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -171,7 +174,7 @@ function BookSheet({ book, onClose, onEdit, onPublish, onDecide }: { book: Book;
       <aside className="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" onClick={(e) => e.stopPropagation()}>
         <header className="sheet-header">
           <div>
-            <h2 id="sheet-title">{book.title || "Untitled"}</h2>
+            <h2 id="sheet-title" className="clamp">{book.title || "Untitled"}</h2>
             <StatusBadge status={book.status} />
           </div>
           <button ref={closeRef} className="icon-btn" aria-label="Close" onClick={onClose}>
@@ -198,7 +201,7 @@ function BookSheet({ book, onClose, onEdit, onPublish, onDecide }: { book: Book;
               </div>
               <div>
                 <dt>Price</dt>
-                <dd>${Number.parseFloat(book.price || "0").toFixed(2)}</dd>
+                <dd>{formatPrice(book.price)}</dd>
               </div>
               <div>
                 <dt>Cover</dt>

@@ -2,6 +2,20 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Bell, BookOpen, ChevronDown, Search, X } from "lucide-react";
 import { COVER_TEMPLATES, READER, STATUS_LABEL, formatTime, type Book, type Notice, type Status } from "./data";
 
+// Lock page scrolling while an overlay is open, and restore it on close.
+export function useScrollLock() {
+  useEffect(() => {
+    const { overflow, paddingRight } = document.body.style;
+    const gutter = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = "hidden";
+    if (gutter > 0) document.body.style.paddingRight = `${gutter}px`;
+    return () => {
+      document.body.style.overflow = overflow;
+      document.body.style.paddingRight = paddingRight;
+    };
+  }, []);
+}
+
 export function Cover({ book, size = "md" }: { book: Pick<Book, "title" | "author" | "cover">; size?: "sm" | "md" | "lg" }) {
   if (book.cover.kind === "upload") {
     return <img className={`cover cover-${size}`} src={book.cover.url} alt={`Cover of ${book.title || "untitled book"}`} />;
@@ -100,7 +114,7 @@ export function StoreHeader({ notices, onHome, onBooks, onReadNotices }: HeaderP
                       onBooks();
                     }}
                   >
-                    <span>{n.text}</span>
+                    <span className="clamp">{n.text}</span>
                     <span className="muted meta">{formatTime(n.at)}</span>
                   </button>
                 ))
