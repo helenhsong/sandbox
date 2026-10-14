@@ -96,9 +96,6 @@ a {
   .wrap {
     padding: 0 32px;
   }
-  main h1 {
-    font-size: 32px;
-  }
 }
 
 .eyebrow {
@@ -189,28 +186,38 @@ a {
   background: linear-gradient(180deg, var(--tint), var(--background));
   padding: 32px 0 48px;
 }
-.hero-grid {
+.hero-stack {
   display: grid;
-  gap: 32px;
-  align-items: center;
+  gap: 20px;
 }
 @media (min-width: 900px) {
   .hero {
-    padding: 64px 0 80px;
+    padding: 72px 0 80px;
   }
-  .hero-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 56px;
+  .hero-stack {
+    gap: 24px;
   }
 }
-.hero-copy {
-  display: grid;
-  gap: 16px;
-  justify-items: start;
+/* Hero: short headline, one-line subtitle with a small link on the right, then CTA row and a full-width visual. */
+main h1.hero-title {
+  max-width: 14ch;
+  line-height: 110%;
+}
+@media (min-width: 768px) {
+  main h1.hero-title {
+    font-size: 48px;
+    max-width: 16ch;
+  }
+}
+.hero-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
 }
 .lede {
   color: var(--muted-foreground);
-  max-width: 48ch;
 }
 .rating-line {
   display: inline-flex;
@@ -243,6 +250,7 @@ a {
 }
 .hero-buy {
   width: 100%;
+  margin-top: 8px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -264,31 +272,23 @@ a {
   flex-wrap: wrap;
   justify-content: flex-end;
 }
-.assurances {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 20px;
-  color: var(--muted-foreground);
-}
-.assurances li {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.assurances svg {
-  color: var(--yes);
-}
 
 /* Mattress illustration */
 .art {
   position: relative;
-  aspect-ratio: 5 / 4;
+  aspect-ratio: 4 / 3;
+  margin-top: 16px;
   border-radius: var(--r-lg);
   background: radial-gradient(120% 90% at 70% 10%, oklch(96% 0.02 220), var(--sand));
   overflow: hidden;
+}
+@media (min-width: 768px) {
+  .art {
+    aspect-ratio: 21 / 9;
+  }
+  .art-room {
+    inset: 18% 26% 12% 26%;
+  }
 }
 .art-room {
   position: absolute;
@@ -529,7 +529,7 @@ a {
 }
 .big-rating {
   letter-spacing: -0.02em;
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 600;
   line-height: 1;
 }

@@ -123,44 +123,30 @@ function Stars({ value, size = 16 }: { value: number; size?: number }) {
 function Hero({ onShop }: { onShop: () => void }) {
   return (
     <section id="top" className="hero">
-      <div className="wrap hero-grid">
-        <div className="hero-copy">
-          <p className="eyebrow">{PRODUCT.name}</p>
-          <h1>Sleep cool. Wake up without the backache.</h1>
-          <p className="lede">
-            Natural latex over zoned coils that hold your lower back and hips level, in a mattress that breathes instead of trapping heat.
-          </p>
+      <div className="wrap hero-stack">
+        <h1 className="hero-title">Sleep cool. Wake up without the backache.</h1>
+        <div className="hero-sub">
+          <p className="lede">Natural latex over zoned coils.</p>
           <a className="rating-line" href="#reviews">
             <Stars value={PRODUCT.rating} />
             <span>
-              <strong>{PRODUCT.rating}</strong> from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews
+              {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews
             </span>
           </a>
-          <div className="hero-buy">
-            <div>
-              <div className="price">{money(QUEEN_PRICE)}</div>
-              <div className="meta">Queen · other sizes from {money(799)}</div>
-            </div>
-            <div className="hero-actions">
-              <Button variant="outline" size="lg" nativeButton={false} render={<a href="#compare" />}>
-                See how it compares
-              </Button>
-              <Button size="lg" onClick={onShop}>
-                Choose your size
-              </Button>
-            </div>
+        </div>
+        <div className="hero-buy">
+          <div>
+            <div className="price">{money(QUEEN_PRICE)}</div>
+            <div className="meta">Queen · 100-night trial · Free delivery</div>
           </div>
-          <ul className="assurances">
-            <li>
-              <Check size={16} aria-hidden /> 100-night home trial
-            </li>
-            <li>
-              <Check size={16} aria-hidden /> Free delivery
-            </li>
-            <li>
-              <Check size={16} aria-hidden /> 10-year warranty
-            </li>
-          </ul>
+          <div className="hero-actions">
+            <Button variant="outline" size="lg" nativeButton={false} render={<a href="#compare" />}>
+              See how it compares
+            </Button>
+            <Button size="lg" onClick={onShop}>
+              Choose your size
+            </Button>
+          </div>
         </div>
         <MattressArt />
       </div>
