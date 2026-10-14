@@ -94,4 +94,10 @@ Helen's flow:
 **Storyboard:** Promotion tile → steps landing page → guided book setup → review submission → approval → Publish → confirmation and dashboard.
 
 - Scope change: a published-books dashboard is back in, as the place to track review status and, after publishing, sales and the listing.
-- Success signal: _open_ (not stated)
+- Success signal: _open_ (not stated). Working assumption for the build: a first-time author gets from the promotion tile to a submitted book without leaving the flow.
+
+> We are designing **the path from the promotion tile to a published book**, including **a book that needs changes and is resubmitted**, but not **sales analytics, listing management after publishing, the author profile, sign-in, or mobile**.
+
+> It works if the person **reaches "Submitted for review" on their first try, without leaving the flow** (assumed).
+
+- Next test: put it in front of a first-time author with a finished manuscript and watch where they hesitate between the landing page and Submit.
