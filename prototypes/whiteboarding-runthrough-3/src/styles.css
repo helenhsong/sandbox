@@ -822,9 +822,6 @@ main h2.section-title {
   /* Dividers inside the tinted column use the same hue as its fill, so grey lines don't cross the blue. */
   border-bottom-color: color-mix(in oklch, var(--sea-soft), var(--sea) 14%);
 }
-.compare thead .ours {
-  color: var(--sea);
-}
 .cell-yes,
 .cell-no {
   display: inline-flex;
