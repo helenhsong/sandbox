@@ -4,9 +4,14 @@
 
 ## 1. Purpose
 
-- User need: _open_
-- Company need: Amazon sees a business opportunity. A lower barrier brings more people into self-publishing, which grows a revenue source for Amazon (Helen suggested publishing fees).
+- User need: writers face many barriers and a lot of time to get published. They want an easier way to publish and distribute their writing than going through a publishing company.
+- Company need: Amazon sees a business opportunity. A lower barrier brings more people into self-publishing, which grows a revenue source for Amazon (Helen suggested publishing fees). The feature could also be a selling point for other Amazon offerings.
 - In this session, we hope to: _open_
+
+## Captured for later Ps
+
+- Person (leaning, not yet chosen): likely new users. Returning users publish rarely, so they probably experience the flow as if they were new again. Frequent publishers are mostly short-story writers.
+- Possible scope (brainstormed, not decided): sales numbers; managing how the book is displayed on Amazon, such as its description.
 
 ## Confirmed
 
@@ -19,5 +24,4 @@
 
 ## Open
 
-- Why this needs solving for the user.
 - Session goal.
