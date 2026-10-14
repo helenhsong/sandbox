@@ -274,7 +274,7 @@ main h1.hero-title {
 .price {
   letter-spacing: -0.02em;
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 130%;
 }
 .hero-actions {
@@ -551,7 +551,7 @@ main h2.section-title {
 .big-rating {
   letter-spacing: -0.02em;
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1;
 }
 .bars {
@@ -780,7 +780,7 @@ main h2.section-title {
 .stat-value {
   letter-spacing: -0.02em;
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 130%;
 }
 .certs {
@@ -819,7 +819,6 @@ main h2.section-title {
 }
 .compare .ours {
   background: var(--sea-soft);
-  font-weight: 500;
   /* Dividers inside the tinted column use the same hue as its fill, so grey lines don't cross the blue. */
   border-bottom-color: color-mix(in oklch, var(--sea-soft), var(--sea) 14%);
 }
