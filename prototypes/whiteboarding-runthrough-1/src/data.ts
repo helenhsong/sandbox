@@ -88,12 +88,23 @@ export function newBook(): Book {
   };
 }
 
-export function earnings(price: string) {
+export const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+
+// Assumed royalty for the prototype: 70% between $2.99 and $9.99, 35% otherwise.
+export function royaltyRate(price: string) {
   const p = Number.parseFloat(price);
   if (!Number.isFinite(p) || p <= 0) return null;
-  // Assumed royalty for the prototype: 70% between $2.99 and $9.99, 35% otherwise.
-  const rate = p >= 2.99 && p <= 9.99 ? 0.7 : 0.35;
-  return (p * rate).toFixed(2);
+  return p >= 2.99 && p <= 9.99 ? 0.7 : 0.35;
+}
+
+export function earnings(price: string) {
+  const rate = royaltyRate(price);
+  return rate === null ? null : usd.format(Number.parseFloat(price) * rate);
+}
+
+export function formatPrice(price: string) {
+  const p = Number.parseFloat(price);
+  return Number.isFinite(p) ? usd.format(p) : "—";
 }
 
 export function formatDate(d: Date | null) {
@@ -107,7 +118,7 @@ export function formatTime(d: Date) {
 
 export function dueBy(book: Book) {
   if (!book.submittedAt) return "—";
-  if (book.reviewType === "ai") return "Minutes";
+  if (book.reviewType === "ai") return "Within minutes";
   const due = new Date(book.submittedAt.getTime() + 24 * 3600 * 1000);
   return `${formatDate(due)}, ${formatTime(due)}`;
 }

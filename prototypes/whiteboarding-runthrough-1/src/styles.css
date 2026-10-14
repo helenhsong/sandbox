@@ -11,6 +11,9 @@
   --store-2: oklch(0.31 0.035 255);
   --store-fg: oklch(0.97 0 0);
   --accent-warm: oklch(0.78 0.15 70);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --page-width: 1120px;
 }
 
 body {
@@ -33,8 +36,18 @@ p {
   margin: 0;
 }
 
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
 h1 {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 130%;
 }
@@ -102,12 +115,39 @@ h3 {
   color: inherit;
   cursor: pointer;
 }
-.icon-btn:hover {
-  background: var(--muted);
+@media (hover: hover) and (pointer: fine) {
+  .icon-btn:hover {
+    background: var(--muted);
+  }
+}
+.icon-btn,
+.header-btn,
+.tab,
+.menu-item,
+.choice,
+.cover-option {
+  transition:
+    background-color 120ms var(--ease-out),
+    transform 120ms var(--ease-out),
+    border-color 120ms var(--ease-out);
+}
+.icon-btn:active,
+.header-btn:active,
+.choice:active,
+.cover-option:active {
+  transform: scale(0.98);
+}
+@media (hover: hover) and (pointer: fine) {
+  .choice:hover:not(.selected) {
+    border-color: var(--ring);
+  }
+  .tab:hover:not(.active) {
+    color: var(--foreground);
+  }
 }
 
 .screen {
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Storefront shell */
@@ -179,8 +219,10 @@ h3 {
   font: inherit;
   cursor: pointer;
 }
-.header-btn:hover {
-  background: var(--store-2);
+@media (hover: hover) and (pointer: fine) {
+  .header-btn:hover {
+    background: var(--store-2);
+  }
 }
 .header-btn .muted {
   color: oklch(0.8 0 0);
@@ -242,15 +284,19 @@ h3 {
   text-align: left;
   cursor: pointer;
 }
-.menu-item:hover {
-  background: var(--muted);
+@media (hover: hover) and (pointer: fine) {
+  .menu-item:hover {
+    background: var(--muted);
+  }
 }
 .menu-item.disabled {
   color: var(--muted-foreground);
   cursor: default;
 }
-.menu-item.disabled:hover {
-  background: transparent;
+@media (hover: hover) and (pointer: fine) {
+  .menu-item.disabled:hover {
+    background: transparent;
+  }
 }
 .menu-item.notice {
   flex-direction: column;
@@ -270,13 +316,13 @@ h3 {
 .subnav {
   display: flex;
   gap: 4px;
-  padding: 4px 20px;
+  padding: 0 20px;
   background: var(--store-2);
   color: var(--store-fg);
   overflow-x: auto;
 }
 .subnav-item {
-  padding: 4px 8px;
+  padding: 8px 8px;
   white-space: nowrap;
   border: 0;
   border-radius: 6px;
@@ -288,17 +334,21 @@ h3 {
   cursor: pointer;
   font-weight: 500;
 }
-.subnav-link:hover {
-  background: var(--store);
+@media (hover: hover) and (pointer: fine) {
+  .subnav-link:hover {
+    background: var(--store);
+  }
+}
+.subnav-link {
+  border-radius: 0;
 }
 .subnav-link.active {
   box-shadow: inset 0 -2px 0 var(--accent-warm);
-  border-radius: 6px 6px 0 0;
 }
 
 /* Pages */
 .page {
-  max-width: 1120px;
+  max-width: var(--page-width);
   margin: 0 auto;
   padding: 24px 24px 64px;
   display: flex;
@@ -469,6 +519,7 @@ h3 {
   gap: 8px;
 }
 .facts div {
+  align-items: baseline;
   display: grid;
   grid-template-columns: 140px 1fr;
   gap: 8px;
@@ -523,9 +574,22 @@ h3 {
   padding: 16px;
 }
 .cover-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   font-weight: 600;
   line-height: 130%;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.cover-lg .cover-title {
+  -webkit-line-clamp: 6;
+}
+.cover-author {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .cover-md .cover-title {
   font-size: 12px;
@@ -545,7 +609,7 @@ h3 {
 
 /* Flow */
 .flow {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   padding-bottom: 72px;
@@ -561,8 +625,10 @@ h3 {
 .flow-header .muted {
   color: oklch(0.82 0 0);
 }
-.flow-header .icon-btn:hover {
-  background: var(--store-2);
+@media (hover: hover) and (pointer: fine) {
+  .flow-header .icon-btn:hover {
+    background: var(--store-2);
+  }
 }
 .flow-title {
   display: flex;
@@ -624,8 +690,10 @@ h3 {
 .stepper-label {
   white-space: nowrap;
 }
-button.stepper-label:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  button.stepper-label:hover {
+    text-decoration: underline;
+  }
 }
 .flow-body {
   flex: 1;
@@ -758,13 +826,14 @@ button.stepper-label:hover {
 
 .cover-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   border: 0;
   margin: 0;
   padding: 0;
 }
 .cover-option {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -774,8 +843,10 @@ button.stepper-label:hover {
   border: 2px solid transparent;
   cursor: pointer;
 }
-.cover-option:hover {
-  background: var(--muted);
+@media (hover: hover) and (pointer: fine) {
+  .cover-option:hover {
+    background: var(--muted);
+  }
 }
 .cover-option.selected {
   border-color: var(--primary);
@@ -784,8 +855,11 @@ button.stepper-label:hover {
   outline: 2px solid var(--foreground);
   outline-offset: 2px;
 }
+.cover-option .cover {
+  width: 100%;
+}
 .cover-option .meta {
-  max-width: 112px;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -861,6 +935,7 @@ button.stepper-label:hover {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
 }
 .note {
   display: flex;
@@ -886,6 +961,7 @@ button.stepper-label:hover {
 
 /* Dialog and sheet */
 .scrim {
+  animation: fade 200ms var(--ease-out);
   position: fixed;
   inset: 0;
   z-index: 40;
@@ -895,6 +971,7 @@ button.stepper-label:hover {
   justify-content: center;
 }
 .dialog {
+  animation: pop 200ms var(--ease-out);
   width: min(440px, calc(100vw - 32px));
   padding: 24px;
   border-radius: 14px;
@@ -921,11 +998,28 @@ button.stepper-label:hover {
   background: var(--card);
   display: flex;
   flex-direction: column;
-  animation: slide 180ms ease-out;
+  animation: slide 280ms var(--ease-drawer);
 }
 @keyframes slide {
   from {
-    transform: translateX(24px);
+    transform: translateX(32px);
+    opacity: 0;
+  }
+}
+@keyframes rise {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+@keyframes pop {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+}
+@keyframes fade {
+  from {
     opacity: 0;
   }
 }
@@ -936,7 +1030,6 @@ button.stepper-label:hover {
   padding: 20px 24px 12px;
 }
 .sheet-header h2 {
-  font-size: 20px;
   margin-bottom: 6px;
 }
 .sheet-body {
@@ -994,6 +1087,17 @@ button.stepper-label:hover {
 .crumbs {
   font-size: 12px;
   color: var(--muted-foreground);
+}
+.crumb-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) {
+  .crumb-link:hover {
+    color: var(--foreground);
+  }
 }
 .crumbs [aria-current] {
   color: var(--foreground);
@@ -1083,12 +1187,15 @@ button.stepper-label:hover {
   white-space: nowrap;
 }
 .book-cell {
+  max-width: 420px;
   display: flex;
   align-items: center;
   gap: 12px;
 }
-.book-cell:hover .strong {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .book-cell:hover .strong {
+    text-decoration: underline;
+  }
 }
 .empty {
   display: flex;
@@ -1160,9 +1267,16 @@ button.stepper-label:hover {
   background: var(--card);
   border: 1px solid var(--border);
   box-shadow: 0 12px 32px oklch(0 0 0 / 0.16);
-  animation: slide 180ms ease-out;
+  animation: rise 220ms var(--ease-out);
+}
+.toast-body > span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .toast-body {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1171,7 +1285,7 @@ button.stepper-label:hover {
 /* Published */
 .published {
   position: relative;
-  min-height: calc(100vh - 120px);
+  min-height: calc(100dvh - 120px);
   justify-content: center;
   overflow: hidden;
 }
@@ -1228,8 +1342,18 @@ button.stepper-label:hover {
   }
   .sheet,
   .toast,
+  .dialog,
+  .spin {
+    animation: fade 150ms linear;
+  }
   .spin {
     animation: none;
+  }
+  .icon-btn:active,
+  .header-btn:active,
+  .choice:active,
+  .cover-option:active {
+    transform: none;
   }
 }
 
@@ -1254,5 +1378,112 @@ button.stepper-label:hover {
   }
   .stepper li.current .stepper-label {
     display: inline;
+  }
+}
+
+/* Dates, statuses and headers in the table stay on one line */
+.table th,
+.table td:not(:first-child) {
+  white-space: nowrap;
+}
+
+/* Confetti stays behind the message */
+.published-card {
+  position: relative;
+  z-index: 1;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px 16px 48px;
+  }
+  .store-header {
+    padding: 8px 16px;
+    gap: 8px;
+  }
+  .search,
+  .account-text,
+  .proto-tag {
+    display: none;
+  }
+  .promo {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  .promo-art {
+    display: none;
+  }
+  .landing-hero,
+  .landing-grid,
+  .field-row,
+  .choice-grid,
+  .choice-grid.two {
+    grid-template-columns: 1fr;
+  }
+  .steps {
+    grid-template-columns: 1fr;
+  }
+  .landing-footer,
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .flow-header {
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  .flow-header .wordmark {
+    display: none;
+  }
+  .flow-title {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .flow-body {
+    padding: 24px 16px;
+  }
+  .flow-footer {
+    padding: 12px 16px;
+  }
+  .stepper {
+    padding: 12px 16px;
+  }
+  .published-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .summary-row {
+    grid-template-columns: 1fr auto;
+  }
+  .summary-label {
+    grid-column: 1 / -1;
+  }
+  .field input:not([type="radio"], [type="checkbox"]),
+  .field select,
+  .field textarea {
+    font-size: 16px;
+  }
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.landing-hero .on-dark {
+  background: transparent;
+  color: var(--store-fg);
+  border-color: oklch(1 0 0 / 0.4);
+}
+@media (hover: hover) and (pointer: fine) {
+  .landing-hero .on-dark:hover {
+    background: var(--store-2);
+    color: var(--store-fg);
   }
 }

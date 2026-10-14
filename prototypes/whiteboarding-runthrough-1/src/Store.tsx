@@ -54,12 +54,12 @@ const STEPS = [
   { icon: ShieldCheck, title: "Submit and publish", time: "Minutes to 24 hours", text: "We check the book follows our guidelines. Once approved, you publish with one click." },
 ];
 
-export function Landing({ onStart }: { onStart: () => void }) {
+export function Landing({ onStart, bookCount, onBooks }: { onStart: () => void; bookCount: number; onBooks: () => void }) {
   return (
     <div className="page landing">
       <header className="landing-hero">
         <div>
-          <p className="eyebrow">Self-publishing on Amazon</p>
+          <p className="eyebrow">Self-Publishing on Amazon</p>
           <h1>Your book, in front of millions of readers</h1>
           <p className="lede muted">No agent, no publisher, no upfront cost. If your manuscript is finished, you're about 10 minutes from submitting it.</p>
           <p className="offer">
@@ -67,7 +67,12 @@ export function Landing({ onStart }: { onStart: () => void }) {
           </p>
         </div>
         <div className="hero-actions">
-          <Button size="lg" onClick={onStart}>
+          {bookCount > 0 && (
+            <Button size="lg" variant="outline" className="on-dark" onClick={onBooks}>
+              Your Books ({bookCount})
+            </Button>
+          )}
+          <Button size="lg" variant="secondary" onClick={onStart}>
             Start publishing <ArrowRight size={16} aria-hidden="true" />
           </Button>
         </div>

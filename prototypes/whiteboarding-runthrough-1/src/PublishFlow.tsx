@@ -1,8 +1,8 @@
 import { useRef, useState, type ReactNode } from "react";
 import { Button } from "@helenhsong/ui";
 import { AlertCircle, Check, FileText, LoaderCircle, Lock, ShieldCheck, Sparkles, Upload, X } from "lucide-react";
-import { COVER_TEMPLATES, GENRES, RATING_HINT, RATING_LABEL, aiDescription, earnings, type Book, type Rating } from "./data";
-import { Cover, Wordmark } from "./ui";
+import { COVER_TEMPLATES, GENRES, RATING_HINT, RATING_LABEL, aiDescription, earnings, formatPrice, royaltyRate, type Book, type Rating } from "./data";
+import { Cover, Wordmark, useScrollLock } from "./ui";
 
 const STEP_NAMES = ["Book details", "Cover", "Audience & price", "Review & submit"];
 
@@ -118,12 +118,12 @@ export function PublishFlow({ initial, resubmit, onExit, onSubmit }: Props) {
           <Cover book={book} size="lg" />
           <p className="strong preview-title">{book.title || "Your title"}</p>
           <p className="muted meta">by {book.author || "Author name"}</p>
-          {earnings(book.price) && <p className="strong">${Number.parseFloat(book.price).toFixed(2)}</p>}
+          {earnings(book.price) && <p className="strong">{formatPrice(book.price)}</p>}
         </aside>
       </div>
 
       <footer className="flow-footer">
-        <Button variant="ghost" onClick={() => setConfirmExit(true)}>
+        <Button variant="outline" onClick={() => setConfirmExit(true)}>
           Save and exit
         </Button>
         <div className="footer-right">
@@ -136,30 +136,41 @@ export function PublishFlow({ initial, resubmit, onExit, onSubmit }: Props) {
         </div>
       </footer>
 
-      {confirmExit && (
-        <div className="scrim" role="presentation" onClick={() => setConfirmExit(false)}>
-          <div
-            className="dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="exit-title"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.key === "Escape" && setConfirmExit(false)}
-          >
-            <h2 id="exit-title">Leave publishing?</h2>
-            <p className="muted">We'll save your progress as a draft in Your books, so you can pick up where you left off.</p>
-            <div className="dialog-actions">
-              <Button variant="ghost" onClick={() => onExit(null)}>
-                Discard
-              </Button>
-              <Button variant="outline" autoFocus onClick={() => setConfirmExit(false)}>
-                Keep going
-              </Button>
-              <Button onClick={() => onExit(book)}>Save draft</Button>
-            </div>
-          </div>
+      {confirmExit && <ExitDialog resubmit={resubmit} onCancel={() => setConfirmExit(false)} onDiscard={() => onExit(null)} onSave={() => onExit(book)} />}
+    </div>
+  );
+}
+
+function ExitDialog({ resubmit, onCancel, onDiscard, onSave }: { resubmit: boolean; onCancel: () => void; onDiscard: () => void; onSave: () => void }) {
+  useScrollLock();
+  return (
+    <div className="scrim" role="presentation" onClick={onCancel}>
+      <div
+        className="dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="exit-title"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.key === "Escape" && onCancel()}
+      >
+        <h2 id="exit-title">{resubmit ? "Leave without resubmitting?" : "Leave publishing?"}</h2>
+        <p className="muted">
+          {resubmit
+            ? "Your changes won't be saved. The book stays as it was in Your Books."
+            : "We'll save your progress as a draft in Your Books, so you can pick up where you left off."}
+        </p>
+        <div className="dialog-actions">
+          {!resubmit && (
+            <Button variant="outline" onClick={onDiscard}>
+              Discard
+            </Button>
+          )}
+          <Button variant="outline" autoFocus onClick={onCancel}>
+            Keep going
+          </Button>
+          {resubmit ? <Button onClick={onDiscard}>Leave</Button> : <Button onClick={onSave}>Save draft</Button>}
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -223,7 +234,7 @@ function DetailsStep({ book, update, errors, generating, onGenerate }: StepProps
             <span className="badge tone-done">
               <Check size={12} aria-hidden="true" /> Uploaded
             </span>
-            <Button variant="link" size="sm" onClick={() => fileRef.current?.click()}>
+            <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
               Replace
             </Button>
           </div>
@@ -234,7 +245,7 @@ function DetailsStep({ book, update, errors, generating, onGenerate }: StepProps
             <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
               Choose file
             </Button>
-            <Button variant="link" size="sm" onClick={() => update({ manuscript: "manuscript-final.docx" })}>
+            <Button variant="outline" size="sm" onClick={() => update({ manuscript: "manuscript-final.docx" })}>
               Use sample file
             </Button>
           </div>
@@ -332,13 +343,20 @@ function AudienceStep({ book, update, errors }: StepProps & { errors: Errors }) 
           </p>
         )}
       </fieldset>
-      <Field id="price" label="Kindle price" hint="Most first-time authors choose $2.99 to $4.99." error={errors.price}>
+      <Field id="price" label="Kindle price" hint="Most first-time authors choose $2.99 to $4.99. Prices from $2.99 to $9.99 earn a 70% royalty; others earn 35%." error={errors.price}>
         <div className="price-row">
           <span className="prefix">$</span>
-          <input id="price" inputMode="decimal" value={book.price} onChange={(e) => update({ price: e.target.value })} aria-invalid={!!errors.price} />
+          <input
+            id="price"
+            inputMode="decimal"
+            value={book.price}
+            onChange={(e) => update({ price: e.target.value.replace(/[^0-9.]/g, "") })}
+            onBlur={() => earn && update({ price: Number.parseFloat(book.price).toFixed(2) })}
+            aria-invalid={!!errors.price}
+          />
           {earn && (
             <span className="muted">
-              You earn about <span className="strong fg">${earn}</span> per sale
+              You earn about <span className="strong fg">{earn}</span> per sale ({Math.round((royaltyRate(book.price) ?? 0) * 100)}% royalty)
             </span>
           )}
         </div>
@@ -362,7 +380,7 @@ function ReviewStep({ book, update, agreed, setAgreed, errors, onEdit }: StepPro
           {book.cover.kind === "upload" ? book.cover.name : `${COVER_TEMPLATES[book.cover.template].name} template`}
         </SummaryRow>
         <SummaryRow label="Audience & price" onEdit={() => onEdit(2)}>
-          {book.rating ? RATING_LABEL[book.rating] : "—"} · ${Number.parseFloat(book.price).toFixed(2)}
+          {book.rating ? RATING_LABEL[book.rating] : "—"} · {formatPrice(book.price)}
         </SummaryRow>
       </section>
 
@@ -413,7 +431,7 @@ function SummaryRow({ label, children, onEdit }: { label: string; children: Reac
     <div className="summary-row">
       <span className="muted summary-label">{label}</span>
       <span className="summary-value">{children}</span>
-      <Button variant="link" size="sm" onClick={onEdit} aria-label={`Edit ${label}`}>
+      <Button variant="outline" size="sm" onClick={onEdit} aria-label={`Edit ${label}`}>
         Edit
       </Button>
     </div>

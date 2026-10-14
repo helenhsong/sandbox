@@ -1,14 +1,26 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@helenhsong/ui";
 import { BookPlus, CircleCheck, Clock, Lock, Mail, Rocket, ShieldCheck, Sparkles, TriangleAlert, X } from "lucide-react";
-import { COVER_TEMPLATES, RATING_LABEL, READER, STATUS_LABEL, dueBy, formatDate, type Book, type Status } from "./data";
-import { Cover, StatusBadge } from "./ui";
+import { COVER_TEMPLATES, RATING_LABEL, READER, STATUS_LABEL, dueBy, formatDate, formatPrice, type Book, type Status } from "./data";
+import { Cover, StatusBadge, useScrollLock } from "./ui";
 
 export type Tab = Status | "all";
 const TABS: Tab[] = ["approved", "review", "changes", "draft", "published", "all"];
 
+const EMPTY_TAB: Record<Tab, string> = {
+  approved: "No books are ready to publish right now.",
+  review: "No books are in review right now.",
+  changes: "No books need changes right now.",
+  draft: "No drafts right now.",
+  published: "No published books yet.",
+  all: "No books yet.",
+};
+
+const salesLabel = (n: number) => `${new Intl.NumberFormat("en-US").format(n)} ${n === 1 ? "sale" : "sales"}`;
+
 type Props = {
   books: Book[];
+  onLanding: () => void;
   tab: Tab;
   setTab: (t: Tab) => void;
   banner: Book | null;
@@ -21,7 +33,7 @@ type Props = {
   onDecide: (b: Book, approve: boolean) => void;
 };
 
-export function Books({ books, tab, setTab, banner, onDismissBanner, openId, setOpenId, onNewBook, onEdit, onPublish, onDecide }: Props) {
+export function Books({ books, onLanding, tab, setTab, banner, onDismissBanner, openId, setOpenId, onNewBook, onEdit, onPublish, onDecide }: Props) {
   const counts = (t: Tab) => (t === "all" ? books.length : books.filter((b) => b.status === t).length);
   const rows = tab === "all" ? books : books.filter((b) => b.status === tab);
   const open = books.find((b) => b.id === openId) ?? null;
@@ -29,11 +41,14 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
   return (
     <div className="page">
       <nav className="crumbs" aria-label="Breadcrumb">
-        <span>Self-publishing</span> / <span aria-current="page">Your books</span>
+        <button className="link-reset crumb-link" onClick={onLanding}>
+          Self-Publishing
+        </button>{" "}
+        / <span aria-current="page">Your Books</span>
       </nav>
       <header className="page-header">
         <div>
-          <h1>Your books</h1>
+          <h1>Your Books</h1>
           <p className="muted">Track review, publish approved books, and see how they're doing.</p>
         </div>
         <Button onClick={onNewBook}>
@@ -45,7 +60,7 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
         <div className="banner" role="status">
           <CircleCheck size={20} aria-hidden="true" />
           <div>
-            <p className="strong">“{banner.title}” was submitted for review</p>
+            <p className="strong clamp">“{banner.title}” was submitted for review</p>
             <p className="muted">
               {banner.reviewType === "ai" ? "AI review usually takes a few minutes." : "A reviewer will finish within 24 hours."} We'll let you know here
               and by email at {READER.email}.
@@ -78,9 +93,10 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
           </div>
           {rows.length === 0 ? (
             <div className="empty small">
-              <p className="muted">No books {tab === "all" ? "" : `in ${STATUS_LABEL[tab as Status].toLowerCase()}`} right now.</p>
+              <p className="muted">{EMPTY_TAB[tab]}</p>
             </div>
           ) : (
+            <div className="table-wrap">
             <table className="table">
               <thead>
                 <tr>
@@ -106,7 +122,7 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
                       <button className="link-reset book-cell" onClick={() => setOpenId(b.id)}>
                         <Cover book={b} size="sm" />
                         <span>
-                          <span className="strong block">{b.title || "Untitled"}</span>
+                          <span className="strong clamp" title={b.title}>{b.title || "Untitled"}</span>
                           <span className="muted meta">{b.author}</span>
                         </span>
                       </button>
@@ -127,9 +143,9 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
                     )}
                     {tab === "changes" && <td>Audience rating</td>}
                     {tab === "published" && <td>{formatDate(b.publishedAt)}</td>}
-                    {tab === "published" && <td className="num">{b.sales}</td>}
+                    {tab === "published" && <td className="num">{new Intl.NumberFormat("en-US").format(b.sales)}</td>}
                     {tab === "draft" && <td>{b.manuscript ? "Cover" : "Book details"}</td>}
-                    <td className="num">${Number.parseFloat(b.price || "0").toFixed(2)}</td>
+                    <td className="num">{formatPrice(b.price)}</td>
                     <td className="row-actions">
                       <RowAction b={b} onOpen={() => setOpenId(b.id)} onEdit={() => onEdit(b)} />
                     </td>
@@ -137,6 +153,7 @@ export function Books({ books, tab, setTab, banner, onDismissBanner, openId, set
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </>
       )}
@@ -151,7 +168,7 @@ function RowAction({ b, onOpen, onEdit }: { b: Book; onOpen: () => void; onEdit:
   if (b.status === "changes") return <Button size="sm" variant="outline" onClick={onOpen}>See changes</Button>;
   if (b.status === "draft") return <Button size="sm" variant="outline" onClick={onEdit}>Continue</Button>;
   return (
-    <Button size="sm" variant="ghost" onClick={onOpen}>
+    <Button size="sm" variant="outline" onClick={onOpen}>
       View
     </Button>
   );
@@ -159,6 +176,7 @@ function RowAction({ b, onOpen, onEdit }: { b: Book; onOpen: () => void; onEdit:
 
 function BookSheet({ book, onClose, onEdit, onPublish, onDecide }: { book: Book; onClose: () => void; onEdit: (b: Book) => void; onPublish: (b: Book) => void; onDecide: (b: Book, approve: boolean) => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  useScrollLock();
   useEffect(() => {
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -171,7 +189,7 @@ function BookSheet({ book, onClose, onEdit, onPublish, onDecide }: { book: Book;
       <aside className="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" onClick={(e) => e.stopPropagation()}>
         <header className="sheet-header">
           <div>
-            <h2 id="sheet-title">{book.title || "Untitled"}</h2>
+            <h2 id="sheet-title" className="clamp">{book.title || "Untitled"}</h2>
             <StatusBadge status={book.status} />
           </div>
           <button ref={closeRef} className="icon-btn" aria-label="Close" onClick={onClose}>
@@ -198,7 +216,7 @@ function BookSheet({ book, onClose, onEdit, onPublish, onDecide }: { book: Book;
               </div>
               <div>
                 <dt>Price</dt>
-                <dd>${Number.parseFloat(book.price || "0").toFixed(2)}</dd>
+                <dd>{formatPrice(book.price)}</dd>
               </div>
               <div>
                 <dt>Cover</dt>
@@ -268,7 +286,7 @@ function StatusPanel({ book }: { book: Book }) {
         <div>
           <p className="strong">Approved. Ready to publish.</p>
           <p className="muted meta">
-            <Lock size={12} aria-hidden="true" /> What you submitted is what goes live. To change anything, resubmit for review.
+            <Lock size={14} aria-hidden="true" /> What you submitted is what goes live. To change anything, resubmit for review.
           </p>
         </div>
       </div>
@@ -289,7 +307,7 @@ function StatusPanel({ book }: { book: Book }) {
         <Rocket size={20} aria-hidden="true" />
         <div>
           <p className="strong">Live on Amazon since {formatDate(book.publishedAt)}</p>
-          <p className="muted meta">{book.sales} sales so far. Sales update every few hours.</p>
+          <p className="muted meta">{salesLabel(book.sales)} so far. Sales update every few hours.</p>
         </div>
       </div>
     );
