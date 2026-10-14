@@ -1,4 +1,4 @@
-/* Landing-page type scale (Linear 48 : 24 : 15). Desktop: 14 meta and body · 18 section descriptions · 24 hero lede · 32 section titles, prices, stats · 48 hero h1. Weights 400/500.
+/* Landing-page type scale (Linear 48 : 24 : 15). Desktop: 14 meta and labels · 15 paragraphs · 18 section descriptions · 24 hero lede · 32 section titles, prices, stats · 48 hero h1. Weights 400/500.
    Text 20px and larger uses letter-spacing -0.02em (-0.03em at 48px) and line-height 104 to 115%; smaller text stays at 0. */
 :root {
   /* Whiteboarding prototypes use Geist for all text, including library components. */
@@ -37,7 +37,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 160%;
 }
 
@@ -148,6 +148,7 @@ p {
   }
 }
 .header-nav a {
+  font-size: 14px;
   position: relative;
   padding: 0 12px;
   height: var(--header-h);
@@ -517,7 +518,7 @@ main h2.section-title {
   font-weight: 600;
 }
 .layer-detail {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--muted-foreground);
 }
 .layer-0 {
