@@ -2,16 +2,9 @@ import { useEffect, useState } from "react";
 import {
   Badge,
   Button,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
   Spinner,
 } from "@helenhsong/ui";
 import {
-  ArrowRight,
   Award,
   Check,
   CircleCheck,
@@ -48,14 +41,11 @@ const SECTIONS = [
 ];
 
 export function App() {
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const openSizes = () => setSheetOpen(true);
-
   return (
     <>
-      <Header onShop={openSizes} />
+      <Header />
       <main>
-        <Hero onShop={openSizes} />
+        <Hero />
         <Features />
         <PressReviews />
         <CustomerReviews />
@@ -63,12 +53,11 @@ export function App() {
         <Feel />
         <Values />
         <Compare />
-        <Closing onShop={openSizes} />
+        <ChooseSize />
       </main>
       <footer className="site-footer">
         <span>© 2026 {PRODUCT.brand}. Prototype with sample content.</span>
       </footer>
-      <SizeSheet open={sheetOpen} onOpenChange={setSheetOpen} />
     </>
   );
 }
@@ -90,7 +79,7 @@ function useActiveSection() {
   return active;
 }
 
-function Header({ onShop }: { onShop: () => void }) {
+function Header() {
   const active = useActiveSection();
   return (
     <header className="site-header">
@@ -105,7 +94,9 @@ function Header({ onShop }: { onShop: () => void }) {
             </a>
           ))}
         </nav>
-        <Button onClick={onShop}>Choose your size</Button>
+        <Button nativeButton={false} render={<a href="#buy" />}>
+          Choose your size
+        </Button>
       </div>
     </header>
   );
@@ -123,7 +114,7 @@ function Stars({ value, size = 16 }: { value: number; size?: number }) {
 
 const HERO_REASONS = ["Sleeps cooler than all-foam mattresses", "Firmer support under your lower back", "100-night trial, free delivery"];
 
-function Hero({ onShop }: { onShop: () => void }) {
+function Hero() {
   return (
     <section id="top" className="hero">
       <div className="wrap hero-grid">
@@ -149,7 +140,9 @@ function Hero({ onShop }: { onShop: () => void }) {
               <div className="meta">Queen size</div>
             </div>
             <div className="hero-actions">
-              <Button onClick={onShop}>Choose your size</Button>
+              <Button nativeButton={false} render={<a href="#buy" />}>
+                Choose your size
+              </Button>
               <Button variant="outline" nativeButton={false} render={<a href="#compare" />}>
                 See how it compares
               </Button>
@@ -504,99 +497,72 @@ function Compare() {
   );
 }
 
-function Closing({ onShop }: { onShop: () => void }) {
-  return (
-    <section className="closing">
-      <div className="wrap closing-inner">
-        <div>
-          <h2 className="section-title">Try it for 100 nights.</h2>
-          <p>
-            <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · Free delivery
-          </p>
-        </div>
-        <Button onClick={onShop}>
-          Choose your size <ArrowRight size={16} aria-hidden />
-        </Button>
-      </div>
-    </section>
-  );
-}
-
-function SizeSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+function ChooseSize() {
   const [size, setSize] = useState("queen");
   const [state, setState] = useState<"choose" | "adding" | "added">("choose");
   const selected = SIZES.find((s) => s.id === size)!;
+  // Top-down footprint drawn to scale inside an 84" × 88" frame, so sizes compare honestly.
+  const footprint = { width: `${(selected.w / 84) * 100}%`, height: `${(selected.l / 88) * 100}%` };
 
-  useEffect(() => {
-    if (!open) {
-      const t = window.setTimeout(() => setState("choose"), 200);
-      return () => clearTimeout(t);
-    }
-  }, [open]);
-
+  const pick = (id: string) => {
+    setSize(id);
+    setState("choose");
+  };
   const add = () => {
     setState("adding");
     window.setTimeout(() => setState("added"), 700);
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="size-sheet">
-        {state === "added" ? (
-          <>
-            <SheetHeader>
-              <SheetTitle>Added to cart</SheetTitle>
-              <SheetDescription>The {selected.label} is in your cart. Checkout isn't part of this prototype.</SheetDescription>
-            </SheetHeader>
-            <div className="sheet-body">
-              <div className="added">
-                <CircleCheck size={20} aria-hidden className="yes" />
-                <div>
-                  <div className="added-name">
-                    {PRODUCT.name}, {selected.label}
-                  </div>
-                  <div className="meta">
-                    {selected.dims} · {money(selected.price)}
-                  </div>
-                </div>
+    <section id="buy" className="section buy" aria-labelledby="buy-title">
+      <div className="wrap buy-grid">
+        <div className="size-stage" aria-hidden>
+          <div className="size-frame">
+            <div className="size-footprint" style={footprint}>
+              <div className="size-pillows">
+                <span />
+                {selected.w >= 54 && <span />}
               </div>
-              <p className="meta">Includes a 100-night home trial, free delivery and a 10-year warranty.</p>
             </div>
-            <SheetFooter className="sheet-footer">
-              <Button onClick={() => onOpenChange(false)}>Keep browsing</Button>
-            </SheetFooter>
-          </>
-        ) : (
-          <>
-            <SheetHeader>
-              <SheetTitle>Choose your size</SheetTitle>
-              <SheetDescription>{PRODUCT.name} · 12" medium-firm</SheetDescription>
-            </SheetHeader>
-            <div className="sheet-body">
-              <fieldset className="sizes">
-                <legend className="sr-only">Size</legend>
-                {SIZES.map((s) => (
-                  <label key={s.id} className="size-option" data-checked={size === s.id || undefined}>
-                    <input type="radio" name="size" value={s.id} checked={size === s.id} onChange={() => setSize(s.id)} />
-                    <span className="size-label">{s.label}</span>
-                    <span className="meta">{s.dims}</span>
-                    <span className="size-price">{money(s.price)}</span>
-                  </label>
-                ))}
-              </fieldset>
+          </div>
+          <p className="meta">Top view, to scale</p>
+        </div>
+        <div className="buy-panel">
+          <h2 id="buy-title" className="section-title">
+            Choose your size.
+          </h2>
+          <div className="chips size-chips" role="group" aria-label="Size">
+            {SIZES.map((s) => (
+              <button key={s.id} type="button" className="chip" aria-pressed={size === s.id} onClick={() => pick(s.id)}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <div>
+            <div className="price">{money(selected.price)}</div>
+            <div className="meta">
+              {selected.label} · {selected.dims} · 12" thick
             </div>
-            <SheetFooter className="sheet-footer">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button onClick={add} disabled={state === "adding"} aria-busy={state === "adding"}>
-                {state === "adding" && <Spinner aria-hidden />}
-                Add to cart · {money(selected.price)}
-              </Button>
-            </SheetFooter>
-          </>
-        )}
-      </SheetContent>
-    </Sheet>
+          </div>
+          {state === "added" ? (
+            <div className="added" role="status">
+              <CircleCheck size={20} aria-hidden className="yes" />
+              <div>
+                <div className="added-name">The {selected.label} is in your cart.</div>
+                <div className="meta">Checkout isn't part of this prototype.</div>
+              </div>
+            </div>
+          ) : (
+            <Button onClick={add} disabled={state === "adding"} aria-busy={state === "adding"}>
+              {state === "adding" && <Spinner aria-hidden />}
+              Add to cart
+            </Button>
+          )}
+          <p className="meta buy-assurance">
+            <Stars value={PRODUCT.rating} size={14} /> {PRODUCT.rating} from {PRODUCT.reviewCount.toLocaleString("en-US")} reviews · 100-night trial · Free delivery
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

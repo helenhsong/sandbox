@@ -11,14 +11,14 @@ export const money = (n: number) => usd.format(n);
 export const QUEEN_PRICE = 1200;
 export const COMPETITOR_PRICE = 1095;
 
-export type Size = { id: string; label: string; dims: string; price: number };
+export type Size = { id: string; label: string; dims: string; w: number; l: number; price: number };
 
 export const SIZES: Size[] = [
-  { id: "twin", label: "Twin", dims: '38" × 75"', price: 799 },
-  { id: "full", label: "Full", dims: '54" × 75"', price: 1049 },
-  { id: "queen", label: "Queen", dims: '60" × 80"', price: QUEEN_PRICE },
-  { id: "king", label: "King", dims: '76" × 80"', price: 1499 },
-  { id: "cal-king", label: "Cal King", dims: '72" × 84"', price: 1499 },
+  { id: "twin", label: "Twin", dims: '38" × 75"', w: 38, l: 75, price: 799 },
+  { id: "full", label: "Full", dims: '54" × 75"', w: 54, l: 75, price: 1049 },
+  { id: "queen", label: "Queen", dims: '60" × 80"', w: 60, l: 80, price: QUEEN_PRICE },
+  { id: "king", label: "King", dims: '76" × 80"', w: 76, l: 80, price: 1499 },
+  { id: "cal-king", label: "Cal King", dims: '72" × 84"', w: 72, l: 84, price: 1499 },
 ];
 
 export const LAYERS = [
