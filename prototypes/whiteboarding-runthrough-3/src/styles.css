@@ -378,13 +378,24 @@ main h1.hero-title {
   }
 }
 .section-head {
-  display: grid;
-  gap: 8px;
-  max-width: 640px;
+  max-width: 960px;
   margin-bottom: 32px;
 }
-.section-body {
+main h2.section-title {
+  line-height: 115%;
+  text-wrap: pretty;
+}
+.section-title-sub {
   color: var(--muted-foreground);
+}
+@media (min-width: 768px) {
+  .section-head {
+    margin-bottom: 56px;
+  }
+  main h2.section-title {
+    font-size: 48px;
+    line-height: 110%;
+  }
 }
 
 /* Features */
@@ -473,10 +484,9 @@ main h1.hero-title {
   background: var(--foreground);
   color: var(--background);
 }
-.press .eyebrow {
+.press .section-title-sub {
   color: inherit;
-  opacity: 0.7;
-  margin-bottom: 24px;
+  opacity: 0.6;
 }
 .press-grid {
   display: grid;
@@ -841,7 +851,7 @@ main h1.hero-title {
   gap: 24px;
 }
 .closing p {
-  margin-top: 4px;
+  margin-top: 12px;
   color: var(--muted-foreground);
 }
 .site-footer {
