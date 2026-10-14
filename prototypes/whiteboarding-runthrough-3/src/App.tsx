@@ -222,7 +222,17 @@ function Features() {
   );
 }
 
-function SectionHead({ id, title, body }: { id?: string; title: string; body?: string }) {
+function SectionHead({ id, title, body, split }: { id?: string; title: string; body?: string; split?: boolean }) {
+  if (split) {
+    return (
+      <div className="section-head section-head-split">
+        <h2 id={id} className="section-title">
+          {title}
+        </h2>
+        {body && <p className="section-split-body">{body}</p>}
+      </div>
+    );
+  }
   return (
     <div className="section-head">
       <h2 id={id} className="section-title">
@@ -392,7 +402,7 @@ function Feel() {
   return (
     <section className="section" aria-labelledby="feel-title">
       <div className="wrap">
-        <SectionHead id="feel-title" title="Thickness, firmness and warmth." body="Medium-firm, and it sleeps cool." />
+        <SectionHead split id="feel-title" title="How it feels" body="Medium-firm, 12 inches thick, and it sleeps cool. Firm enough to keep your back aligned, with a latex top that gives where your shoulders and hips need it." />
         <div className="feel-grid">
           <div className="scale">
             <div className="scale-head">
@@ -419,7 +429,7 @@ function Values() {
   return (
     <section className="section tinted" aria-labelledby="values-title">
       <div className="wrap">
-        <SectionHead id="values-title" title="What your mattress supports." body="Organic materials, made by people paid a living wage." />
+        <SectionHead split id="values-title" title="What your mattress supports" body="Certified organic cotton and latex, no chemical flame retardants, and a North Carolina factory where every maker earns a living wage." />
         <div className="stats">
           {stats.map((s) => (
             <div key={s.label} className="stat">

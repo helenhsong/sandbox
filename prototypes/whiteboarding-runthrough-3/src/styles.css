@@ -388,6 +388,26 @@ main h2.section-title {
   line-height: 120%;
   text-wrap: pretty;
 }
+.section-head-split {
+  display: grid;
+  gap: 12px;
+  max-width: none;
+}
+.section-split-body {
+  color: var(--muted-foreground);
+  line-height: 160%;
+  max-width: 60ch;
+}
+@media (min-width: 900px) {
+  .section-head-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+  }
+  .section-head-split .section-title {
+    max-width: 14ch;
+  }
+}
 .section-title-sub {
   color: var(--muted-foreground);
 }
