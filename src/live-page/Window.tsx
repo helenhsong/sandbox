@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
+import { ArrowLeft, ArrowRight, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
 import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "./contract";
 import "./window.css";
 
@@ -117,17 +117,12 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
   return (
     <div className="page-window" data-theme={theme}>
       <div className="page-window-bar">
-        <span className="page-window-lights" aria-hidden>
-          <span />
-          <span />
-          <span />
-        </span>
         <span className="page-window-nav">
           <button type="button" onClick={() => go("back")} disabled={!nav.back} aria-label="Back" title="Back">
-            <ChevronLeft size={16} strokeWidth={2} aria-hidden />
+            <ArrowLeft size={16} strokeWidth={2} aria-hidden />
           </button>
           <button type="button" onClick={() => go("forward")} disabled={!nav.forward} aria-label="Forward" title="Forward">
-            <ChevronRight size={16} strokeWidth={2} aria-hidden />
+            <ArrowRight size={16} strokeWidth={2} aria-hidden />
           </button>
           <button
             type="button"
@@ -141,9 +136,8 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
             <RotateCw size={14} strokeWidth={2} aria-hidden />
           </button>
         </span>
-        {/* No title: the bar stays quiet. This space keeps the controls at either end. */}
-        <span className="page-window-title" aria-hidden />
-        {/* As wide as the controls on the left, so the title stays centered. */}
+        {/* No title or window buttons: the bar stays quiet, with the controls at either end. */}
+        <span className="page-window-spacer" aria-hidden />
         <span className="page-window-actions">
           {canFill ? (
             <button type="button" onClick={fill} aria-label="Fast-forward this screen" title="Fast-forward this screen (N)" aria-keyshortcuts="N">
