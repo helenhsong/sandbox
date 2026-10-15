@@ -38,7 +38,11 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     standalone ? readHashIndex(slides.length) : Math.min(startIndex ?? 0, Math.max(slides.length - 1, 0)),
   );
   // Web pages stay mounted once loaded, so what the audience did on them survives going back and forth.
-  const [mounted, setMounted] = useState(() => new Set(nearbyWebIds(slides, index)));
+  // Every live Figma slide loads as soon as the presentation opens and stays loaded, so opening
+  // one never reloads it. Live pages load as they come near, then stay too.
+  const [mounted, setMounted] = useState(
+    () => new Set([...nearbyWebIds(slides, index), ...slides.filter((slide) => slide.kind === "figma" && slide.embedUrl).map((slide) => slide.id)]),
+  );
   const [overview, setOverview] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   // Some embedded browsers (like an app's preview pane) refuse real full screen; the player then
