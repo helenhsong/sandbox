@@ -21,7 +21,10 @@ export function SlideView({ slide }: { slide: Slide }) {
   return <WebFrame slide={slide} />;
 }
 
-/** Figma's live embed, faded in over the slide's image so there's never a blank or loading screen. */
+/**
+ * Figma's live embed, faded in over the slide's image so there's never a blank or loading screen.
+ * It can't be clicked or focused, and it's cropped so Figma's own slide controls stay out of view.
+ */
 function FigmaFrame({ slide, src, poster }: { slide: FigmaSlide; src: string; poster: ReactNode }) {
   const [loaded, setLoaded] = useState(false);
   return (
@@ -32,11 +35,10 @@ function FigmaFrame({ slide, src, poster }: { slide: FigmaSlide; src: string; po
         src={src}
         data-loaded={loaded || undefined}
         onLoad={() => setLoaded(true)}
-        allow="clipboard-write; fullscreen"
-        allowFullScreen
+        // Look-only: moving between slides happens in the deck, never inside Figma's embed.
+        tabIndex={-1}
+        aria-hidden
       />
-      {/* Figma's embed adds its own slide controls at the bottom; the deck moves between slides, so they're blocked. */}
-      <div className="deck-figma-nav-block" aria-hidden />
     </div>
   );
 }

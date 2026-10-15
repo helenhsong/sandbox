@@ -146,20 +146,6 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     };
   }, [activeFrame]);
 
-  // Clicking a live Figma slide lets the click through but keeps the keyboard with the deck, so
-  // arrow keys change the deck's slides rather than moving Figma's embed to other slides.
-  useEffect(() => {
-    const onBlur = () =>
-      setTimeout(() => {
-        const active = document.activeElement;
-        if (active instanceof HTMLIFrameElement && active.closest(".deck-figma-live") && rootRef.current?.contains(active)) {
-          rootRef.current.focus({ preventScroll: true });
-        }
-      }, 0);
-    window.addEventListener("blur", onBlur);
-    return () => window.removeEventListener("blur", onBlur);
-  }, []);
-
   // Arriving on a live page with the mouse already over the slide hands the keyboard to the page.
   useEffect(() => {
     if (slides[index]?.kind !== "web" || !pointerInFrame.current) return;
@@ -179,7 +165,13 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     [slides],
   );
 
-  // R restarts even while a live page has the keyboard (unless you're typing in it). Pages from
+  /** Leaves the presentation: closes it in the editor, or goes back to Sandbox from a published deck. */
+  const exit = useCallback(() => {
+    if (onClose) onClose();
+    else if (exitHref) window.location.assign(exitHref);
+  }, [onClose, exitHref]);
+
+  // R restarts (and X leaves) even while a live page has the keyboard (unless you're typing in it). Pages from
   // Sandbox are on this site, so their key presses can be heard; other sites' can't.
   useEffect(() => {
     if (slides[index]?.kind !== "web") return;
@@ -187,13 +179,15 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     if (!frame) return;
     let win: Window | null = null;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "r" && event.key !== "R") return;
+      const key = event.key.toLowerCase();
+      if (key !== "r" && key !== "x") return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target as { closest?: (selector: string) => unknown } | null;
       if (target?.closest?.("input, textarea, select, [contenteditable]")) return;
       event.preventDefault();
       rootRef.current?.focus({ preventScroll: true });
-      go(0);
+      if (key === "x") exit();
+      else go(0);
     };
     const attach = () => {
       try {
@@ -214,7 +208,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
         // Already gone.
       }
     };
-  }, [index, slides, activeFrame, go]);
+  }, [index, slides, activeFrame, go, exit]);
 
   useEffect(() => {
     if (standalone) history.replaceState(null, "", `#${index + 1}`);
@@ -274,6 +268,12 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
       // With the mouse over a live page, its keys belong to the page, not the deck.
       const slideKeys = ["ArrowRight", "ArrowLeft", "PageDown", "PageUp", " ", "Home", "End", "r", "R"];
       const restart = event.key === "r" || event.key === "R";
+      // X leaves the presentation, like R restarts it, wherever the mouse is.
+      if ((event.key === "x" || event.key === "X") && !overview) {
+        event.preventDefault();
+        exit();
+        return;
+      }
       if (!overview && !restart && onLivePage.current && pointerInFrame.current && slideKeys.includes(event.key)) return;
       // Moving through slides from the keyboard means presenting: tuck the controls away again.
       if (!overview && slideKeys.includes(event.key)) {
@@ -324,7 +324,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [expanded, go, index, onClose, overview, slides.length, toggleFullscreen]);
+  }, [expanded, exit, go, index, onClose, overview, slides.length, toggleFullscreen]);
 
   if (slides.length === 0) {
     return (
@@ -354,11 +354,11 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
         // own page would otherwise swallow the movement, so hovering here shows the controls.
         <div className="deck-close-zone">
           {onClose ? (
-            <button type="button" className="deck-icon-button deck-close" onClick={onClose} aria-label="Close preview" title="Close (Esc)">
+            <button type="button" className="deck-icon-button deck-close" onClick={onClose} aria-label="Close preview" title="Close (X)">
               <X size={18} strokeWidth={2} />
             </button>
           ) : (
-            <a className="deck-icon-button deck-close" href={exitHref} aria-label="Back to Sandbox" title="Back to Sandbox">
+            <a className="deck-icon-button deck-close" href={exitHref} aria-label="Back to Sandbox" title="Back to Sandbox (X)">
               <X size={18} strokeWidth={2} />
             </a>
           )}
