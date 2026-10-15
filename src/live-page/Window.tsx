@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Globe, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
 import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "./contract";
 import "./window.css";
 
@@ -122,7 +122,6 @@ export function PageWindow({ src, label, theme = "dark" }: PageWindowProps) {
           </button>
         </span>
         <span className="page-window-title">
-          <Globe size={14} strokeWidth={2} aria-hidden />
           <span>{label}</span>
         </span>
         {/* As wide as the controls on the left, so the title stays centered. */}
