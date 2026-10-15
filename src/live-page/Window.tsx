@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
 import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "./contract";
 import "./window.css";
 
@@ -13,6 +13,17 @@ function isSameSite(src: string) {
 }
 
 type Page = Window & LivePageWindow;
+
+/** The page's full address, and how the address bar shows it: without the protocol or a hash. */
+function pageAddress(src: string) {
+  try {
+    const url = new URL(src, window.location.href);
+    url.hash = "";
+    return { href: url.href, text: url.href.replace(/^https?:\/\//, "") };
+  } catch {
+    return { href: src, text: src };
+  }
+}
 
 interface PageWindowProps {
   /** The page to show. */
@@ -35,6 +46,7 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   // Other sites' pages can't be reached, so their back and forward stay off.
   const sameSite = isSameSite(src);
+  const address = pageAddress(src);
 
   // A Sandbox prototype offers its own screen history (window.deckHistory) for back and
   // forward. The browser's history isn't used: it's shared with the page around the window, so
@@ -136,7 +148,23 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
             <RotateCw size={14} strokeWidth={2} aria-hidden />
           </button>
         </span>
-        {/* No title or window buttons: the bar stays quiet, with the controls at either end. */}
+        {/* The page's address, centered in the bar. It's only a label (nothing to type in); hovering it
+            shows a button that opens the page in a new tab. */}
+        <span className="page-window-url">
+          <span className="page-window-url-text" title={address.text}>
+            {address.text}
+          </span>
+          <a
+            className="page-window-url-open"
+            href={address.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open in a new tab"
+            title="Open in a new tab"
+          >
+            <ArrowUpRight size={14} strokeWidth={2} aria-hidden />
+          </a>
+        </span>
         <span className="page-window-spacer" aria-hidden />
         <span className="page-window-actions">
           {canFill ? (
