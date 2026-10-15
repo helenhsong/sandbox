@@ -17,15 +17,15 @@ type Page = Window & LivePageWindow;
 interface PageWindowProps {
   /** The page to show. */
   src: string;
-  /** The page's name, in the middle of the title bar. */
+  /** The page's name, for screen readers (the title bar doesn't show it). */
   label: string;
   /** Light everywhere (Sandbox pages and decks); dark is kept as an option. */
   theme?: "dark" | "light";
 }
 
 /**
- * A page in a macOS-style window: back, forward and reload in the title bar to get unstuck, the
- * page's name in the middle, and the fast-forward button when a Sandbox prototype offers it.
+ * A page in a macOS-style window: back, forward and reload in the title bar to get unstuck, and
+ * the fast-forward button when a Sandbox prototype offers it.
  * Changing `src` should remount it (key it by src).
  */
 export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
@@ -141,9 +141,8 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
             <RotateCw size={14} strokeWidth={2} aria-hidden />
           </button>
         </span>
-        <span className="page-window-title">
-          <span>{label}</span>
-        </span>
+        {/* No title: the bar stays quiet. This space keeps the controls at either end. */}
+        <span className="page-window-title" aria-hidden />
         {/* As wide as the controls on the left, so the title stays centered. */}
         <span className="page-window-actions">
           {canFill ? (
