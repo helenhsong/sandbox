@@ -613,11 +613,15 @@ h3 {
 }
 
 /* Flow */
+/* The flow fills the window: header, stepper and footer stay put, and only the content between
+   them scrolls, so its scrollbar sits over the content rather than in a gutter beside the page. */
 .flow {
-  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding-bottom: 72px;
+}
+.flow > * {
+  flex-shrink: 0;
 }
 .flow-header {
   display: flex;
@@ -701,10 +705,13 @@ h3 {
   }
 }
 .flow-body {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   display: grid;
   grid-template-columns: minmax(0, 640px) 260px;
   justify-content: center;
+  align-content: start;
   gap: 48px;
   padding: 32px 24px;
 }
@@ -732,10 +739,6 @@ h3 {
   overflow-wrap: anywhere;
 }
 .flow-footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;

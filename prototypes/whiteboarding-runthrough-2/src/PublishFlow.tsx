@@ -73,9 +73,11 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
     });
   };
 
+  // Each step starts at the top of the scrolling content.
+  const bodyRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    headingRef.current?.focus();
-    window.scrollTo(0, 0);
+    headingRef.current?.focus({ preventScroll: true });
+    bodyRef.current?.scrollTo(0, 0);
   }, [step]);
 
   const go = (to: number) => {
@@ -160,7 +162,7 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
         </ol>
       </header>
 
-      <div className="flow-body">
+      <div className="flow-body" ref={bodyRef}>
         <Card className="flow-main">
           <p className="meta">
             Step {step} of 4
