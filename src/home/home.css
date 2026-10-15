@@ -25,7 +25,7 @@ body {
   max-width: 500px;
   margin: 0 auto;
   /* Room above "Index" (the Create deck button is fixed in the corner and doesn't move). */
-  padding: 120px 30px 72px;
+  padding: 104px 30px 72px;
 }
 
 /* Tool shortcut pinned to the top-right corner of the page. */
