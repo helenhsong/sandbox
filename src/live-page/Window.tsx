@@ -41,6 +41,11 @@ interface PageWindowProps {
   src: string;
   /** The page's name, for screen readers (the address bar shows its slug). */
   label: string;
+  /**
+   * Whether hovering the address bar offers to open the page in a new tab. Off on the project's
+   * own Sandbox page, which already is that page.
+   */
+  openLink?: boolean;
   /** Light everywhere (Sandbox pages and decks); dark is kept as an option. */
   theme?: "dark" | "light";
 }
@@ -50,7 +55,7 @@ interface PageWindowProps {
  * the fast-forward button when a Sandbox prototype offers it.
  * Changing `src` should remount it (key it by src).
  */
-export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
+export function PageWindow({ src, label, openLink = true, theme = "light" }: PageWindowProps) {
   const [loaded, setLoaded] = useState(false);
   // Changing this remounts the page at its starting address.
   const [visit, setVisit] = useState(0);
@@ -161,21 +166,23 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
           </button>
         </span>
         {/* The project's slug, centered where a browser shows the address. It's only a label
-            (nothing to type in); hovering it shows a button that opens the page in a new tab. */}
+            (nothing to type in); in a deck, hovering it shows a button that opens the page in a new tab. */}
         <span className="page-window-url">
           <span className="page-window-url-text" title={slug}>
             {slug}
           </span>
-          <a
-            className="page-window-url-open"
-            href={address}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Open in a new tab"
-            title="Open in a new tab"
-          >
-            <ArrowUpRight size={14} strokeWidth={2} aria-hidden />
-          </a>
+          {openLink ? (
+            <a
+              className="page-window-url-open"
+              href={address}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open in a new tab"
+              title="Open in a new tab"
+            >
+              <ArrowUpRight size={14} strokeWidth={2} aria-hidden />
+            </a>
+          ) : null}
         </span>
         <span className="page-window-spacer" aria-hidden />
         <span className="page-window-actions">

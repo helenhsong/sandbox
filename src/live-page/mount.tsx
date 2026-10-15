@@ -17,7 +17,7 @@ export function mountPrototype(App: ComponentType) {
     root.render(
       <StrictMode>
         <div className="prototype-shell">
-          <PageWindow src={window.location.href} label={document.title} theme="light" />
+          <PageWindow src={window.location.href} label={document.title} openLink={false} theme="light" />
         </div>
       </StrictMode>,
     );
