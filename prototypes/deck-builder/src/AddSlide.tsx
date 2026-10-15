@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   Button,
   Field,
@@ -31,6 +31,8 @@ export interface AddPreset {
   placement: Placement;
   /** The slide "before" and "after" are relative to. */
   slideId?: string;
+  /** Opened to swap the deck's Figma file: the link starts selected, ready to paste over. */
+  replace?: boolean;
 }
 
 export interface FigmaImport {
@@ -74,7 +76,7 @@ export function AddSlide({ open, onOpenChange, preset, ...props }: AddSlideProps
         {open ? (
           // Keyed by the preset so each opening starts from where it was asked for.
           <AddForms
-            key={`${preset.kind}-${preset.placement}-${preset.slideId ?? ""}`}
+            key={`${preset.kind}-${preset.placement}-${preset.slideId ?? ""}-${preset.replace ? "replace" : ""}`}
             preset={preset}
             onClose={() => onOpenChange(false)}
             {...props}
@@ -175,8 +177,15 @@ function LiveForm({ preset, slides, selectedId, onClose, onAddLive }: AddFormsPr
   );
 }
 
-function FigmaForm({ figmaUrl, token, setToken, onClose, onImportFigma }: AddFormsProps) {
+function FigmaForm({ preset, figmaUrl, token, setToken, onClose, onImportFigma }: AddFormsProps) {
   const [url, setUrl] = useState(figmaUrl);
+  const urlInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!preset.replace) return;
+    // After the dropdown has opened and placed itself.
+    const timer = setTimeout(() => urlInput.current?.select(), 50);
+    return () => clearTimeout(timer);
+  }, [preset.replace]);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -208,6 +217,7 @@ function FigmaForm({ figmaUrl, token, setToken, onClose, onImportFigma }: AddFor
         <Field data-invalid={urlError ? true : undefined}>
           <FieldLabel htmlFor="add-figma-url">Figma Slides link</FieldLabel>
           <Input
+            ref={urlInput}
             id="add-figma-url"
             value={url}
             onChange={(event) => {

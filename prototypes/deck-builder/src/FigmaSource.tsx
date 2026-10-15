@@ -17,18 +17,19 @@ function FigmaLogo() {
 
 interface FigmaSourceProps {
   name: string;
-  onOpen: () => void;
+  /** Opens Add slide on its Figma tab, to swap in a different file. */
+  onReplace: () => void;
   onRemove: () => void;
 }
 
 /**
- * The Figma file the deck's slides come from, joined to the bottom of Add slide: its name opens
- * the file in Figma, and × removes its slides from the deck.
+ * The Figma file the deck's slides come from, joined to the bottom of Add slide: its name lets you
+ * replace the file with another, and × removes its slides from the deck.
  */
-export function FigmaSource({ name, onOpen, onRemove }: FigmaSourceProps) {
+export function FigmaSource({ name, onReplace, onRemove }: FigmaSourceProps) {
   return (
     <div className="figma-source">
-      <button type="button" className="figma-source-open" onClick={onOpen} title="Open in Figma">
+      <button type="button" className="figma-source-open" onClick={onReplace} title="Replace Figma file">
         <FigmaLogo />
         <span className="figma-source-name">{name || "Figma file"}</span>
       </button>

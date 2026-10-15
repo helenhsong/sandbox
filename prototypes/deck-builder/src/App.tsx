@@ -30,7 +30,6 @@ import {
   mergeFigmaSlides,
   moveItem,
   newWebSlide,
-  openLink,
   saveDraft,
   saveToken,
   slugify,
@@ -422,7 +421,12 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
             {figmaCount ? (
               <FigmaSource
                 name={draft.figmaName ?? ""}
-                onOpen={() => draft.figmaUrl && openLink(draft.figmaUrl)}
+                onReplace={() => {
+                  // Opens Add slide on Figma slides, with the current link ready to swap for another.
+                  setAddPreset({ kind: "figma", placement: "after", slideId: selected?.id, replace: true });
+                  // After this click is done, or the dropdown would take it as a click outside and close.
+                  setTimeout(() => setAddOpen(true), 0);
+                }}
                 onRemove={() => setDialog("remove-figma")}
               />
             ) : null}
