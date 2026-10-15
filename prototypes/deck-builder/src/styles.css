@@ -192,6 +192,75 @@ p {
   width: 100%;
 }
 
+/* With a Figma file in the deck, its row hangs off the bottom of Add slide as one piece (10px matches the button's corners). */
+.sidebar-add:has(.figma-source) .add-trigger {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.figma-source {
+  display: flex;
+  align-items: stretch;
+  height: 36px;
+  margin-top: -1px;
+  border: 1px solid var(--border);
+  border-radius: 0 0 10px 10px;
+  background: var(--background);
+  overflow: hidden;
+}
+
+.figma-source button {
+  display: flex;
+  align-items: center;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.figma-source-open {
+  flex: 1;
+  min-width: 0;
+  gap: 10px;
+  padding: 0 8px 0 12px;
+}
+
+.figma-logo {
+  flex-shrink: 0;
+}
+
+.figma-source-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.figma-source-remove {
+  flex-shrink: 0;
+  justify-content: center;
+  width: 36px;
+  color: var(--muted-foreground);
+}
+
+.figma-source button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .figma-source button:hover {
+    background: var(--muted);
+  }
+
+  .figma-source-remove:hover {
+    color: var(--foreground);
+  }
+}
+
 .sidebar-scroll {
   flex: 1;
   min-height: 0;

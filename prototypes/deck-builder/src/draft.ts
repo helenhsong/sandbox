@@ -4,6 +4,8 @@ import type { FigmaSlide, Slide, WebSlide } from "../../../src/deck/types";
 export interface Draft {
   figmaUrl: string;
   fileKey: string;
+  /** The Figma file's own name, shown with it under Add slide. */
+  figmaName?: string;
   name: string;
   slug: string;
   /** Once the URL name is edited by hand, renaming the deck no longer changes it. */

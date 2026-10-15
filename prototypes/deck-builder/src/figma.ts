@@ -330,6 +330,12 @@ async function exportSlides(fileKey: string, token: string, nodes: SlideNode[], 
   return blobs;
 }
 
+/** The Figma file's name, as shown in Figma. */
+export async function figmaFileName(fileKey: string, token: string) {
+  const meta = await figmaGet<{ file: { name: string } }>(`/v1/files/${fileKey}/meta`, token);
+  return meta.file.name;
+}
+
 export async function loadFigmaSlides(fileKey: string, token: string, onProgress?: (step: string) => void) {
   onProgress?.("Reading the file…");
   const meta = await figmaGet<{ file: { name: string } }>(`/v1/files/${fileKey}/meta`, token);

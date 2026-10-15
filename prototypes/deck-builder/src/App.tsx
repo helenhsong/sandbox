@@ -14,7 +14,8 @@ import { SlideView } from "../../../src/deck/SlideView";
 import { isPersistent, visibleSlides, withFigmaEmbeds, type Deck, type Slide, type WebSlide } from "../../../src/deck/types";
 import { AddSlide, type AddPreset, type FigmaImport } from "./AddSlide";
 import { readDeckFile } from "./deckFile";
-import { listSlides, loadFigmaSlides } from "./figma";
+import { figmaFileName, listSlides, loadFigmaSlides } from "./figma";
+import { FigmaSource, RemoveFigmaDialog } from "./FigmaSource";
 import { Inspector } from "./Inspector";
 import { PublishDialog } from "./PublishDialog";
 import { StartOverDialog } from "./SourceDialogs";
@@ -29,6 +30,7 @@ import {
   mergeFigmaSlides,
   moveItem,
   newWebSlide,
+  openLink,
   saveDraft,
   saveToken,
   slugify,
@@ -119,7 +121,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
-  const [dialog, setDialog] = useState<"publish" | "start-over" | null>(null);
+  const [dialog, setDialog] = useState<"publish" | "start-over" | "remove-figma" | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [addPreset, setAddPreset] = useState<AddPreset>({ kind: "live", placement: "after" });
   const [importError, setImportError] = useState<string | null>(null);
@@ -134,6 +136,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
   );
 
   const update = (change: Partial<Draft>) => setDraft({ ...draft, ...change });
+  const figmaCount = draft.fileKey ? draft.slides.filter((slide) => slide.kind === "figma").length : 0;
 
   // Keeps the deck in step with its Figma file without a button: whenever the editor opens or
   // you come back to it, check Figma's slide list (at most once a minute) and, only if slides
@@ -148,6 +151,12 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
     const check = async () => {
       const { draft: current, token: key } = latest.current;
       const figmaIds = current.slides.flatMap((slide) => (slide.kind === "figma" ? [slide.nodeId] : []));
+      // Decks imported before the Figma file's name was kept pick it up here.
+      if (current.fileKey && key.trim() && !current.figmaName) {
+        figmaFileName(current.fileKey, key.trim())
+          .then((name) => setDraft((now) => (now.fileKey === current.fileKey ? { ...now, figmaName: name } : now)))
+          .catch(() => undefined);
+      }
       if (running || Date.now() - lastCheck < 60_000 || !current.fileKey || !key.trim() || !figmaIds.length) return;
       running = true;
       lastCheck = Date.now();
@@ -282,7 +291,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
     const kept = sameFile ? draft.slides : draft.slides.filter((slide) => slide.kind === "web");
     const next = mergeFigmaSlides(kept, incoming);
     const named = draft.name.trim() ? {} : { name, slug: draft.slugEdited ? draft.slug : slugify(name) };
-    update({ figmaUrl, fileKey, slides: next, ...named });
+    update({ figmaUrl, fileKey, figmaName: name, slides: next, ...named });
     if (!selected || !next.some((slide) => slide.id === selected.id)) setSelectedId(next[0]?.id ?? null);
     setAddOpen(false);
   };
@@ -410,6 +419,13 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
               onAddLive={addWebPage}
               onImportFigma={importFigma}
             />
+            {figmaCount ? (
+              <FigmaSource
+                name={draft.figmaName ?? ""}
+                onOpen={() => draft.figmaUrl && openLink(draft.figmaUrl)}
+                onRemove={() => setDialog("remove-figma")}
+              />
+            ) : null}
           </div>
           <div className="sidebar-scroll">
             <SlideList
@@ -494,6 +510,19 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
           setDialog(null);
         }}
         onExport={() => void exportDeck()}
+      />
+      <RemoveFigmaDialog
+        open={dialog === "remove-figma"}
+        onOpenChange={(open) => setDialog(open ? "remove-figma" : null)}
+        name={draft.figmaName ?? ""}
+        count={figmaCount}
+        onConfirm={() => {
+          // Live pages stay; the deck no longer points at a Figma file.
+          const next = draft.slides.filter((slide) => slide.kind !== "figma");
+          update({ slides: next, figmaUrl: "", fileKey: "", figmaName: undefined });
+          if (!next.some((slide) => slide.id === selectedId)) setSelectedId(next[0]?.id ?? null);
+          setDialog(null);
+        }}
       />
       <StartOverDialog
         open={dialog === "start-over"}
