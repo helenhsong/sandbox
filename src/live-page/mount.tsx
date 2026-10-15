@@ -1,6 +1,7 @@
 import { StrictMode, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { PageWindow } from "./Window";
+import "./page.css";
 
 /**
  * Starts a Sandbox prototype. Opened on its own, it shows inside the light macOS-style window
