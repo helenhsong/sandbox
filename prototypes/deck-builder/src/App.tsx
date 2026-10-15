@@ -302,7 +302,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
                 {draft.fileKey && draft.slides.some((slide) => slide.kind === "figma") ? (
                   <DropdownMenuItem onClick={() => setDialog("reload")}>
                     <RefreshCw size={16} strokeWidth={2} aria-hidden />
-                    Update Figma slides
+                    Get latest from Figma
                   </DropdownMenuItem>
                 ) : null}
                 <DropdownMenuItem onClick={() => fileInput.current?.click()}>
@@ -311,7 +311,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => void exportDeck()} disabled={!draft.slides.length}>
                   <Download size={16} strokeWidth={2} aria-hidden />
-                  Export deck file
+                  Download deck file
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive" onClick={() => setDialog("start-over")}>

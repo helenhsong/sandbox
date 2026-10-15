@@ -183,15 +183,15 @@ export function PublishDialog({ open, onOpenChange, draft, slides, onChange, onS
               <DialogTitle>Publish from your local Sandbox</DialogTitle>
               <DialogDescription>
                 Publishing writes the deck into the sandbox repo, so it only works on your local dev server (npm run dev, then
-                localhost:5173/deck-builder/). Export a deck file here, then choose “Import a deck file” there to pick up where
-                you left off.
+                localhost:5173/deck-builder/). Download the deck file here, then choose Import deck file in the deck menu there to
+                pick up where you left off.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button variant="outline" onClick={() => close(false)}>
                 Close
               </Button>
-              <Button onClick={onExport}>Export deck file</Button>
+              <Button onClick={onExport}>Download deck file</Button>
             </DialogFooter>
           </>
         ) : (
@@ -214,7 +214,7 @@ export function PublishDialog({ open, onOpenChange, draft, slides, onChange, onS
               </div>
             ) : missingImage ? (
               <div className="publish-problem" role="alert">
-                <span>"{(missingImage as FigmaSlide).name}" has no preview from Figma. Update Figma slides, or hide it.</span>
+                <span>"{(missingImage as FigmaSlide).name}" has no preview from Figma. Get latest from Figma, or hide it.</span>
                 <Button type="button" variant="outline" size="sm" onClick={() => onSelect(missingImage.id)}>
                   Show slide
                 </Button>

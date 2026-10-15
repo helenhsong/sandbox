@@ -193,7 +193,7 @@ function InsertPoint({ onClick, label = "Add live page here" }: { onClick: () =>
     <button type="button" className="playlist-insert" onClick={onClick} aria-label={label}>
       <span className="playlist-insert-line" aria-hidden />
       <span className="playlist-insert-pill" aria-hidden>
-        <Plus size={16} strokeWidth={2} />
+        <Plus size={14} strokeWidth={2} />
         Add live page
       </span>
     </button>
