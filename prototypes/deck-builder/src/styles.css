@@ -293,6 +293,17 @@ p {
   min-height: 0;
   overflow-y: auto;
   background: var(--muted);
+  /* The slide fills the space, like Figma's editor: as wide as the panel allows, but never so
+     tall that it and its details (about 104px) don't fit on screen. */
+  --stage-gutter: 36px;
+  --stage-width: 100%;
+}
+
+@media (min-width: 901px) {
+  .builder-main {
+    container-type: size;
+    --stage-width: min(100cqw - 2 * var(--stage-gutter), (100cqh - var(--stage-gutter) - 104px) * 16 / 9);
+  }
 }
 
 /*
@@ -301,10 +312,11 @@ p {
  */
 .builder-stage {
   margin-block: auto;
+  padding-inline: var(--stage-gutter);
 }
 
 .builder-preview {
-  padding: 24px 32px 0;
+  padding-top: var(--stage-gutter);
 }
 
 /* A new deck with no slides yet: a 16:9 placeholder where the slide will be. */
@@ -314,8 +326,8 @@ p {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 100%;
-  max-width: 1040px;
+  width: var(--stage-width);
+  max-width: 100%;
   margin: 0 auto;
   aspect-ratio: 16 / 9;
   padding: 24px;
@@ -339,15 +351,15 @@ p {
 }
 
 .builder-import-error {
-  max-width: 1040px;
+  width: var(--stage-width);
+  max-width: calc(100% - 2 * var(--stage-gutter));
   margin: 16px auto 0;
-  padding: 0 32px;
 }
 
 .builder-preview-frame {
   position: relative;
-  width: 100%;
-  max-width: 1040px;
+  width: var(--stage-width);
+  max-width: 100%;
   margin: 0 auto;
   aspect-ratio: 16 / 9;
   /* Slightly rounded, like the slide in presentation mode outside full screen. */
@@ -684,10 +696,10 @@ p {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 1040px;
+  width: var(--stage-width);
+  max-width: 100%;
   margin: 0 auto;
-  padding: 24px 32px 48px;
-  box-sizing: content-box;
+  padding: 24px 0 48px;
 }
 
 /* The slide type, then (for live pages) its link right beside it. */
@@ -880,10 +892,8 @@ p {
     overflow: visible;
   }
 
-  .builder-preview,
-  .inspector {
-    padding-left: 16px;
-    padding-right: 16px;
+  .builder-main {
+    --stage-gutter: 16px;
   }
 }
 
