@@ -122,10 +122,11 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     if (!root) return;
     const follow = (inside: boolean) => {
       pointerInFrame.current = inside;
+      // Off the slide, the keyboard always comes back to the deck, whatever kind of slide it is.
+      if (!inside && document.activeElement instanceof HTMLIFrameElement) root.focus({ preventScroll: true });
       if (!onLivePage.current) return;
       const frame = activeFrame();
       if (inside && frame && document.activeElement !== frame) frame.focus({ preventScroll: true });
-      if (!inside && document.activeElement instanceof HTMLIFrameElement) root.focus({ preventScroll: true });
     };
     const onMove = (event: PointerEvent) => {
       const box = root.querySelector(".deck-frame")?.getBoundingClientRect();
@@ -145,6 +146,22 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
       root.removeEventListener("pointerleave", onLeave);
     };
   }, [activeFrame]);
+
+  // An embedded page can take the keyboard on its own (Figma's embed, or a page that focuses
+  // itself as it loads). Unless the mouse is over a live page, take it straight back, so the
+  // arrow keys keep working without a click.
+  useEffect(() => {
+    const onBlur = () =>
+      setTimeout(() => {
+        const root = rootRef.current;
+        const active = document.activeElement;
+        if (!root || !(active instanceof HTMLIFrameElement) || !root.contains(active)) return;
+        const pageHasMouse = onLivePage.current && pointerInFrame.current && !active.closest(".deck-figma-live");
+        if (!pageHasMouse) root.focus({ preventScroll: true });
+      }, 0);
+    window.addEventListener("blur", onBlur);
+    return () => window.removeEventListener("blur", onBlur);
+  }, []);
 
   // Arriving on a live page with the mouse already over the slide hands the keyboard to the page.
   useEffect(() => {
