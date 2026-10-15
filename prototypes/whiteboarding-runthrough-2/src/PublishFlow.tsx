@@ -15,6 +15,7 @@ import {
   type ReviewType,
   type TemplateId,
 } from "./data";
+import { useHistoryState } from "./history";
 import { BookCover, Field, useDeckFill } from "./ui";
 
 /** File names differ at the end (extension, version), so truncate the middle. */
@@ -57,7 +58,7 @@ function validate(b: Book, step: number, terms: boolean): Errors {
 
 export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) {
   const [book, setBook] = useState<Book>(initial);
-  const [step, setStep] = useState(resubmit ? 1 : Math.min(initial.step, 4));
+  const [step, setStep] = useHistoryState("step", resubmit ? 1 : Math.min(initial.step, 4), { nested: true });
   const [terms, setTerms] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [generating, setGenerating] = useState(false);

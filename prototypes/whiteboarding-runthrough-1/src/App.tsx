@@ -3,6 +3,7 @@ import { Button } from "@helenhsong/ui";
 import { Gift } from "lucide-react";
 import { newBook, type Book, type Notice } from "./data";
 import { Books, type Tab } from "./Books";
+import { useHistoryState } from "./history";
 import { PublishFlow } from "./PublishFlow";
 import { Home, Landing } from "./Store";
 import { Cover, StoreHeader, SubNav, Toast } from "./ui";
@@ -18,7 +19,7 @@ const CHANGES_REASON =
   "Some chapters include mature content, but the book is rated General audience. Change the audience to Adults only, or edit those chapters, then resubmit.";
 
 export function App() {
-  const [view, setView] = useState<View>({ name: "home" });
+  const [view, setView] = useHistoryState<View>("view", { name: "home" });
   const [books, setBooks] = useState<Book[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [tab, setTab] = useState<Tab>("review");

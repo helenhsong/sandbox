@@ -2,6 +2,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { Button } from "@helenhsong/ui";
 import { AlertCircle, Check, FileText, LoaderCircle, Lock, ShieldCheck, Sparkles, Upload, X } from "lucide-react";
 import { COVER_TEMPLATES, GENRES, RATING_HINT, RATING_LABEL, aiDescription, earnings, formatPrice, royaltyRate, type Book, type Rating } from "./data";
+import { useHistoryState } from "./history";
 import { Cover, Wordmark, useDeckFill, useScrollLock } from "./ui";
 
 const STEP_NAMES = ["Book details", "Cover", "Audience & price", "Review & submit"];
@@ -33,7 +34,7 @@ function validate(step: number, b: Book, agreed: boolean): Errors {
 
 export function PublishFlow({ initial, resubmit, onExit, onSubmit }: Props) {
   const [book, setBook] = useState(initial);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useHistoryState("step", 0, { nested: true });
   const [errors, setErrors] = useState<Errors>({});
   const [agreed, setAgreed] = useState(false);
   const [generating, setGenerating] = useState(false);

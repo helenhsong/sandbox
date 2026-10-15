@@ -40,7 +40,7 @@ function WebFrame({ slide }: { slide: WebSlide }) {
   return <WebFrameInner key={src} slide={slide} src={src} />;
 }
 
-/** Whether a page is on this site, so the window's back and forward can reach its history. */
+/** Whether a page is on this site, so the window can reach what it offers (screen history, filling in). */
 function isSameSite(src: string) {
   try {
     return new URL(src, window.location.href).origin === window.location.origin;
@@ -49,46 +49,35 @@ function isSameSite(src: string) {
   }
 }
 
+/** Fired by a Sandbox page when it starts or stops offering window.deckFill. */
+const DECK_FILL_EVENT = "deckfill";
+/** Fired by a Sandbox page when its screen history (window.deckHistory) moves. */
+const DECK_HISTORY_EVENT = "deckhistory";
+type DeckPage = Window & {
+  deckFill?: () => void;
+  deckHistory?: { back: () => void; forward: () => void; canBack: () => boolean; canForward: () => boolean };
+};
+
 /**
  * A live page in a macOS-style window: back, forward and reload in the title bar to get unstuck,
  * and the page's name in the middle.
  */
-/** Fired by a Sandbox page when it starts or stops offering window.deckFill. */
-const DECK_FILL_EVENT = "deckfill";
-type DeckPage = Window & { __deckWatched?: boolean; deckFill?: () => void };
-
 function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
   const [loaded, setLoaded] = useState(false);
   // Changing this remounts the page at its starting address.
   const [visit, setVisit] = useState(0);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const label = slide.title || urlLabel(slide.url);
-  // Other sites' pages keep their history to themselves, so only Sandbox pages get back and forward.
+  // Other sites' pages can't be reached, so their back and forward stay off.
   const sameSite = isSameSite(src);
 
-  // The page's own history, as far as the window has seen it: where we are and how far forward
-  // it goes. Back and forward only light up when there's somewhere to go, so they never step
-  // back the deck itself (an empty history in the page would fall through to the page around it).
-  const history = useRef({ index: -1, length: 0, pending: null as "back" | "forward" | null });
+  // A Sandbox prototype can offer its own screen history (window.deckHistory) for back and
+  // forward. The browser's history isn't used: it's shared with the deck, so stepping back in
+  // the page could step the deck back too.
   const [nav, setNav] = useState({ back: false, forward: false });
   // A Sandbox prototype can offer to fill in the screen it's on (window.deckFill), for moving
   // through a demo quickly. The button only shows while the page offers it.
   const [canFill, setCanFill] = useState(false);
-  const sync = () => {
-    const { index, length } = history.current;
-    setNav({ back: index > 0, forward: index < length - 1 });
-  };
-  const moved = () => {
-    const h = history.current;
-    if (h.pending === "back") h.index -= 1;
-    else if (h.pending === "forward") h.index += 1;
-    else {
-      h.index += 1;
-      h.length = h.index + 1;
-    }
-    h.pending = null;
-    sync();
-  };
 
   if (!slide.url) {
     return (
@@ -108,7 +97,6 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
   };
   const restart = () => {
     setLoaded(false);
-    history.current = { index: -1, length: 0, pending: null };
     setNav({ back: false, forward: false });
     setCanFill(false);
     setVisit((value) => value + 1);
@@ -121,35 +109,32 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
     }
   };
   const go = (direction: "back" | "forward") => {
-    const page = pageWindow();
-    if (!page) return;
-    history.current.pending = direction;
-    if (direction === "back") page.history.back();
-    else page.history.forward();
+    try {
+      const history = (pageWindow() as DeckPage | null)?.deckHistory;
+      if (direction === "back") history?.back();
+      else history?.forward();
+    } catch {
+      // The page went away mid-click.
+    }
   };
 
-  /** Each new page counts as a step; a Sandbox page's own address changes (pushState) do too. */
+  /** Picks up what a Sandbox prototype offers: its screen history and filling in a screen. */
   const onLoad = () => {
     setLoaded(true);
-    moved();
+    setNav({ back: false, forward: false });
+    setCanFill(false);
     if (!sameSite) return;
     try {
       const page = frameRef.current?.contentWindow as DeckPage | null;
       if (!page) return;
+      const checkNav = () => setNav({ back: Boolean(page.deckHistory?.canBack()), forward: Boolean(page.deckHistory?.canForward()) });
       const checkFill = () => setCanFill(typeof page.deckFill === "function");
+      checkNav();
       checkFill();
+      page.addEventListener(DECK_HISTORY_EVENT, checkNav);
       page.addEventListener(DECK_FILL_EVENT, checkFill);
-      if (page.__deckWatched) return;
-      page.__deckWatched = true;
-      const push = page.history.pushState.bind(page.history);
-      page.history.pushState = (...args: Parameters<History["pushState"]>) => {
-        push(...args);
-        history.current.pending = null;
-        moved();
-      };
-      page.addEventListener("popstate", moved);
     } catch {
-      // Can't watch this page; the counts from page loads still apply.
+      // Can't reach this page; its back and forward stay off.
     }
   };
 
@@ -163,10 +148,10 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
             <span />
           </span>
           <span className="deck-window-nav">
-            <button type="button" onClick={() => go("back")} disabled={!sameSite || !nav.back} aria-label="Back" title="Back">
+            <button type="button" onClick={() => go("back")} disabled={!nav.back} aria-label="Back" title="Back">
               <ChevronLeft size={16} strokeWidth={2} aria-hidden />
             </button>
-            <button type="button" onClick={() => go("forward")} disabled={!sameSite || !nav.forward} aria-label="Forward" title="Forward">
+            <button type="button" onClick={() => go("forward")} disabled={!nav.forward} aria-label="Forward" title="Forward">
               <ChevronRight size={16} strokeWidth={2} aria-hidden />
             </button>
             <button

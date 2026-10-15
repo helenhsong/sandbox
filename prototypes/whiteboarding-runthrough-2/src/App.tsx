@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@helenhsong/ui";
 import { Gift } from "lucide-react";
 import { Books, type Banner, type View } from "./Books";
+import { useHistoryState } from "./history";
 import { PublishFlow } from "./PublishFlow";
 import { Home, Landing } from "./Store";
 import { EMAIL, emptyBook, sampleBooks, type Book, type Notice } from "./data";
@@ -11,9 +12,10 @@ type Screen = "home" | "landing" | "flow" | "books" | "published";
 const AI_REVIEW_MS = 5000;
 
 export function App() {
-  const [screen, setScreen] = useState<Screen>("home");
+  const [screen, setScreen] = useHistoryState<Screen>("screen", "home");
   const [books, setBooks] = useState<Book[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
+  // Kept after leaving the flow, so Back can return to it.
   const [draft, setDraft] = useState<{ book: Book; resubmit: boolean } | null>(null);
   const [view, setView] = useState<View>("all");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -92,7 +94,6 @@ export function App() {
           ? `AI review usually takes under an hour (about 5 seconds in this prototype). We'll email ${EMAIL} and notify you here.`
           : `Human review takes up to 24 hours. We'll email ${EMAIL} and notify you here.`,
     });
-    setDraft(null);
     setOpenId(null);
     setView("review");
     setScreen("books");
@@ -109,7 +110,6 @@ export function App() {
       setView("all");
       setToast("Changes discarded. Your book wasn't resubmitted.");
     }
-    setDraft(null);
     setScreen("books");
   };
 
