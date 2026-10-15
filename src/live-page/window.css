@@ -11,7 +11,6 @@
   --pw-fg-disabled: #52525b;
   --pw-hover: rgb(255 255 255 / 0.08);
   --pw-fg-hover: #fafafa;
-  --pw-field: rgb(255 255 255 / 0.06);
 
   display: flex;
   flex-direction: column;
@@ -29,7 +28,6 @@
   --pw-fg-disabled: #d4d4d8;
   --pw-hover: rgb(0 0 0 / 0.06);
   --pw-fg-hover: #18181b;
-  --pw-field: #e9e9eb;
 }
 
 .page-window-bar {
@@ -84,72 +82,52 @@
 }
 
 /*
- * The address bar, showing the project's slug: centered on the window whatever sits at either
- * end. Just a label, with no hover or focus state of its own.
+ * The address bar: the library's input, showing the project's slug, centered on the window
+ * whatever sits at either end. Just a label, with no hover or focus state of its own.
  */
 .page-window-url {
   position: absolute;
   top: 50%;
   left: 50%;
   translate: -50% -50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: min(344px, calc(100% - 288px));
-  height: 32px;
-  padding: 0 36px;
-  border-radius: 16px;
-  background: var(--pw-field);
-  font-size: 13px;
   cursor: default;
 }
 
-/* A long slug ends in "…" rather than running under the open button. */
-.page-window-url-text {
-  min-width: 0;
-  overflow: hidden;
-  font-weight: 500;
+/* The input as it looks on a page: on the page's background, so it stands out from the gray bar. */
+.page-window-url [data-slot="input-group"] {
+  background: var(--background, #fff);
+}
+
+/* Can't be clicked into, so it never takes focus or shows a focus ring. A long slug ends in "…". */
+.page-window-url .page-window-url-input {
+  pointer-events: none;
+  text-align: center;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pw-fg);
+}
+
+/* With the open button on the right, the same space on the left keeps the slug centered. */
+.page-window-url[data-link] .page-window-url-input {
+  padding-left: 30px;
 }
 
 /* Opening the page in a new tab: shows while the mouse is on the address bar. */
-.page-window-url-open {
-  position: absolute;
-  top: 50%;
-  right: 4px;
-  translate: 0 -50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  color: inherit;
+.page-window-url .page-window-url-open {
   opacity: 0;
   transition: opacity 120ms ease-out;
 }
 
 .page-window-url:hover .page-window-url-open,
-.page-window-url-open:focus-visible {
+.page-window-url .page-window-url-open:focus-visible {
   opacity: 1;
-}
-
-.page-window-url-open:focus-visible {
-  outline: 2px solid var(--pw-fg-hover);
-  outline-offset: 1px;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .page-window-url-open:hover {
-    background: var(--pw-hover);
-    color: var(--pw-fg-hover);
-  }
 }
 
 /* Without a mouse there's no hover, so the button always shows. */
 @media (hover: none) {
-  .page-window-url-open {
+  .page-window-url .page-window-url-open {
     opacity: 1;
   }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@helenhsong/ui";
 import { ArrowLeft, ArrowRight, ArrowUpRight, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
 import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "./contract";
 import "./window.css";
@@ -165,25 +166,29 @@ export function PageWindow({ src, label, openLink = true, theme = "light" }: Pag
             <RotateCw size={14} strokeWidth={2} aria-hidden />
           </button>
         </span>
-        {/* The project's slug, centered where a browser shows the address. It's only a label
-            (nothing to type in); in a deck, hovering it shows a button that opens the page in a new tab. */}
-        <span className="page-window-url">
-          <span className="page-window-url-text" title={slug}>
-            {slug}
-          </span>
-          {openLink ? (
-            <a
-              className="page-window-url-open"
-              href={address}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Open in a new tab"
-              title="Open in a new tab"
-            >
-              <ArrowUpRight size={14} strokeWidth={2} aria-hidden />
-            </a>
-          ) : null}
-        </span>
+        {/* The project's slug, centered where a browser shows the address, in the library's input.
+            It's only a label: it can't be typed in, hovered or focused. In a deck, hovering it shows a
+            button that opens the page in a new tab. */}
+        <div className="page-window-url" data-link={openLink || undefined}>
+          <InputGroup>
+            <InputGroupInput className="page-window-url-input" value={slug} title={slug} readOnly tabIndex={-1} aria-label="Page" />
+            {openLink ? (
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton
+                  className="page-window-url-open"
+                  size="icon-xs"
+                  variant="ghost"
+                  nativeButton={false}
+                  render={<a href={address} target="_blank" rel="noopener noreferrer" />}
+                  aria-label="Open in a new tab"
+                  title="Open in a new tab"
+                >
+                  <ArrowUpRight size={14} strokeWidth={2} aria-hidden />
+                </InputGroupButton>
+              </InputGroupAddon>
+            ) : null}
+          </InputGroup>
+        </div>
         <span className="page-window-spacer" aria-hidden />
         <span className="page-window-actions">
           {canFill ? (
