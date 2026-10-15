@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
 import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "./contract";
 import "./window.css";
@@ -74,6 +74,25 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
     }
   };
 
+  // N fast-forwards too, from the page around the window or from inside the prototype.
+  const onShortcut = useRef<(event: KeyboardEvent) => void>(() => {});
+  useEffect(() => {
+    onShortcut.current = (event) => {
+      if (event.key !== "n" && event.key !== "N") return;
+      if (event.metaKey || event.ctrlKey || event.altKey || event.repeat || !canFill) return;
+      if (isTyping(event.target)) return;
+      // In a deck, only the slide that's showing responds.
+      if (frameRef.current && !frameRef.current.checkVisibility({ visibilityProperty: true })) return;
+      event.preventDefault();
+      fill();
+    };
+  });
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => onShortcut.current(event);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   /** Picks up what a Sandbox prototype offers: its screen history and filling in a screen. */
   const onLoad = () => {
     setLoaded(true);
@@ -89,6 +108,7 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
       checkFill();
       page.addEventListener(DECK_HISTORY_EVENT, checkNav);
       page.addEventListener(DECK_FILL_EVENT, checkFill);
+      page.addEventListener("keydown", (event) => onShortcut.current(event));
     } catch {
       // Can't reach this page; its back and forward stay off.
     }
@@ -127,7 +147,7 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
         {/* As wide as the controls on the left, so the title stays centered. */}
         <span className="page-window-actions">
           {canFill ? (
-            <button type="button" onClick={fill} aria-label="Fast-forward this screen" title="Fast-forward this screen">
+            <button type="button" onClick={fill} aria-label="Fast-forward this screen" title="Fast-forward this screen (N)" aria-keyshortcuts="N">
               <MousePointerClick size={16} strokeWidth={2} aria-hidden />
             </button>
           ) : null}
@@ -151,4 +171,11 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
       </div>
     </div>
   );
+}
+
+/** Whether a key press is someone typing (a field, a text area, editable text), not a shortcut. */
+function isTyping(target: EventTarget | null) {
+  const element = target as HTMLElement | null;
+  if (!element || typeof element.closest !== "function") return false;
+  return Boolean(element.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])"));
 }
