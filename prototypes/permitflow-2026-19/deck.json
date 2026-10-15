@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "name": "PermitFlow (2026.17)",
+  "slug": "permitflow-2026-19",
+  "createdAt": "2026-10-15",
+  "source": {
+    "figmaUrl": "https://www.figma.com/deck/pseM3YmociSaKT09yMSNmv",
+    "fileKey": "pseM3YmociSaKT09yMSNmv"
+  },
+  "figmaLive": true,
+  "slides": [
+    {
+      "id": "figma-mv99x8iv-1",
+      "kind": "figma",
+      "nodeId": "1:42",
+      "name": "1",
+      "image": "01.webp"
+    },
+    {
+      "id": "web-mv99sb7i-1",
+      "kind": "web",
+      "url": "sandbox:/contractor-permits/",
+      "title": "Contractor Permits"
+    },
+    {
+      "id": "figma-mv99x8iv-2",
+      "kind": "figma",
+      "nodeId": "6:4",
+      "name": "2",
+      "image": "02.webp"
+    },
+    {
+      "id": "figma-mv99x8iv-3",
+      "kind": "figma",
+      "nodeId": "1:94",
+      "name": "3",
+      "image": "03.webp"
+    }
+  ]
+}

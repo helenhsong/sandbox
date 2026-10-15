@@ -275,7 +275,7 @@ interface SlideNode {
  * slides are the layers holding a full slide-sized frame, in document order (section by
  * section, then left to right).
  */
-async function listSlides(fileKey: string, token: string): Promise<SlideNode[]> {
+export async function listSlides(fileKey: string, token: string): Promise<SlideNode[]> {
   for (const id of PAGE_IDS) {
     const result = await figmaGet<{ err: string | null; images: Record<string, string | null> }>(
       `/v1/images/${fileKey}?ids=${encodeURIComponent(id)}&format=svg&svg_include_node_id=true&svg_include_id=true&svg_outline_text=false`,

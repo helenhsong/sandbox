@@ -10,7 +10,7 @@ export function SlideView({ slide }: { slide: Slide }) {
   if (slide.kind === "figma") {
     if (slide.embedUrl) return <FigmaFrame key={slide.embedUrl} slide={slide} src={slide.embedUrl} />;
     if (isImageLoading(slide.image)) return <div className="deck-slide-placeholder deck-slide-loading" aria-label="Loading slide" />;
-    if (!slide.image) return <div className="deck-slide-placeholder">No preview. Get latest from Figma.</div>;
+    if (!slide.image) return <div className="deck-slide-placeholder">No preview from Figma.</div>;
     return <img className="deck-slide-image" src={slide.image} alt={slide.name} draggable={false} />;
   }
   return <WebFrame slide={slide} />;

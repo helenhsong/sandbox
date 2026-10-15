@@ -96,6 +96,8 @@ export function mergeFigmaSlides(currentSlides: Slide[], incoming: FigmaSlide[])
     return slide.nodeId.startsWith("slide-") && match && !match.nodeId.startsWith("slide-") ? { ...slide, nodeId: match.nodeId } : slide;
   });
   const hidden = new Set(current.filter((s): s is FigmaSlide => s.kind === "figma" && Boolean(s.hidden)).map((s) => s.nodeId));
+  // Slides already in the deck keep their IDs, so the selection and loaded previews stay put.
+  const existingIds = new Map(current.filter((s): s is FigmaSlide => s.kind === "figma").map((s) => [s.nodeId, s.id]));
   const anchored = new Map<string | null, WebSlide[]>();
   let anchor: string | null = null;
   for (const slide of current) {
@@ -106,7 +108,8 @@ export function mergeFigmaSlides(currentSlides: Slide[], incoming: FigmaSlide[])
   const result: Slide[] = [...(anchored.get(null) ?? [])];
   const placed = new Set<string | null>([null]);
   for (const slide of incoming) {
-    result.push(hidden.has(slide.nodeId) ? { ...slide, hidden: true } : slide);
+    const id = existingIds.get(slide.nodeId) ?? slide.id;
+    result.push(hidden.has(slide.nodeId) ? { ...slide, id, hidden: true } : { ...slide, id });
     result.push(...(anchored.get(slide.nodeId) ?? []));
     placed.add(slide.nodeId);
   }

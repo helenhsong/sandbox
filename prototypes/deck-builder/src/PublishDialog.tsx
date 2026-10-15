@@ -215,7 +215,7 @@ export function PublishDialog({ open, onOpenChange, draft, slides, onChange, onS
               </div>
             ) : missingImage ? (
               <div className="publish-problem" role="alert">
-                <span>"{(missingImage as FigmaSlide).name}" has no preview from Figma. Get latest from Figma, or hide it.</span>
+                <span>"{(missingImage as FigmaSlide).name}" has no preview from Figma. Import the Figma slides again from Add slide, or hide it.</span>
                 <Button type="button" variant="outline" size="sm" onClick={() => onSelect(missingImage.id)}>
                   Show slide
                 </Button>

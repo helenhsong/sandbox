@@ -158,6 +158,20 @@
       },
       "publishedUrl": null,
       "notes": "Presentation published from Deck Builder: Figma slides with live web pages in between."
+    },
+    {
+      "name": "PermitFlow (2026.17)",
+      "slug": "permitflow-2026-19",
+      "path": "prototypes/permitflow-2026-19/",
+      "purpose": "client-demo",
+      "status": "active",
+      "createdAt": "2026-10-15",
+      "designSource": {
+        "type": "figma",
+        "reference": "https://www.figma.com/deck/pseM3YmociSaKT09yMSNmv"
+      },
+      "publishedUrl": null,
+      "notes": "Presentation published from Deck Builder: Figma slides with live web pages in between."
     }
   ]
 }

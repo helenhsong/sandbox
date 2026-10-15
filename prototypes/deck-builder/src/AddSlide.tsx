@@ -181,8 +181,8 @@ function FigmaForm({ figmaUrl, token, setToken, onClose, onImportFigma }: AddFor
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState("Importing…");
-  // The token field shows until one is saved; after that it lives in Get latest from Figma.
-  const [askToken] = useState(!token);
+  // The token field shows until one is saved, and again if an import fails (to fix or replace it).
+  const [askToken, setAskToken] = useState(!token);
   const fileKey = parseFigmaUrl(url);
   const replacing = Boolean(figmaUrl) && fileKey !== parseFigmaUrl(figmaUrl);
 
@@ -197,6 +197,7 @@ function FigmaForm({ figmaUrl, token, setToken, onClose, onImportFigma }: AddFor
       onImportFigma({ figmaUrl: url.trim(), fileKey, name, slides });
     } catch (caught) {
       setError(caught instanceof FigmaError ? caught.message : "Something went wrong loading the file. Try again.");
+      setAskToken(true);
       setLoading(false);
     }
   };
