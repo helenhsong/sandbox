@@ -13,8 +13,8 @@ export function mountDeck(deck: Deck, images: Record<string, string>) {
   const withImages: Slide[] = deck.slides.map((slide) =>
     slide.kind === "figma" ? { ...slide, image: images[`../slides/${slide.image}`] ?? slide.image } : slide,
   );
-  // Decks published with live Figma slides show Figma's embed over each image.
-  const slides = deck.figmaLive ? withFigmaEmbeds(withImages, deck.source) : withImages;
+  // Figma slides show live, as Figma's embed, including decks published before that was an option.
+  const slides = deck.figmaLive === false ? withImages : withFigmaEmbeds(withImages, deck.source);
   document.body.style.margin = "0";
   document.body.style.background = "#0b0b0c";
   createRoot(document.getElementById("root")!).render(
