@@ -11,7 +11,7 @@ export interface LivePageWindow {
     canBack: () => boolean;
     canForward: () => boolean;
   };
-  /** Fills in what the current screen needs to move on, for the window's fill button. */
+  /** Moves the current screen along the happy path, for the window's cursor button. */
   deckFill?: () => void;
 }
 

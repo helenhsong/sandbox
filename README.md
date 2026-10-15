@@ -32,16 +32,19 @@ unless their registry entry says otherwise.
 ## Prototypes in decks
 
 A deck's live page shows a prototype in a macOS-style window with back, forward,
-reload and a fill button. Every prototype supports them with the hooks in
+reload and a cursor button for shortcuts. Every prototype supports them with the hooks in
 [`src/live-page`](src/live-page/index.ts):
 
 - `useHistoryState` for the current screen and for each step of a flow (pass
   `nested: true` for a step inside a screen), instead of `useState`. Back and
   forward then step through them, in the deck window and in the browser.
-- `useDeckFill` on every screen with required input. Its function fills in
-  realistic values for whatever is still empty or invalid, or loads sample
-  data into an empty screen, so a flow can be walked through quickly. Don't
-  add sample or shortcut buttons to the prototype itself.
+- `useDeckFill` on every screen a presenter needs to get through. The window's
+  cursor button runs it, always along the happy path: fill in realistic values
+  for whatever is still empty or invalid, load sample data into an empty
+  screen, or finish a simulated wait with its successful outcome (approving a
+  review, say).
+
+Don't add sample, shortcut or "prototype only" controls to the prototype itself.
 
 ```tsx
 import { useDeckFill, useHistoryState } from "../../../src/live-page";

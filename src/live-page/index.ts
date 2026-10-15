@@ -5,8 +5,9 @@ import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "./cont
  * Hooks every Sandbox prototype uses, so it works in a deck's macOS-style window:
  *
  * - `useHistoryState` for screens and steps, so back and forward step through them.
- * - `useDeckFill` on screens with required input, so the window's fill button can complete
- *   them. Prototypes don't add their own sample or shortcut buttons for this.
+ * - `useDeckFill` on every screen a presenter would need to get through, so the window's cursor
+ *   button can move the demo along the happy path. Prototypes don't add their own sample,
+ *   shortcut or "prototype only" controls for this.
  *
  * On its own, a prototype uses the browser's history, so Back and Forward work as usual. Inside
  * a deck's window it keeps its own list instead, because the browser's history is shared with
@@ -93,10 +94,12 @@ function announceFill() {
 }
 
 /**
- * Offers the window's fill button for the current screen. `fill` sets realistic values for
- * whatever is still empty or invalid and required to move on (leaving what the user entered),
- * or loads sample data into an empty screen. It doesn't continue to the next step; the
- * presenter does. Pass `null` while the screen has nothing to fill.
+ * Offers the window's cursor button for the current screen, always taking the happy path.
+ * `fill` sets realistic values for whatever is still empty or invalid and required to move on
+ * (leaving what the user entered), loads sample data into an empty screen, or finishes a
+ * simulated wait with its successful outcome (approving a review, say). Filling doesn't
+ * continue to the next step; the presenter presses the screen's own action. Pass `null` while
+ * the screen has nothing to do.
  */
 export function useDeckFill(fill: (() => void) | null) {
   const handler = useRef<() => void>(() => {});

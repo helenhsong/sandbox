@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "@helenhsong/ui";
 import { BookPlus, CircleCheck, Clock, Lock, Mail, Rocket, ShieldCheck, Sparkles, TriangleAlert, X } from "lucide-react";
 import { COVER_TEMPLATES, RATING_LABEL, READER, STATUS_LABEL, dueBy, formatDate, formatPrice, type Book, type Status } from "./data";
+import { useDeckFill } from "../../../src/live-page";
 import { Cover, StatusBadge, useScrollLock } from "./ui";
 
 export type Tab = Status | "all";
@@ -177,6 +178,8 @@ function RowAction({ b, onOpen, onEdit }: { b: Book; onOpen: () => void; onEdit:
 function BookSheet({ book, onClose, onEdit, onPublish, onDecide }: { book: Book; onClose: () => void; onEdit: (b: Book) => void; onPublish: (b: Book) => void; onDecide: (b: Book, approve: boolean) => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   useScrollLock();
+  // In a deck, the window's cursor button skips the wait and approves the review.
+  useDeckFill(book.status === "review" ? () => onDecide(book, true) : null);
   useEffect(() => {
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -226,20 +229,6 @@ function BookSheet({ book, onClose, onEdit, onPublish, onDecide }: { book: Book;
           </div>
           {book.description && <p className="muted">{book.description}</p>}
 
-          {book.status === "review" && (
-            <div className="proto-controls">
-              <p className="meta strong">Prototype controls</p>
-              <p className="muted meta">Skip the wait and simulate the review result.</p>
-              <div className="footer-right">
-                <Button size="sm" variant="outline" onClick={() => onDecide(book, false)}>
-                  Request changes
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => onDecide(book, true)}>
-                  Approve now
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
 
         <footer className="sheet-footer">

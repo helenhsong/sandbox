@@ -167,7 +167,7 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
           {/* As wide as the controls on the left, so the title stays centered. */}
           <span className="deck-window-actions">
             {canFill ? (
-              <button type="button" onClick={fill} aria-label="Fill in this screen" title="Fill in this screen">
+              <button type="button" onClick={fill} aria-label="Fast-forward this screen" title="Fast-forward this screen">
                 <MousePointerClick size={16} strokeWidth={2} aria-hidden />
               </button>
             ) : null}

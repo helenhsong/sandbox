@@ -25,6 +25,7 @@ import {
 } from "@helenhsong/ui";
 import { AlertCircle, BookPlus, CheckCircle2, ChevronRight, Clock, X } from "lucide-react";
 import { AUDIENCE, REVIEW, STATUS_LABEL, VIEW_ORDER, formatDate, formatWhen, money, royalty, type Book, type Status } from "./data";
+import { useDeckFill } from "../../../src/live-page";
 import { BookCover, Breadcrumbs, StatusBadge } from "./ui";
 
 export type View = Status | "all";
@@ -219,6 +220,8 @@ export function Books(p: Props) {
 
 function BookSheet({ book, onClose, onPublish, onEdit, onCompleteReview }: { book: Book; onClose: () => void; onPublish: (b: Book) => void; onEdit: (b: Book) => void; onCompleteReview: (b: Book, ok: boolean) => void }) {
   const r = royalty(book.price);
+  // In a deck, the window's cursor button skips the wait and approves the review.
+  useDeckFill(book.status === "review" ? () => onCompleteReview(book, true) : null);
   const details: [string, ReactNode][] = [
     ["Status", <StatusBadge status={book.status} />],
     ["Audience", book.audience ? AUDIENCE[book.audience].label : "—"],
@@ -302,19 +305,6 @@ function BookSheet({ book, onClose, onPublish, onEdit, onCompleteReview }: { boo
             ))}
           </dl>
 
-          {book.status === "review" && (
-            <div className="proto-box">
-              <p className="meta">Prototype only: finish this review now</p>
-              <div className="actions">
-                <Button variant="outline" size="sm" onClick={() => onCompleteReview(book, false)}>
-                  Request changes
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => onCompleteReview(book, true)}>
-                  Approve
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
 
         <SheetFooter className="sheet-foot">
