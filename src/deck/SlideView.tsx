@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Globe, LoaderCircle, RotateCw, TextCursorInput } from "lucide-react";
+import { ChevronLeft, ChevronRight, Globe, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
 import { isImageLoading, resolveUrl, urlLabel, type FigmaSlide, type Slide, type WebSlide } from "./types";
 
 /**
@@ -189,7 +189,7 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
           <span className="deck-window-actions">
             {canFill ? (
               <button type="button" onClick={fill} aria-label="Fill in this screen" title="Fill in this screen">
-                <TextCursorInput size={16} strokeWidth={2} aria-hidden />
+                <MousePointerClick size={16} strokeWidth={2} aria-hidden />
               </button>
             ) : null}
           </span>
