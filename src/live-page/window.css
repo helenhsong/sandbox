@@ -181,14 +181,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 72px 56px;
   background: #ececee;
 }
 
-/* The same window for every prototype: as large as the page allows, up to a desktop width. */
+/* The same window for every prototype: as large as the page allows, up to its size on a 16-inch
+   MacBook Pro; bigger screens center it. */
 .prototype-shell .page-window {
   width: 100%;
   max-width: 1440px;
+  max-height: 880px;
   border-radius: 10px;
   box-shadow:
     0 0 0 1px rgb(0 0 0 / 0.08),
