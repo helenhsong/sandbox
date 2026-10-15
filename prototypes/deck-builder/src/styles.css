@@ -201,9 +201,10 @@ p {
 
 .sidebar-add {
   padding: 16px 16px 8px;
-  /* Reserves the same scrollbar space as the slide list below, so their right edges line up. */
+  /* Reserves the slide list's scrollbar space on both sides, like the list below, so everything
+     in the sidebar is centered and lines up whether or not a scrollbar shows. */
   overflow: hidden;
-  scrollbar-gutter: stable;
+  scrollbar-gutter: stable both-edges;
 }
 
 .add-trigger {
@@ -278,7 +279,7 @@ p {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  scrollbar-gutter: stable;
+  scrollbar-gutter: stable both-edges;
   /* The selected row's background reaches 6px past the buttons on each side, so the thumbnails
      line up with the buttons' edges. */
   padding: 8px 10px 16px 10px;
