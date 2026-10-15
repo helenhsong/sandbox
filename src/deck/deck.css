@@ -152,18 +152,28 @@
 
 /* Live web page */
 
-/* Live page: the light macOS-style window (src/live-page/window.css) on a light gray background,
-   the same as on Sandbox pages. The margin scales with the slide. */
+/* Live page: the light macOS-style window (src/live-page/window.css) on the light gray page, the
+   same as on Sandbox pages. SlideView lays it out on a 1728 × 972 screen and scales it to fit. */
 .deck-web {
+  position: relative;
   display: flex;
-  flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 3% 3.5%;
+  overflow: hidden;
   background: #ececee;
 }
 
-.deck-web > .page-window {
+/* The window at its Sandbox-page size, 1440 × 828, centered on the screen. */
+.deck-web-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  padding: 72px 144px;
+  transform-origin: 0 0;
+}
+
+.deck-web-screen > .page-window {
   border-radius: 10px;
   box-shadow:
     0 0 0 1px rgb(0 0 0 / 0.08),
@@ -171,6 +181,7 @@
 }
 
 .deck-web-empty {
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;

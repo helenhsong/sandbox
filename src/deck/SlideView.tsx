@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { Globe } from "lucide-react";
 import { PageWindow } from "../live-page/Window";
 import { isImageLoading, resolveUrl, urlLabel, type FigmaSlide, type Slide, type WebSlide } from "./types";
@@ -34,8 +35,26 @@ function FigmaFrame({ slide, src }: { slide: FigmaSlide; src: string }) {
   );
 }
 
-/** A live page: the light macOS-style window on a light gray background, like on Sandbox pages. */
+/**
+ * A live page, laid out like a 16-inch MacBook Pro screen in 16:9 (1728 × 972) with the window at
+ * the size it has on a Sandbox project page there (1440 × 828), then scaled to fit the slide. The
+ * prototype inside lays out the same way in a deck as on its own page, at any slide size.
+ */
+const SCREEN = { width: 1728, height: 972 };
+
 function WebFrame({ slide }: { slide: WebSlide }) {
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0);
+  useLayoutEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const fit = () => setScale(Math.min(frame.clientWidth / SCREEN.width, frame.clientHeight / SCREEN.height));
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
+
   if (!slide.url) {
     return (
       <div className="deck-web deck-web-empty">
@@ -46,9 +65,11 @@ function WebFrame({ slide }: { slide: WebSlide }) {
   }
   const src = resolveUrl(slide.url);
   return (
-    <div className="deck-web">
-      {/* Keyed by src so a new URL shows the loading state again. */}
-      <PageWindow key={src} src={src} label={slide.title || urlLabel(slide.url)} theme="light" />
+    <div className="deck-web" ref={frameRef}>
+      <div className="deck-web-screen" style={{ width: SCREEN.width, height: SCREEN.height, transform: `scale(${scale || 1})`, visibility: scale ? undefined : "hidden" }}>
+        {/* Keyed by src so a new URL shows the loading state again. */}
+        <PageWindow key={src} src={src} label={slide.title || urlLabel(slide.url)} theme="light" />
+      </div>
     </div>
   );
 }
