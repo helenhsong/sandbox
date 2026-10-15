@@ -205,13 +205,16 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   );
   const step = useCallback((delta: number) => go(indexRef.current + delta), [go]);
 
+  // Lets the live page's key listener (set up before toggleFullscreen exists) toggle full screen.
+  const toggleFullscreenRef = useRef<() => void>(() => undefined);
+
   /** Leaves the presentation: closes it in the editor, or goes back to Sandbox from a published deck. */
   const exit = useCallback(() => {
     if (onClose) onClose();
     else if (exitHref) window.location.assign(exitHref);
   }, [onClose, exitHref]);
 
-  // R restarts (and X leaves) even while a live page has the keyboard (unless you're typing in it). Pages from
+  // R restarts, X leaves and F toggles full screen even while a live page has the keyboard (unless you're typing in it). Pages from
   // Sandbox are on this site, so their key presses can be heard; other sites' can't.
   useEffect(() => {
     if (slides[index]?.kind !== "web") return;
@@ -220,13 +223,14 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     let win: Window | null = null;
     const onKey = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
-      if (key !== "r" && key !== "x") return;
+      if (key !== "r" && key !== "x" && key !== "f") return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target as { closest?: (selector: string) => unknown } | null;
       if (target?.closest?.("input, textarea, select, [contenteditable]")) return;
       event.preventDefault();
       rootRef.current?.focus({ preventScroll: true });
       if (key === "x") exit();
+      else if (key === "f") toggleFullscreenRef.current();
       else go(0);
     };
     const attach = () => {
@@ -311,6 +315,9 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     request.then(fallBack, fallBack);
     window.setTimeout(fallBack, 400);
   }, [expanded]);
+  useEffect(() => {
+    toggleFullscreenRef.current = toggleFullscreen;
+  });
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -362,6 +369,9 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
           go(slides.length - 1);
           break;
         case "f":
+        case "F":
+          // F toggles full screen, wherever the mouse is.
+          event.preventDefault();
           toggleFullscreen();
           break;
         case "g":

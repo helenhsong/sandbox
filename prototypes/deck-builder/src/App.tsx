@@ -11,7 +11,7 @@ import {
 import { ArrowLeft, ChevronDown, Download, FileUp, Play, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
 import { DeckPlayer } from "../../../src/deck/DeckPlayer";
 import { SlideView } from "../../../src/deck/SlideView";
-import { visibleSlides, withFigmaEmbeds, type Deck, type Slide, type WebSlide } from "../../../src/deck/types";
+import { isPersistent, visibleSlides, withFigmaEmbeds, type Deck, type Slide, type WebSlide } from "../../../src/deck/types";
 import { AddSlide, type AddPreset, type FigmaImport } from "./AddSlide";
 import { readDeckFile } from "./deckFile";
 import { Inspector } from "./Inspector";
@@ -406,7 +406,16 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
                   className="builder-preview-frame"
                   data-hidden={(selected.kind === "figma" && selected.hidden) || undefined}
                 >
-                  <SlideView slide={selected} />
+                  {/* Live pages and Figma slides load once and stay loaded, so switching back is instant. */}
+                  {slides.map((slide) => {
+                    const active = slide.id === selected.id;
+                    if (!active && !isPersistent(slide)) return null;
+                    return (
+                      <div key={slide.id} className="builder-preview-layer" data-active={active || undefined} aria-hidden={!active} inert={!active}>
+                        <SlideView slide={slide} />
+                      </div>
+                    );
+                  })}
                 </SlideMenu>
               </div>
               <Inspector key={selected.id} draft={draft} index={selectedIndex} onChange={(next) => update({ slides: next })} />

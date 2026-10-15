@@ -248,6 +248,7 @@ p {
 }
 
 .builder-preview-frame {
+  position: relative;
   width: 100%;
   max-width: 1040px;
   margin: 0 auto;
@@ -259,6 +260,17 @@ p {
   box-shadow:
     0 0 0 1px rgb(0 0 0 / 0.06),
     0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+/* One layer per loaded live page or Figma slide; only the selected one shows. */
+.builder-preview-layer {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+
+.builder-preview-layer[data-active] {
+  visibility: visible;
 }
 
 .builder-preview-frame[data-hidden] {
