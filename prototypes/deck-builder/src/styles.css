@@ -302,7 +302,8 @@ p {
 @media (min-width: 901px) {
   .builder-main {
     container-type: size;
-    --stage-width: min(100cqw - 2 * var(--stage-gutter), (100cqh - var(--stage-gutter) - 104px) * 16 / 9);
+    /* No larger than on a 16-inch MacBook Pro (a 1728px-wide window, less the slide list and gutters). */
+    --stage-width: min(1384px, 100cqw - 2 * var(--stage-gutter), (100cqh - var(--stage-gutter) - 104px) * 16 / 9);
   }
 }
 
