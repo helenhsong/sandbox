@@ -90,6 +90,20 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     };
   }, []);
 
+  // A button clicked with the mouse lets go of focus, so arrow keys and space keep moving through
+  // slides instead of pressing that button again or showing its focus ring (and keeping the bar up).
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const onClick = (event: MouseEvent) => {
+      if (event.detail === 0) return; // Pressed from the keyboard: keep focus where it is.
+      const control = (event.target as Element | null)?.closest?.("button, a");
+      if (control instanceof HTMLElement) control.blur();
+    };
+    root.addEventListener("click", onClick);
+    return () => root.removeEventListener("click", onClick);
+  }, []);
+
   const go = useCallback(
     (next: number) => {
       const clamped = Math.min(Math.max(next, 0), slides.length - 1);
