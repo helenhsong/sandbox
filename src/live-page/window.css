@@ -95,7 +95,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: min(340px, calc(100% - 288px));
+  width: min(344px, calc(100% - 288px));
   height: 30px;
   padding: 0 34px;
   border-radius: 15px;
@@ -104,7 +104,9 @@
   cursor: default;
 }
 
+/* A long slug ends in "…" rather than running under the open button. */
 .page-window-url-text {
+  min-width: 0;
   overflow: hidden;
   font-weight: 500;
   text-overflow: ellipsis;
