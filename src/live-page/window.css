@@ -12,6 +12,7 @@
   --pw-hover: rgb(255 255 255 / 0.08);
   --pw-fg-hover: #fafafa;
   --pw-field: rgb(255 255 255 / 0.04);
+  --pw-field-border: rgb(255 255 255 / 0.12);
 
   display: flex;
   flex-direction: column;
@@ -30,6 +31,7 @@
   --pw-hover: rgb(0 0 0 / 0.06);
   --pw-fg-hover: #18181b;
   --pw-field: #fafafa;
+  --pw-field-border: #d8d8dc;
 }
 
 .page-window-bar {
@@ -96,8 +98,9 @@
   cursor: default;
 }
 
-/* Just lighter than the gray bar, so the input reads against it without standing out. */
+/* Just lighter than the gray bar, with a slightly stronger border, so the input reads against it. */
 .page-window-url [data-slot="input-group"] {
+  border-color: var(--pw-field-border);
   background: var(--pw-field);
 }
 
