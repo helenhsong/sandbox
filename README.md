@@ -33,7 +33,7 @@ unless their registry entry says otherwise.
 
 Every prototype runs inside a macOS-style window with back, forward, reload and
 a fast-forward button (the cursor icon): a light window on a light gray page
-when it's opened on its own, and a dark one filling the slide when it's a live
+(no larger than on a 16-inch MacBook Pro) when it's opened on its own, and a dark one filling the slide when it's a live
 page in a deck. Each prototype's `main.tsx` starts it with `mountPrototype`
 from [`src/live-page`](src/live-page/mount.tsx), and uses the hooks in
 [`src/live-page/index.ts`](src/live-page/index.ts):
@@ -49,6 +49,11 @@ from [`src/live-page`](src/live-page/mount.tsx), and uses the hooks in
   (approving a review, say).
 
 Don't add sample, shortcut or "prototype only" controls to the prototype itself.
+
+Each prototype keeps a `FLOW.md` next to its `src/` (the template has one to fill in): every
+screen and flow step the window steps through, what each step requires before you can
+continue, and what fast-forward fills in. Write it while building and keep it in sync with
+the code.
 
 ```tsx
 import { useDeckFill, useHistoryState } from "../../../src/live-page";
