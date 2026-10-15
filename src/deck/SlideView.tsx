@@ -1,15 +1,44 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Globe, LoaderCircle } from "lucide-react";
-import { isImageLoading, resolveUrl, urlLabel, type Slide, type WebSlide } from "./types";
+import { isImageLoading, resolveUrl, urlLabel, type FigmaSlide, type Slide, type WebSlide } from "./types";
 
-/** One slide at 16:9. Figma slides render as images; web slides as a live, interactive page filling the slide. */
+/**
+ * One slide at 16:9. Figma slides render as images, or as Figma's live embed drawn over the image
+ * once it loads; web slides as a live, interactive page filling the slide.
+ */
 export function SlideView({ slide }: { slide: Slide }) {
   if (slide.kind === "figma") {
-    if (isImageLoading(slide.image)) return <div className="deck-slide-placeholder deck-slide-loading" aria-label="Loading slide" />;
-    if (!slide.image) return <div className="deck-slide-placeholder">No preview. Get latest from Figma.</div>;
-    return <img className="deck-slide-image" src={slide.image} alt={slide.name} draggable={false} />;
+    const image = isImageLoading(slide.image) ? (
+      <div className="deck-slide-placeholder deck-slide-loading" aria-label="Loading slide" />
+    ) : !slide.image ? (
+      slide.embedUrl ? null : <div className="deck-slide-placeholder">No preview. Get latest from Figma.</div>
+    ) : (
+      <img className="deck-slide-image" src={slide.image} alt={slide.name} draggable={false} />
+    );
+    if (!slide.embedUrl) return image;
+    return <FigmaFrame key={slide.embedUrl} slide={slide} src={slide.embedUrl} poster={image} />;
   }
   return <WebFrame slide={slide} />;
+}
+
+/** Figma's live embed, faded in over the slide's image so there's never a blank or loading screen. */
+function FigmaFrame({ slide, src, poster }: { slide: FigmaSlide; src: string; poster: ReactNode }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="deck-figma-live">
+      {poster}
+      <iframe
+        title={slide.name}
+        src={src}
+        data-loaded={loaded || undefined}
+        onLoad={() => setLoaded(true)}
+        allow="clipboard-write; fullscreen"
+        allowFullScreen
+      />
+      {/* Figma's embed adds its own slide controls at the bottom; the deck moves between slides, so they're blocked. */}
+      <div className="deck-figma-nav-block" aria-hidden />
+    </div>
+  );
 }
 
 function WebFrame({ slide }: { slide: WebSlide }) {

@@ -38,6 +38,7 @@ interface PublishBody {
     name: string;
     slug: string;
     source: { figmaUrl: string; fileKey: string } | null;
+    figmaLive?: boolean;
     slides: Array<PublishSlideFigma | PublishSlideWeb>;
   };
   /** Slide id → data URL, for images the browser could download itself. */
@@ -162,7 +163,7 @@ async function publish(root: string, body: PublishBody) {
   for (const [file, bytes] of files) writeFileSync(resolve(dir, "slides", file), bytes);
   writeFileSync(
     deckFile,
-    `${JSON.stringify({ version: 1, name, slug, createdAt: createdAt ?? today, source: deck.source, slides: output }, null, 2)}\n`,
+    `${JSON.stringify({ version: 1, name, slug, createdAt: createdAt ?? today, source: deck.source, figmaLive: Boolean(deck.figmaLive), slides: output }, null, 2)}\n`,
   );
   writeFileSync(resolve(dir, "index.html"), indexHtml(name));
   writeFileSync(resolve(dir, "src", "main.tsx"), mainTsx);

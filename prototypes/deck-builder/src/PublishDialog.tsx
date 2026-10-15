@@ -16,7 +16,7 @@ import {
 } from "@helenhsong/ui";
 import { CircleCheck, ExternalLink, LoaderCircle, TriangleAlert } from "lucide-react";
 import { isImageLoading, visibleSlides, type FigmaSlide, type Slide } from "../../../src/deck/types";
-import { SLUG_PATTERN, isValidUrl, openLink, plural, slugify, type Draft } from "./draft";
+import { SLUG_PATTERN, isFigmaLive, isValidUrl, openLink, plural, slugify, type Draft } from "./draft";
 
 interface PublishDialogProps {
   open: boolean;
@@ -130,6 +130,7 @@ export function PublishDialog({ open, onOpenChange, draft, slides, onChange, onS
             name: draft.name.trim(),
             slug: draft.slug,
             source: draft.fileKey ? { figmaUrl: draft.figmaUrl, fileKey: draft.fileKey } : null,
+            figmaLive: isFigmaLive(draft),
             slides,
           },
           images,

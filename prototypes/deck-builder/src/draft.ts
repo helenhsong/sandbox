@@ -8,8 +8,13 @@ export interface Draft {
   slug: string;
   /** Once the URL name is edited by hand, renaming the deck no longer changes it. */
   slugEdited: boolean;
+  /** Figma slides show as Figma's live embed rather than images. Unset means yes. */
+  figmaLive?: boolean;
   slides: Slide[];
 }
+
+/** Whether the deck shows its Figma slides live (the default) or as images. */
+export const isFigmaLive = (draft: Pick<Draft, "figmaLive">) => draft.figmaLive !== false;
 
 const DRAFT_KEY = "deck-builder:draft";
 const TOKEN_KEY = "deck-builder:figma-token";

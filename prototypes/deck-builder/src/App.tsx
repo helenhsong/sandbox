@@ -8,10 +8,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@helenhsong/ui";
-import { ArrowLeft, ChevronDown, Download, FileUp, Play, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ChevronDown, Download, FileUp, Images, MonitorPlay, Play, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
 import { DeckPlayer } from "../../../src/deck/DeckPlayer";
 import { SlideView } from "../../../src/deck/SlideView";
-import { visibleSlides, type Deck, type Slide, type WebSlide } from "../../../src/deck/types";
+import { visibleSlides, withFigmaEmbeds, type Deck, type Slide, type WebSlide } from "../../../src/deck/types";
 import { AddSlide, type AddPreset, type FigmaImport } from "./AddSlide";
 import { readDeckFile } from "./deckFile";
 import { Inspector } from "./Inspector";
@@ -22,6 +22,7 @@ import { SlideMenu, type SlideActions } from "./SlideMenu";
 import {
   emptyDraft,
   figmaSlideLink,
+  isFigmaLive,
   loadDraft,
   loadToken,
   mergeFigmaSlides,
@@ -116,7 +117,14 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
   const [importError, setImportError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   /** Slides with their images ready to display; `draft.slides` keeps the stored references. */
-  const slides = useImageUrls(draft.slides);
+  const withImages = useImageUrls(draft.slides);
+  const figmaLive = isFigmaLive(draft);
+  const hasFigma = Boolean(draft.fileKey) && draft.slides.some((slide) => slide.kind === "figma");
+  // Live Figma slides carry Figma's embed, shown over their image in the preview and when presenting.
+  const slides = useMemo(
+    () => (figmaLive && draft.fileKey ? withFigmaEmbeds(withImages, { figmaUrl: draft.figmaUrl, fileKey: draft.fileKey }) : withImages),
+    [figmaLive, withImages, draft.figmaUrl, draft.fileKey],
+  );
 
   const update = (change: Partial<Draft>) => setDraft({ ...draft, ...change });
   // Falls back to the first slide; undefined only while the deck has no slides.
@@ -263,6 +271,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
       slug: draft.slug,
       createdAt: new Date().toISOString().slice(0, 10),
       source: draft.fileKey ? { figmaUrl: draft.figmaUrl, fileKey: draft.fileKey } : null,
+      figmaLive,
       slides: exported,
     };
     const url = URL.createObjectURL(new Blob([JSON.stringify(deck)], { type: "application/json" }));
@@ -299,11 +308,17 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="deck-menu">
                 {/* Only once the deck has slides imported from Figma. */}
-                {draft.fileKey && draft.slides.some((slide) => slide.kind === "figma") ? (
-                  <DropdownMenuItem onClick={() => setDialog("reload")}>
-                    <RefreshCw size={16} strokeWidth={2} aria-hidden />
-                    Get latest from Figma
-                  </DropdownMenuItem>
+                {hasFigma ? (
+                  <>
+                    <DropdownMenuItem onClick={() => setDialog("reload")}>
+                      <RefreshCw size={16} strokeWidth={2} aria-hidden />
+                      Get latest from Figma
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => update({ figmaLive: !figmaLive })}>
+                      {figmaLive ? <Images size={16} strokeWidth={2} aria-hidden /> : <MonitorPlay size={16} strokeWidth={2} aria-hidden />}
+                      {figmaLive ? "Show Figma slides as images" : "Show Figma slides live"}
+                    </DropdownMenuItem>
+                  </>
                 ) : null}
                 <DropdownMenuItem onClick={() => fileInput.current?.click()}>
                   <FileUp size={16} strokeWidth={2} aria-hidden />

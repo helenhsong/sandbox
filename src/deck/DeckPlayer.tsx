@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Globe, LayoutGrid, Maximize, Minimize, X } from "lucide-react";
 import { SlideView } from "./SlideView";
-import { isImageLoading, urlLabel, visibleSlides, type Slide } from "./types";
+import { isImageLoading, isPersistent, urlLabel, visibleSlides, type Slide } from "./types";
 
 interface DeckPlayerProps {
   name: string;
@@ -26,7 +26,8 @@ function readHashIndex(count: number) {
 
 /** Ids of web slides around `index`, so their pages start loading before they are shown. */
 function nearbyWebIds(slides: Slide[], index: number) {
-  return slides.slice(Math.max(index - 1, 0), index + 2).filter((slide) => slide.kind === "web").map((slide) => slide.id);
+  // Live pages and live Figma slides: they keep their state once loaded.
+  return slides.slice(Math.max(index - 1, 0), index + 2).filter(isPersistent).map((slide) => slide.id);
 }
 
 export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitHref }: DeckPlayerProps) {
@@ -144,6 +145,20 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
       root.removeEventListener("pointerleave", onLeave);
     };
   }, [activeFrame]);
+
+  // Clicking a live Figma slide lets the click through but keeps the keyboard with the deck, so
+  // arrow keys change the deck's slides rather than moving Figma's embed to other slides.
+  useEffect(() => {
+    const onBlur = () =>
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (active instanceof HTMLIFrameElement && active.closest(".deck-figma-live") && rootRef.current?.contains(active)) {
+          rootRef.current.focus({ preventScroll: true });
+        }
+      }, 0);
+    window.addEventListener("blur", onBlur);
+    return () => window.removeEventListener("blur", onBlur);
+  }, []);
 
   // Arriving on a live page with the mouse already over the slide hands the keyboard to the page.
   useEffect(() => {
@@ -353,8 +368,8 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
         <div className="deck-frame" aria-live="polite">
           {slides.map((slide, i) => {
             const active = i === index;
-            if (slide.kind === "figma" && Math.abs(i - index) > 1) return null;
-            if (slide.kind === "web" && !mounted.has(slide.id) && !active) return null;
+            if (!isPersistent(slide) && Math.abs(i - index) > 1) return null;
+            if (isPersistent(slide) && !mounted.has(slide.id) && !active) return null;
             return (
               <div key={slide.id} className="deck-layer" data-active={active || undefined} aria-hidden={!active} inert={!active}>
                 <SlideView slide={slide} />
