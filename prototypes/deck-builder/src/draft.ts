@@ -31,18 +31,21 @@ function write(key: string, value: string | null) {
   }
 }
 
-export function loadDraft(): Draft | null {
+/** A new deck: no name yet, no slides. Slides come from Add slide (Figma or live pages). */
+export const emptyDraft = (): Draft => ({ figmaUrl: "", fileKey: "", name: "", slug: "", slugEdited: false, slides: [] });
+
+export function loadDraft(): Draft {
   const raw = read(DRAFT_KEY);
-  if (!raw) return null;
+  if (!raw) return emptyDraft();
   try {
     const draft = JSON.parse(raw) as Draft;
-    return Array.isArray(draft.slides) && draft.slides.length > 0 ? draft : null;
+    return Array.isArray(draft.slides) ? draft : emptyDraft();
   } catch {
-    return null;
+    return emptyDraft();
   }
 }
 
-export const saveDraft = (draft: Draft | null) => write(DRAFT_KEY, draft ? JSON.stringify(draft) : null);
+export const saveDraft = (draft: Draft) => write(DRAFT_KEY, JSON.stringify(draft));
 export const loadToken = () => read(TOKEN_KEY) ?? "";
 export const saveToken = (token: string) => write(TOKEN_KEY, token || null);
 

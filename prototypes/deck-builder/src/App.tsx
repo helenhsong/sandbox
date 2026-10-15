@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   buttonVariants,
@@ -8,28 +8,43 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@helenhsong/ui";
-import { ArrowLeft, ChevronDown, Download, Play, RefreshCw, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ChevronDown, Download, FileUp, Play, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
 import { DeckPlayer } from "../../../src/deck/DeckPlayer";
 import { SlideView } from "../../../src/deck/SlideView";
 import { visibleSlides, type Deck, type Slide, type WebSlide } from "../../../src/deck/types";
-import { AddLivePage, type AddPreset } from "./AddLivePage";
-import { ConnectScreen } from "./ConnectScreen";
+import { AddSlide, type AddPreset, type FigmaImport } from "./AddSlide";
+import { readDeckFile } from "./deckFile";
 import { Inspector } from "./Inspector";
 import { PublishDialog } from "./PublishDialog";
 import { ReloadDialog, StartOverDialog } from "./SourceDialogs";
 import { SlideList } from "./SlideList";
 import { SlideMenu, type SlideActions } from "./SlideMenu";
-import { figmaSlideLink, loadDraft, loadToken, moveItem, newWebSlide, saveDraft, saveToken, slugify, type Draft } from "./draft";
+import {
+  emptyDraft,
+  figmaSlideLink,
+  loadDraft,
+  loadToken,
+  mergeFigmaSlides,
+  moveItem,
+  newWebSlide,
+  saveDraft,
+  saveToken,
+  slugify,
+  type Draft,
+} from "./draft";
 import { IMAGE_PREFIX, blobToDataUrl, getImages, imageKeys, pruneImages } from "./imageStore";
 
 export function App() {
-  const [draft, setDraft] = useState<Draft | null>(loadDraft);
+  // Opens straight to the editor: a saved draft, or a new empty deck.
+  const [draft, setDraft] = useState<Draft>(loadDraft);
+  /** Bumped when the deck is swapped out (deleted or imported), so the editor starts fresh. */
+  const [generation, setGeneration] = useState(0);
   const [token, setTokenState] = useState(loadToken);
 
   useEffect(() => saveDraft(draft), [draft]);
 
   // Forget slide images nothing refers to any more (after a reload from Figma or starting over).
-  const keys = useMemo(() => imageKeys(draft?.slides ?? []), [draft?.slides]);
+  const keys = useMemo(() => imageKeys(draft.slides), [draft.slides]);
   useEffect(() => {
     const timer = setTimeout(() => void pruneImages(keys), 1000);
     return () => clearTimeout(timer);
@@ -40,8 +55,14 @@ export function App() {
     saveToken(value);
   };
 
-  if (!draft) return <ConnectScreen token={token} setToken={setToken} onReady={setDraft} />;
-  return <Editor draft={draft} setDraft={setDraft} token={token} setToken={setToken} />;
+  const replaceDraft = (next: Draft) => {
+    setDraft(next);
+    setGeneration((value) => value + 1);
+  };
+
+  return (
+    <Editor key={generation} draft={draft} setDraft={setDraft} replaceDraft={replaceDraft} token={token} setToken={setToken} />
+  );
 }
 
 /** Object URLs for the stored slide images, loaded as slides refer to them. */
@@ -79,26 +100,31 @@ function useImageUrls(slides: Slide[]) {
 
 interface EditorProps {
   draft: Draft;
-  setDraft: (draft: Draft | null) => void;
+  setDraft: (draft: Draft) => void;
+  /** Swaps in a different deck (a new empty one, or one read from a file). */
+  replaceDraft: (draft: Draft) => void;
   token: string;
   setToken: (token: string) => void;
 }
 
-function Editor({ draft, setDraft, token, setToken }: EditorProps) {
-  const [selectedId, setSelectedId] = useState(draft.slides[0].id);
+function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps) {
+  const [selectedId, setSelectedId] = useState<string | null>(draft.slides[0]?.id ?? null);
   const [presentFrom, setPresentFrom] = useState<number | null>(null);
   const [dialog, setDialog] = useState<"publish" | "reload" | "start-over" | null>(null);
   const [addOpen, setAddOpen] = useState(false);
-  const [addPreset, setAddPreset] = useState<AddPreset>({ placement: "after" });
+  const [addPreset, setAddPreset] = useState<AddPreset>({ kind: "live", placement: "after" });
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
   /** Slides with their images ready to display; `draft.slides` keeps the stored references. */
   const slides = useImageUrls(draft.slides);
 
   const update = (change: Partial<Draft>) => setDraft({ ...draft, ...change });
+  // Falls back to the first slide; undefined only while the deck has no slides.
   const selectedIndex = Math.max(
     draft.slides.findIndex((slide) => slide.id === selectedId),
     0,
   );
-  const selected = slides[selectedIndex];
+  const selected = slides[selectedIndex] as Slide | undefined;
   const shown = visibleSlides(slides);
 
   /** The live page copied with ⌘C or Copy, pasted after the selected slide. */
@@ -152,6 +178,7 @@ function Editor({ draft, setDraft, token, setToken }: EditorProps) {
       if (presentFrom !== null || dialog !== null || addOpen) return;
       const target = event.target;
       if (target instanceof Element && target.closest("input, textarea, select, [contenteditable], [role='dialog'], [role='menu']")) return;
+      if (!selected) return;
       const key = event.key.toLowerCase();
       if (key === "d" && selected.kind === "web") {
         event.preventDefault();
@@ -177,18 +204,48 @@ function Editor({ draft, setDraft, token, setToken }: EditorProps) {
     setAddOpen(false);
   };
 
-  /** Opens Add live page set to a spot in the list: the start, after a slide, or the end. */
+  /** Opens Add slide on Live page, set to a spot in the list: the start, after a slide, or the end. */
   const openAddAt = (at: number) => {
-    if (at === 0) setAddPreset({ placement: "start" });
-    else if (at >= slides.length) setAddPreset({ placement: "end" });
-    else setAddPreset({ placement: "after", slideId: slides[at - 1].id });
+    if (at === 0) setAddPreset({ kind: "live", placement: "start" });
+    else if (at >= slides.length) setAddPreset({ kind: "live", placement: "end" });
+    else setAddPreset({ kind: "live", placement: "after", slideId: slides[at - 1].id });
     setAddOpen(true);
+  };
+
+  /** Opens Add slide from its button: Figma first while the deck has no Figma file, otherwise a live page. */
+  const openAdd = () => {
+    setAddPreset({ kind: draft.fileKey ? "live" : "figma", placement: "after", slideId: selected?.id });
+    setAddOpen(true);
+  };
+
+  /**
+   * Brings in a Figma file's slides. The same file again updates them, keeping live pages after
+   * the slides they followed; a different file replaces the Figma slides, keeping live pages.
+   */
+  const importFigma = ({ figmaUrl, fileKey, name, slides: incoming }: FigmaImport) => {
+    const sameFile = fileKey === draft.fileKey;
+    const kept = sameFile ? draft.slides : draft.slides.filter((slide) => slide.kind === "web");
+    const next = mergeFigmaSlides(kept, incoming);
+    const named = draft.name.trim() ? {} : { name, slug: draft.slugEdited ? draft.slug : slugify(name) };
+    update({ figmaUrl, fileKey, slides: next, ...named });
+    if (!selected || !next.some((slide) => slide.id === selected.id)) setSelectedId(next[0]?.id ?? null);
+    setAddOpen(false);
+  };
+
+  const importFile = async (file: File) => {
+    try {
+      const next = await readDeckFile(file);
+      setImportError(null);
+      replaceDraft(next);
+    } catch {
+      setImportError("That isn't a deck file. Choose a .deck.json file exported from this tool.");
+    }
   };
 
   const rename = (name: string) => update({ name, slug: draft.slugEdited ? draft.slug : slugify(name) });
 
   const present = () => {
-    const at = shown.findIndex((slide) => slide.id === selected.id);
+    const at = shown.findIndex((slide) => slide.id === selected?.id);
     setPresentFrom(Math.max(at, 0));
   };
 
@@ -241,11 +298,17 @@ function Editor({ draft, setDraft, token, setToken }: EditorProps) {
                 <ChevronDown size={16} strokeWidth={2} />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="deck-menu">
-                <DropdownMenuItem onClick={() => setDialog("reload")}>
-                  <RefreshCw size={16} strokeWidth={2} aria-hidden />
-                  Reload from Figma
+                {draft.fileKey ? (
+                  <DropdownMenuItem onClick={() => setDialog("reload")}>
+                    <RefreshCw size={16} strokeWidth={2} aria-hidden />
+                    Reload from Figma
+                  </DropdownMenuItem>
+                ) : null}
+                <DropdownMenuItem onClick={() => fileInput.current?.click()}>
+                  <FileUp size={16} strokeWidth={2} aria-hidden />
+                  Import deck file
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => void exportDeck()}>
+                <DropdownMenuItem onClick={() => void exportDeck()} disabled={!draft.slides.length}>
                   <Download size={16} strokeWidth={2} aria-hidden />
                   Export deck file
                 </DropdownMenuItem>
@@ -256,14 +319,25 @@ function Editor({ draft, setDraft, token, setToken }: EditorProps) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <input
+              ref={fileInput}
+              type="file"
+              accept=".json,application/json"
+              hidden
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void importFile(file);
+                event.target.value = "";
+              }}
+            />
           </div>
         </div>
         <div className="builder-header-actions">
-          <Button variant="outline" onClick={present}>
+          <Button variant="outline" onClick={present} disabled={!shown.length}>
             <Play size={16} strokeWidth={2} aria-hidden />
             Present
           </Button>
-          <Button onClick={() => setDialog("publish")}>
+          <Button onClick={() => setDialog("publish")} disabled={!shown.length}>
             <Upload size={16} strokeWidth={2} aria-hidden />
             Publish
           </Button>
@@ -273,23 +347,23 @@ function Editor({ draft, setDraft, token, setToken }: EditorProps) {
       <div className="builder-body">
         <aside className="builder-sidebar" aria-label="Slides">
           <div className="sidebar-add">
-            <AddLivePage
+            <AddSlide
               open={addOpen}
-              onOpenChange={(open) => {
-                // Opened from the button itself: start after the selected slide.
-                if (open) setAddPreset({ placement: "after", slideId: selected.id });
-                setAddOpen(open);
-              }}
+              onOpenChange={(open) => (open ? openAdd() : setAddOpen(false))}
               preset={addPreset}
               slides={slides}
-              selectedId={selected.id}
-              onAdd={addWebPage}
+              selectedId={selected?.id ?? null}
+              figmaUrl={draft.figmaUrl}
+              token={token}
+              setToken={setToken}
+              onAddLive={addWebPage}
+              onImportFigma={importFigma}
             />
           </div>
           <div className="sidebar-scroll">
             <SlideList
               slides={slides}
-              selectedId={selected.id}
+              selectedId={selected?.id ?? ""}
               onSelect={setSelectedId}
               onInsert={openAddAt}
               onChange={(next) => update({ slides: reorderStored(draft.slides, next) })}
@@ -299,23 +373,38 @@ function Editor({ draft, setDraft, token, setToken }: EditorProps) {
         </aside>
 
         <main className="builder-main">
-          <div className="builder-preview">
-            <SlideMenu
-              slide={selected}
-              actions={actions}
-              render={<div />}
-              className="builder-preview-frame"
-              data-hidden={(selected.kind === "figma" && selected.hidden) || undefined}
-            >
-              <SlideView slide={selected} />
-            </SlideMenu>
-          </div>
-          <Inspector
-            key={selected.id}
-            draft={draft}
-            index={selectedIndex}
-            onChange={(next) => update({ slides: next })}
-          />
+          {importError ? (
+            <p className="builder-import-error" role="alert">
+              {importError}
+            </p>
+          ) : null}
+          {selected ? (
+            <>
+              <div className="builder-preview">
+                <SlideMenu
+                  slide={selected}
+                  actions={actions}
+                  render={<div />}
+                  className="builder-preview-frame"
+                  data-hidden={(selected.kind === "figma" && selected.hidden) || undefined}
+                >
+                  <SlideView slide={selected} />
+                </SlideMenu>
+              </div>
+              <Inspector key={selected.id} draft={draft} index={selectedIndex} onChange={(next) => update({ slides: next })} />
+            </>
+          ) : (
+            <div className="builder-preview">
+              <div className="builder-empty">
+                <h2>Add your first slide</h2>
+                <p>Import slides from Figma, or add a live web page people can use during the presentation.</p>
+                <Button onClick={openAdd}>
+                  <Plus size={16} strokeWidth={2} aria-hidden />
+                  Add slide
+                </Button>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
@@ -343,14 +432,14 @@ function Editor({ draft, setDraft, token, setToken }: EditorProps) {
         setToken={setToken}
         onReloaded={(next) => {
           setDraft(next);
-          if (!next.slides.some((slide) => slide.id === selectedId)) setSelectedId(next.slides[0].id);
+          if (!next.slides.some((slide) => slide.id === selectedId)) setSelectedId(next.slides[0]?.id ?? null);
           setDialog(null);
         }}
       />
       <StartOverDialog
         open={dialog === "start-over"}
         onOpenChange={(open) => setDialog(open ? "start-over" : null)}
-        onConfirm={() => setDraft(null)}
+        onConfirm={() => replaceDraft(emptyDraft())}
       />
     </div>
   );

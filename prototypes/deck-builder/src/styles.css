@@ -52,58 +52,14 @@ p {
   margin: 20px 0 24px;
 }
 
-/* Connect */
-
-.connect {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 72px 24px;
-}
-
-.connect-intro {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.connect-intro h1 {
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-}
-
-.connect-intro p {
-  color: var(--muted-foreground);
-  text-wrap: pretty;
-}
-
-.connect-form {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.connect-error,
+.add-error,
+.builder-import-error,
 .publish-error {
   color: var(--destructive);
 }
 
 .publish-error {
   margin: -8px 0 16px;
-}
-
-.connect-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
 }
 
 /* Editor */
@@ -252,6 +208,43 @@ p {
 
 .builder-preview {
   padding: 24px 32px 0;
+}
+
+/* A new deck with no slides yet: a 16:9 placeholder where the slide will be. */
+.builder-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  padding: 24px;
+  box-sizing: border-box;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  text-align: center;
+}
+
+.builder-empty h2 {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.builder-empty p {
+  max-width: 360px;
+  margin-bottom: 12px;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+
+.builder-import-error {
+  max-width: 1040px;
+  margin: 16px auto 0;
+  padding: 0 32px;
 }
 
 .builder-preview-frame {
@@ -524,8 +517,21 @@ p {
   width: min(380px, calc(100vw - 32px));
 }
 
+/* Live page | Figma slides, across the top of Add slide. */
+.add-tabs {
+  margin-bottom: 20px;
+}
+
+.add-tabs-list {
+  width: 100%;
+}
+
 .add-fields {
   margin-bottom: 20px;
+}
+
+.add-error {
+  margin: -8px 0 16px;
 }
 
 /* The placement menu keeps its width when the slide menu beside it is hidden. */

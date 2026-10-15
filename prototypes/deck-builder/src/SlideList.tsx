@@ -178,9 +178,11 @@ export function SlideList({ slides, selectedId, onSelect, onInsert, onChange, ac
             </li>
           );
         })}
-        <li className="playlist-item playlist-end" data-drop={dropAt === slides.length || undefined}>
-          <InsertPoint onClick={() => onInsert(slides.length)} label="Add live page at the end" />
-        </li>
+        {slides.length ? (
+          <li className="playlist-item playlist-end" data-drop={dropAt === slides.length || undefined}>
+            <InsertPoint onClick={() => onInsert(slides.length)} label="Add live page at the end" />
+          </li>
+        ) : null}
       </ol>
     </>
   );
