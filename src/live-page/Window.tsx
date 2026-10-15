@@ -14,21 +14,21 @@ function isSameSite(src: string) {
 
 type Page = Window & LivePageWindow;
 
-/** The page's full address, and how the address bar shows it: without the protocol or a hash. */
+/** The page's full address, without a hash, for opening it in a new tab. */
 function pageAddress(src: string) {
   try {
     const url = new URL(src, window.location.href);
     url.hash = "";
-    return { href: url.href, text: url.href.replace(/^https?:\/\//, "") };
+    return url.href;
   } catch {
-    return { href: src, text: src };
+    return src;
   }
 }
 
 interface PageWindowProps {
   /** The page to show. */
   src: string;
-  /** The page's name, for screen readers (the title bar doesn't show it). */
+  /** The page's name, shown in the address bar. */
   label: string;
   /** Light everywhere (Sandbox pages and decks); dark is kept as an option. */
   theme?: "dark" | "light";
@@ -148,15 +148,15 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
             <RotateCw size={14} strokeWidth={2} aria-hidden />
           </button>
         </span>
-        {/* The page's address, centered in the bar. It's only a label (nothing to type in); hovering it
-            shows a button that opens the page in a new tab. */}
+        {/* The project's name, centered where a browser shows the address. It's only a label
+            (nothing to type in); hovering it shows a button that opens the page in a new tab. */}
         <span className="page-window-url">
-          <span className="page-window-url-text" title={address.text}>
-            {address.text}
+          <span className="page-window-url-text" title={label}>
+            {label}
           </span>
           <a
             className="page-window-url-open"
-            href={address.href}
+            href={address}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Open in a new tab"
