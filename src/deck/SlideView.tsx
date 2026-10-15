@@ -62,6 +62,27 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
   // Other sites' pages keep their history to themselves, so only Sandbox pages get back and forward.
   const sameSite = isSameSite(src);
 
+  // The page's own history, as far as the window has seen it: where we are and how far forward
+  // it goes. Back and forward only light up when there's somewhere to go, so they never step
+  // back the deck itself (an empty history in the page would fall through to the page around it).
+  const history = useRef({ index: -1, length: 0, pending: null as "back" | "forward" | null });
+  const [nav, setNav] = useState({ back: false, forward: false });
+  const sync = () => {
+    const { index, length } = history.current;
+    setNav({ back: index > 0, forward: index < length - 1 });
+  };
+  const moved = () => {
+    const h = history.current;
+    if (h.pending === "back") h.index -= 1;
+    else if (h.pending === "forward") h.index += 1;
+    else {
+      h.index += 1;
+      h.length = h.index + 1;
+    }
+    h.pending = null;
+    sync();
+  };
+
   if (!slide.url) {
     return (
       <div className="deck-web deck-web-empty">
@@ -80,7 +101,37 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
   };
   const restart = () => {
     setLoaded(false);
+    history.current = { index: -1, length: 0, pending: null };
+    setNav({ back: false, forward: false });
     setVisit((value) => value + 1);
+  };
+  const go = (direction: "back" | "forward") => {
+    const page = pageWindow();
+    if (!page) return;
+    history.current.pending = direction;
+    if (direction === "back") page.history.back();
+    else page.history.forward();
+  };
+
+  /** Each new page counts as a step; a Sandbox page's own address changes (pushState) do too. */
+  const onLoad = () => {
+    setLoaded(true);
+    moved();
+    if (!sameSite) return;
+    try {
+      const page = frameRef.current?.contentWindow as (Window & { __deckWatched?: boolean }) | null;
+      if (!page || page.__deckWatched) return;
+      page.__deckWatched = true;
+      const push = page.history.pushState.bind(page.history);
+      page.history.pushState = (...args: Parameters<History["pushState"]>) => {
+        push(...args);
+        history.current.pending = null;
+        moved();
+      };
+      page.addEventListener("popstate", moved);
+    } catch {
+      // Can't watch this page; the counts from page loads still apply.
+    }
   };
 
   return (
@@ -93,18 +144,17 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
             <span />
           </span>
           <span className="deck-window-nav">
-            <button type="button" onClick={() => pageWindow()?.history.back()} disabled={!sameSite} aria-label="Back" title="Back">
+            <button type="button" onClick={() => go("back")} disabled={!sameSite || !nav.back} aria-label="Back" title="Back">
               <ChevronLeft size={16} strokeWidth={2} aria-hidden />
             </button>
-            <button type="button" onClick={() => pageWindow()?.history.forward()} disabled={!sameSite} aria-label="Forward" title="Forward">
+            <button type="button" onClick={() => go("forward")} disabled={!sameSite || !nav.forward} aria-label="Forward" title="Forward">
               <ChevronRight size={16} strokeWidth={2} aria-hidden />
             </button>
             <button
               type="button"
               onClick={() => {
-                const page = pageWindow();
-                if (sameSite && page) page.location.reload();
-                else restart();
+                // Back to where the page started, with a fresh history.
+                restart();
               }}
               aria-label="Reload"
               title="Reload"
@@ -130,7 +180,7 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
             ref={frameRef}
             title={label}
             src={src}
-            onLoad={() => setLoaded(true)}
+            onLoad={onLoad}
             allow="clipboard-read; clipboard-write; fullscreen"
             referrerPolicy="no-referrer-when-downgrade"
           />
