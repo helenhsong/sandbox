@@ -11,6 +11,7 @@
   --pw-fg-disabled: #52525b;
   --pw-hover: rgb(255 255 255 / 0.08);
   --pw-fg-hover: #fafafa;
+  --pw-field: rgb(255 255 255 / 0.04);
 
   display: flex;
   flex-direction: column;
@@ -28,6 +29,7 @@
   --pw-fg-disabled: #d4d4d8;
   --pw-hover: rgb(0 0 0 / 0.06);
   --pw-fg-hover: #18181b;
+  --pw-field: #fafafa;
 }
 
 .page-window-bar {
@@ -94,9 +96,9 @@
   cursor: default;
 }
 
-/* The input as it looks on a page: on the page's background, so it stands out from the gray bar. */
+/* Just lighter than the gray bar, so the input reads against it without standing out. */
 .page-window-url [data-slot="input-group"] {
-  background: var(--background, #fff);
+  background: var(--pw-field);
 }
 
 /* Can't be clicked into, so it never takes focus or shows a focus ring. A long slug ends in "…". */
