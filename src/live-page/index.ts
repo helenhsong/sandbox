@@ -2,22 +2,21 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "./contract";
 
 /**
- * Hooks every Sandbox prototype uses, so it works in a deck's macOS-style window:
+ * Hooks every Sandbox prototype uses, so it works with the macOS-style window it runs in:
  *
  * - `useHistoryState` for screens and steps, so back and forward step through them.
  * - `useDeckFill` on every screen a presenter would need to get through, so the window's cursor
  *   button can move the demo along the happy path. Prototypes don't add their own sample,
  *   shortcut or "prototype only" controls for this.
  *
- * On its own, a prototype uses the browser's history, so Back and Forward work as usual. Inside
- * a deck's window it keeps its own list instead, because the browser's history is shared with
- * the deck and stepping back would also step the deck.
+ * A prototype always runs inside a macOS-style window (see `mountPrototype`), so its history is
+ * one list kept here and offered to the window as `window.deckHistory`. The browser's history
+ * isn't used: it's shared with the page around the window.
  */
 
 type Entry = Record<string, unknown>;
 
 const page = window as Window & LivePageWindow;
-const embedded = window.parent !== window;
 const entries: Entry[] = [{}];
 let index = 0;
 const listeners = new Set<() => void>();
@@ -31,23 +30,16 @@ const move = (by: number) => {
   window.dispatchEvent(new Event(DECK_HISTORY_EVENT));
 };
 
-if (embedded) {
-  page.deckHistory = {
-    back: () => move(-1),
-    forward: () => move(1),
-    canBack: () => index > 0,
-    canForward: () => index < entries.length - 1,
-  };
-} else {
-  // Each page load starts from the first screen, so a reload never lands mid-flow without its data.
-  window.history.replaceState(null, "");
-  window.addEventListener("popstate", restoreAll);
-}
+page.deckHistory = {
+  back: () => move(-1),
+  forward: () => move(1),
+  canBack: () => index > 0,
+  canForward: () => index < entries.length - 1,
+};
 
-const current = (): Entry => (embedded ? entries[index] : ((window.history.state as Entry | null) ?? {}));
+const current = (): Entry => entries[index];
 
 function push(entry: Entry) {
-  if (!embedded) return window.history.pushState(entry, "");
   entries.splice(index + 1, entries.length, entry);
   index = entries.length - 1;
   window.dispatchEvent(new Event(DECK_HISTORY_EVENT));
@@ -58,7 +50,6 @@ function push(entry: Entry) {
  * bring earlier values back. Use it for the current screen and for steps in a flow; keep data
  * (lists, form values) in ordinary state. Changing a top-level screen clears nested steps;
  * pass `nested: true` for a step inside a screen so it keeps the screen it belongs to.
- * Values must be cloneable (no functions).
  */
 export function useHistoryState<T>(key: string, initial: T, { nested = false } = {}) {
   const [value, setValue] = useState<T>(() => (current()[key] as T | undefined) ?? initial);

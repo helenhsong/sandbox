@@ -29,20 +29,24 @@ New prototypes start as a copy of `templates/prototype/`. They use the
 `default` system from [`@helenhsong/ui`](https://github.com/helenhsong/ui)
 unless their registry entry says otherwise.
 
-## Prototypes in decks
+## The prototype window
 
-A deck's live page shows a prototype in a macOS-style window with back, forward,
-reload and a cursor button for shortcuts. Every prototype supports them with the hooks in
-[`src/live-page`](src/live-page/index.ts):
+Every prototype runs inside a macOS-style window with back, forward, reload and
+a fast-forward button (the cursor icon): a light window on a light gray page
+when it's opened on its own, and a dark one filling the slide when it's a live
+page in a deck. Each prototype's `main.tsx` starts it with `mountPrototype`
+from [`src/live-page`](src/live-page/mount.tsx), and uses the hooks in
+[`src/live-page/index.ts`](src/live-page/index.ts):
 
 - `useHistoryState` for the current screen and for each step of a flow (pass
-  `nested: true` for a step inside a screen), instead of `useState`. Back and
-  forward then step through them, in the deck window and in the browser.
+  `nested: true` for a step inside a screen), instead of `useState`. The
+  window's back and forward step through them. Don't use the browser's
+  history (`pushState`, hash changes) for screens.
 - `useDeckFill` on every screen a presenter needs to get through. The window's
-  cursor button runs it, always along the happy path: fill in realistic values
-  for whatever is still empty or invalid, load sample data into an empty
-  screen, or finish a simulated wait with its successful outcome (approving a
-  review, say).
+  fast-forward button runs it, always along the happy path: fill in realistic
+  values for whatever is still empty or invalid, load sample data into an
+  empty screen, or finish a simulated wait with its successful outcome
+  (approving a review, say).
 
 Don't add sample, shortcut or "prototype only" controls to the prototype itself.
 

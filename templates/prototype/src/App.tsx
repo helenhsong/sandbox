@@ -1,7 +1,7 @@
 import { Button } from "@helenhsong/ui";
 // Screens and flow steps use useHistoryState, and screens a presenter needs to get through
-// offer useDeckFill (the happy path), so the prototype works in a deck's window
-// (see "Prototypes in decks" in the README).
+// offer useDeckFill (the happy path), for the window the prototype runs in
+// (see "The prototype window" in the README).
 // import { useDeckFill, useHistoryState } from "../../../src/live-page";
 
 export function App() {
