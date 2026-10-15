@@ -22,8 +22,24 @@ function href(project: Project) {
   return project.repository ?? "#";
 }
 
+/** When each project was last published and first added (ms), from git at build time; see vite.config.ts. */
+declare const __PROJECT_PUBLISHED__: Record<string, { published: number; added: number }>;
+
+/**
+ * Most recently published first; projects not published yet come before all of them. Ties go to
+ * the one added more recently, then the later creation date.
+ */
+function byLastPublished(a: Project, b: Project) {
+  const times = __PROJECT_PUBLISHED__;
+  const ta = times[a.slug] ?? { published: Infinity, added: Infinity };
+  const tb = times[b.slug] ?? { published: Infinity, added: Infinity };
+  if (ta.published !== tb.published) return tb.published > ta.published ? 1 : -1;
+  if (ta.added !== tb.added) return tb.added > ta.added ? 1 : -1;
+  return b.createdAt.localeCompare(a.createdAt);
+}
+
 export function Home() {
-  const projects = [...(registry.projects as Project[])].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const projects = [...(registry.projects as Project[])].sort(byLastPublished);
 
   return (
     <main className="home">

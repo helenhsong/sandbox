@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { readdirSync, existsSync, renameSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
@@ -13,6 +14,27 @@ function prototypeSlugs() {
   return readdirSync(prototypesDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && existsSync(resolve(prototypesDir, entry.name, "index.html")))
     .map((entry) => entry.name);
+}
+
+/**
+ * When each prototype was last published and first added, in ms: the last commit that changed its
+ * files (notes like FRAMING.md don't count) and the first that added it. Ones not committed yet
+ * have no times, and the home page shows them first.
+ */
+function publishedTimes() {
+  const git = (args: string[]) => execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  const times: Record<string, { published: number; added: number }> = {};
+  for (const slug of prototypeSlugs()) {
+    try {
+      const dir = `prototypes/${slug}`;
+      const published = git(["log", "-1", "--format=%cI", "--", dir, `:(exclude)${dir}/*.md`]);
+      const added = git(["log", "--diff-filter=A", "--format=%cI", "--", `${dir}/index.html`]).split("\n").pop() ?? "";
+      if (published) times[slug] = { published: Date.parse(published), added: Date.parse(added || published) };
+    } catch {
+      // Not a git checkout: fall back to the registry's dates.
+    }
+  }
+  return times;
 }
 
 // Every prototypes/<slug>/index.html becomes its own page of the app.
@@ -67,6 +89,9 @@ export default defineConfig({
   // Set by the Pages workflow so assets resolve under /sandbox/.
   base: process.env.BASE_PATH ?? "/",
   plugins: [react(), flatPrototypeUrls(), deckPublish()],
+  define: {
+    __PROJECT_PUBLISHED__: JSON.stringify(publishedTimes()),
+  },
   build: {
     rollupOptions: {
       input: {
