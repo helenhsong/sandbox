@@ -2,7 +2,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { Button } from "@helenhsong/ui";
 import { AlertCircle, Check, FileText, LoaderCircle, Lock, ShieldCheck, Sparkles, Upload, X } from "lucide-react";
 import { COVER_TEMPLATES, GENRES, RATING_HINT, RATING_LABEL, aiDescription, earnings, formatPrice, royaltyRate, type Book, type Rating } from "./data";
-import { Cover, Wordmark, useScrollLock } from "./ui";
+import { Cover, Wordmark, useDeckFill, useScrollLock } from "./ui";
 
 const STEP_NAMES = ["Book details", "Cover", "Audience & price", "Review & submit"];
 
@@ -64,6 +64,24 @@ export function PublishFlow({ initial, resubmit, onExit, onSubmit }: Props) {
     if (step === 3) onSubmit(book);
     else go(step + 1);
   };
+
+  // In a deck, the window's fast-forward button fills in whatever this step still needs.
+  useDeckFill(() => {
+    if (step === 0) {
+      const title = book.title.trim() || "The Lantern Keeper";
+      update({
+        title,
+        author: book.author.trim() || "Maya Chen",
+        genre: book.genre || GENRES[0],
+        manuscript: book.manuscript ?? `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.docx`,
+      });
+    }
+    if (step === 2) update({ rating: book.rating ?? "general", price: earnings(book.price) ? book.price : "4.99" });
+    if (step === 3) {
+      setAgreed(true);
+      setErrors((e) => ({ ...e, terms: undefined }));
+    }
+  });
 
   const generate = () => {
     setGenerating(true);

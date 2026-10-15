@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Globe, LoaderCircle, RotateCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, FastForward, Globe, LoaderCircle, RotateCw } from "lucide-react";
 import { isImageLoading, resolveUrl, urlLabel, type FigmaSlide, type Slide, type WebSlide } from "./types";
 
 /**
@@ -53,6 +53,10 @@ function isSameSite(src: string) {
  * A live page in a macOS-style window: back, forward and reload in the title bar to get unstuck,
  * and the page's name in the middle.
  */
+/** Fired by a Sandbox page when it starts or stops offering window.deckFill. */
+const DECK_FILL_EVENT = "deckfill";
+type DeckPage = Window & { __deckWatched?: boolean; deckFill?: () => void };
+
 function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
   const [loaded, setLoaded] = useState(false);
   // Changing this remounts the page at its starting address.
@@ -67,6 +71,9 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
   // back the deck itself (an empty history in the page would fall through to the page around it).
   const history = useRef({ index: -1, length: 0, pending: null as "back" | "forward" | null });
   const [nav, setNav] = useState({ back: false, forward: false });
+  // A Sandbox prototype can offer to fill in the screen it's on (window.deckFill), for moving
+  // through a demo quickly. The button only shows while the page offers it.
+  const [canFill, setCanFill] = useState(false);
   const sync = () => {
     const { index, length } = history.current;
     setNav({ back: index > 0, forward: index < length - 1 });
@@ -103,7 +110,15 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
     setLoaded(false);
     history.current = { index: -1, length: 0, pending: null };
     setNav({ back: false, forward: false });
+    setCanFill(false);
     setVisit((value) => value + 1);
+  };
+  const fill = () => {
+    try {
+      (pageWindow() as DeckPage | null)?.deckFill?.();
+    } catch {
+      // The page went away mid-click.
+    }
   };
   const go = (direction: "back" | "forward") => {
     const page = pageWindow();
@@ -119,8 +134,12 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
     moved();
     if (!sameSite) return;
     try {
-      const page = frameRef.current?.contentWindow as (Window & { __deckWatched?: boolean }) | null;
-      if (!page || page.__deckWatched) return;
+      const page = frameRef.current?.contentWindow as DeckPage | null;
+      if (!page) return;
+      const checkFill = () => setCanFill(typeof page.deckFill === "function");
+      checkFill();
+      page.addEventListener(DECK_FILL_EVENT, checkFill);
+      if (page.__deckWatched) return;
       page.__deckWatched = true;
       const push = page.history.pushState.bind(page.history);
       page.history.pushState = (...args: Parameters<History["pushState"]>) => {
@@ -166,8 +185,14 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
             <Globe size={14} strokeWidth={2} aria-hidden />
             <span>{label}</span>
           </span>
-          {/* Balances the controls on the left, so the title stays centered. */}
-          <span className="deck-window-spacer" aria-hidden />
+          {/* As wide as the controls on the left, so the title stays centered. */}
+          <span className="deck-window-actions">
+            {canFill ? (
+              <button type="button" onClick={fill} aria-label="Fill in this screen" title="Fill in this screen">
+                <FastForward size={16} strokeWidth={2} aria-hidden />
+              </button>
+            ) : null}
+          </span>
         </div>
         <div className="deck-web-body">
           {!loaded ? (

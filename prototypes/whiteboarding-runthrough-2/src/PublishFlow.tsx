@@ -3,6 +3,7 @@ import { Button, Card, Checkbox, Input, InputGroup, InputGroupAddon, InputGroupI
 import { Check, FileText, Gift, Sparkles, Upload } from "lucide-react";
 import {
   AUDIENCE,
+  AUTHOR,
   EMAIL,
   REVIEW,
   TEMPLATES,
@@ -14,7 +15,7 @@ import {
   type ReviewType,
   type TemplateId,
 } from "./data";
-import { BookCover, Field } from "./ui";
+import { BookCover, Field, useDeckFill } from "./ui";
 
 /** File names differ at the end (extension, version), so truncate the middle. */
 function middleTruncate(name: string, max = 40) {
@@ -108,6 +109,28 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
       setGenerating(false);
     }, 1200);
   };
+
+  // In a deck, the window's fast-forward button fills in whatever this step still needs.
+  useDeckFill(() => {
+    if (step === 1) {
+      const title = book.title.trim() || "The Lantern Keeper";
+      set({
+        title,
+        author: book.author.trim() || AUTHOR,
+        manuscript: book.manuscript ?? `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.docx`,
+        description: book.description.trim() || generateDescription({ ...book, title }),
+      });
+    }
+    if (step === 3) {
+      const p = Number(book.price);
+      set({ audience: book.audience ?? "general", price: book.price && Number.isFinite(p) && p >= 0.99 && p <= 200 ? book.price : "4.99" });
+    }
+    if (step === 4) {
+      set({ reviewType: book.reviewType ?? "ai" });
+      setTerms(true);
+      setErrors((e) => ({ ...e, terms: undefined }));
+    }
+  });
 
   const r = royalty(book.price);
 

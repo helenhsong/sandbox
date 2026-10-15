@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, type ReactNode } from "react";
 import {
   Badge,
   Breadcrumb,
@@ -222,4 +222,24 @@ export function Field({ label, hint, error, children, htmlFor, action, status }:
 
 export function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/**
+ * Offers `fill` to a Create deck window showing this page: its fast-forward button calls it
+ * to fill in the current screen. Does nothing outside a deck.
+ */
+export function useDeckFill(fill: () => void) {
+  const latest = useRef(fill);
+  useEffect(() => {
+    latest.current = fill;
+  });
+  useEffect(() => {
+    const page = window as Window & { deckFill?: () => void };
+    page.deckFill = () => latest.current();
+    window.dispatchEvent(new Event("deckfill"));
+    return () => {
+      delete page.deckFill;
+      window.dispatchEvent(new Event("deckfill"));
+    };
+  }, []);
 }

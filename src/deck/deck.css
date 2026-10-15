@@ -258,7 +258,9 @@
 }
 
 /* As wide as the lights and nav on the left, so the title sits on the window's center line. */
-.deck-window-spacer {
+.deck-window-actions {
+  display: flex;
+  justify-content: flex-end;
   width: 128px;
   flex-shrink: 1;
   min-width: 0;

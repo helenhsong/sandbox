@@ -181,3 +181,23 @@ export function Toast({ children, onClose }: { children: ReactNode; onClose: () 
     </div>
   );
 }
+
+/**
+ * Offers `fill` to a Create deck window showing this page: its fast-forward button calls it
+ * to fill in the current screen. Does nothing outside a deck.
+ */
+export function useDeckFill(fill: () => void) {
+  const latest = useRef(fill);
+  useEffect(() => {
+    latest.current = fill;
+  });
+  useEffect(() => {
+    const page = window as Window & { deckFill?: () => void };
+    page.deckFill = () => latest.current();
+    window.dispatchEvent(new Event("deckfill"));
+    return () => {
+      delete page.deckFill;
+      window.dispatchEvent(new Event("deckfill"));
+    };
+  }, []);
+}
