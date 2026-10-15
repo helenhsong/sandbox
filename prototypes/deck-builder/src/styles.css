@@ -1,3 +1,9 @@
+/* Every scrollbar thin, with a transparent track. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground, #0a0a0a) 20%, transparent) transparent;
+}
+
 body {
   margin: 0;
   background: var(--background);
@@ -195,6 +201,9 @@ p {
 
 .sidebar-add {
   padding: 16px 16px 8px;
+  /* Reserves the same scrollbar space as the slide list below, so their right edges line up. */
+  overflow: hidden;
+  scrollbar-gutter: stable;
 }
 
 .add-trigger {
@@ -269,15 +278,13 @@ p {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 8px 12px 16px 8px;
+  scrollbar-gutter: stable;
+  /* The selected row's background reaches 6px past the buttons on each side, so the thumbnails
+     line up with the buttons' edges. */
+  padding: 8px 10px 16px 10px;
 }
 
-/* Thin scrollbars with no track, so the slide list and preview don't get a gray strip beside them. */
-.sidebar-scroll,
-.builder-main {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklch, var(--foreground) 20%, transparent) transparent;
-}
+
 
 .builder-main {
   min-width: 0;
@@ -825,6 +832,12 @@ p {
 
   .sidebar-scroll {
     overflow: visible;
+  }
+
+  /* Stacked, the list doesn't scroll on its own, so no scrollbar space to match. */
+  .sidebar-add,
+  .sidebar-scroll {
+    scrollbar-gutter: auto;
   }
 
   /* Stacked under the preview: slides in a two-column grid, like the player's grid view. */
