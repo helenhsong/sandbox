@@ -362,6 +362,10 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
               className="builder-name"
               value={draft.name}
               onChange={(event) => rename(event.target.value)}
+              // Enter (or Escape) finishes editing the name.
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === "Escape") event.currentTarget.blur();
+              }}
               placeholder="Untitled deck"
               aria-label="Deck name"
             />
