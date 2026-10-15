@@ -46,18 +46,19 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   place-items: center;
-  padding: 24px 24px 0;
+  /* Top space matches the bar's height, so the slide sits on the screen's vertical center. */
+  padding: var(--deck-controls-h) 24px 0;
 }
 
 /* Full screen, or the fill-the-window fallback where full screen is blocked. */
 .deck-player[data-filling] .deck-stage {
-  padding: 0;
+  padding: var(--deck-controls-h) 0 0;
 }
 
 .deck-frame {
   position: relative;
   /* Largest 16:9 box that fits the stage. */
-  width: min(100%, (100dvh - var(--deck-controls-h) - 24px) * 16 / 9);
+  width: min(100%, (100dvh - 2 * var(--deck-controls-h)) * 16 / 9);
   aspect-ratio: 16 / 9;
   background: #000;
   /* Slightly rounded in the window; square in full screen (below). */
@@ -68,7 +69,6 @@
 }
 
 .deck-player[data-filling] .deck-frame {
-  width: min(100%, (100dvh - var(--deck-controls-h)) * 16 / 9);
   border-radius: 0;
   box-shadow: none;
 }
@@ -352,7 +352,7 @@
   }
 
   .deck-stage {
-    padding: 12px 12px 0;
+    padding: var(--deck-controls-h) 12px 0;
   }
 }
 
