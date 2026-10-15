@@ -407,8 +407,6 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
       role="region"
       aria-label={name}
       data-filling={filling || undefined}
-      // A live page in full screen fills the whole screen rather than a 16:9 box.
-      data-live-page={current?.kind === "web" || undefined}
       data-idle={(idle && !overview) || undefined}
       data-show-bar={near.bar || overview || undefined}
       data-show-close={(near.close && !overview) || undefined}
