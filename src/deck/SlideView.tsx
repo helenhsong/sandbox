@@ -21,8 +21,11 @@ export function SlideView({ slide }: { slide: Slide }) {
   return <WebFrame slide={slide} />;
 }
 
+/** How long Figma's embed takes to finish drawing after it loads. */
+const FIGMA_SETTLE_MS = 1500;
+
 /**
- * Figma's live embed, faded in over the slide's image so there's never a blank or loading screen.
+ * Figma's live embed, shown over the slide's image once loaded, so there's never a blank or loading screen.
  * It can't be clicked or focused, and it's cropped so Figma's own slide controls stay out of view.
  */
 function FigmaFrame({ slide, src, poster }: { slide: FigmaSlide; src: string; poster: ReactNode }) {
@@ -34,7 +37,9 @@ function FigmaFrame({ slide, src, poster }: { slide: FigmaSlide; src: string; po
         title={slide.name}
         src={src}
         data-loaded={loaded || undefined}
-        onLoad={() => setLoaded(true)}
+        // Figma finishes drawing (with its own fade) just after the page loads; wait that out
+        // behind the image, then swap in one step.
+        onLoad={() => window.setTimeout(() => setLoaded(true), FIGMA_SETTLE_MS)}
         // Look-only: moving between slides happens in the deck, never inside Figma's embed.
         tabIndex={-1}
         aria-hidden
