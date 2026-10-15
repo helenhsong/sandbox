@@ -272,6 +272,13 @@ p {
   padding: 8px 12px 16px 8px;
 }
 
+/* Thin scrollbars with no track, so the slide list and preview don't get a gray strip beside them. */
+.sidebar-scroll,
+.builder-main {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 20%, transparent) transparent;
+}
+
 .builder-main {
   min-width: 0;
   min-height: 0;
