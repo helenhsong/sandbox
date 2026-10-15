@@ -171,6 +171,14 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
       const target = event.target;
       if (target instanceof Element && target.closest("input, textarea, select, [contenteditable]")) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      // Moving through slides from the keyboard means presenting: tuck the controls away again.
+      if (!overview && ["ArrowRight", "ArrowLeft", "PageDown", "PageUp", " ", "Home", "End"].includes(event.key)) {
+        setNear({ bar: false, close: false });
+        setIdle(true);
+        if (document.activeElement instanceof HTMLElement && rootRef.current?.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+      }
       switch (event.key) {
         case "ArrowRight":
         case "PageDown":
