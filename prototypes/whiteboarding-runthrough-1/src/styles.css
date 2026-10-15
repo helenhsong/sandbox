@@ -708,6 +708,8 @@ h3 {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+  /* Room for the scrollbar is always kept, so steps that don't scroll don't shift sideways. */
+  scrollbar-gutter: stable;
   display: grid;
   grid-template-columns: minmax(0, 640px) 260px;
   justify-content: center;

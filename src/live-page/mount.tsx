@@ -1,5 +1,6 @@
 import { StrictMode, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
+import { PageScrollbar } from "./PageScrollbar";
 import { PageWindow } from "./Window";
 import "./page.css";
 
@@ -22,9 +23,11 @@ export function mountPrototype(App: ComponentType) {
     );
     return;
   }
+  document.documentElement.classList.add("prototype-page");
   root.render(
     <StrictMode>
       <App />
+      <PageScrollbar />
     </StrictMode>,
   );
 }

@@ -25,3 +25,43 @@
     background: rgb(128 128 128 / 0.45) padding-box;
   }
 }
+
+/* A prototype's page scrolls with an overlay scrollbar (PageScrollbar) that takes no space, so
+   there's no blank column beside the page and nothing shifts when a page starts to scroll. */
+html.prototype-page {
+  scrollbar-width: none;
+}
+
+html.prototype-page::-webkit-scrollbar {
+  display: none;
+}
+
+.page-scrollbar {
+  position: fixed;
+  right: 2px;
+  z-index: 2147483647;
+  width: 6px;
+  border-radius: 3px;
+  background: rgb(128 128 128 / 0.45);
+  opacity: 0.6;
+  transition: opacity 160ms ease-out, width 160ms ease-out;
+  touch-action: none;
+}
+
+.page-scrollbar[data-active],
+.page-scrollbar:hover {
+  width: 8px;
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  .page-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-scrollbar {
+    transition: none;
+  }
+}

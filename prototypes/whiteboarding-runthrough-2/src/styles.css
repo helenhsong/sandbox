@@ -979,6 +979,8 @@ textarea {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+  /* Room for the scrollbar is always kept, so steps that don't scroll don't shift sideways. */
+  scrollbar-gutter: stable;
   /* Full width so the scrollbar sits at the window's edge; the content stays 1032px wide, centered. */
   padding: 32px max(24px, calc((100% - 1032px) / 2));
   display: grid;
