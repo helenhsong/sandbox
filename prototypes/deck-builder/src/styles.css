@@ -200,7 +200,8 @@ p {
 }
 
 .sidebar-add {
-  padding: 16px 16px 8px;
+  /* A clear gap (16px, plus the list's 8px) between the buttons and the first slide. */
+  padding: 16px 16px 16px;
   /* Reserves the slide list's scrollbar space on both sides, like the list below, so everything
      in the sidebar is centered and lines up whether or not a scrollbar shows. */
   overflow: hidden;
