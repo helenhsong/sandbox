@@ -18,7 +18,7 @@ export interface Draft {
 /** Whether the deck shows its Figma slides live (the default) or as images. */
 export const isFigmaLive = (draft: Pick<Draft, "figmaLive">) => draft.figmaLive !== false;
 
-const DRAFT_KEY = "deck-builder:draft";
+export const DRAFT_KEY = "deck-builder:draft";
 const TOKEN_KEY = "deck-builder:figma-token";
 
 function read(key: string) {

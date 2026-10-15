@@ -150,12 +150,118 @@
 
 /* Live web page */
 
+/* Live page: a dark-mode macOS-style window, full screen: it fills the whole slide. */
 .deck-web {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: #fff;
+  background: #1c1c1e;
+}
+
+.deck-window {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #1c1c1e;
+}
+
+.deck-window-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 0 12px;
+  background: #2a2a2d;
+  border-bottom: 1px solid rgb(0 0 0 / 0.6);
+  color: #a1a1aa;
+  font-size: 14px;
+}
+
+.deck-window-lights {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.deck-window-lights span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff5f57;
+  box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.3);
+}
+
+.deck-window-lights span:nth-child(2) {
+  background: #febc2e;
+}
+
+.deck-window-lights span:nth-child(3) {
+  background: #28c840;
+}
+
+.deck-window-nav {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.deck-window-bar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  min-width: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.deck-window-bar button:disabled {
+  color: #52525b;
+  cursor: default;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .deck-window-bar button:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.08);
+    color: #fafafa;
+  }
+}
+
+/* The page's name, centered in the bar: just a label. */
+.deck-window-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+  padding: 0 8px;
+  cursor: default;
+  user-select: none;
+}
+
+.deck-window-title span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: #e4e4e7;
+}
+
+/* As wide as the lights and nav on the left, so the title sits on the window's center line. */
+.deck-window-spacer {
+  width: 128px;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .deck-web-empty {

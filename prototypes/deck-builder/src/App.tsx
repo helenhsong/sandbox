@@ -22,6 +22,7 @@ import { StartOverDialog } from "./SourceDialogs";
 import { SlideList } from "./SlideList";
 import { SlideMenu, type SlideActions } from "./SlideMenu";
 import {
+  DRAFT_KEY,
   emptyDraft,
   figmaSlideLink,
   isFigmaLive,
@@ -46,10 +47,26 @@ export function App() {
 
   useEffect(() => saveDraft(draft), [draft]);
 
-  // Forget slide images nothing refers to any more (after importing Figma again or starting over).
+  // With Create deck open in more than one tab, each follows the latest saved deck, so an older
+  // tab never writes back stale slides or clears images a newer one just brought in.
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== DRAFT_KEY || !event.newValue) return;
+      try {
+        setDraft(JSON.parse(event.newValue) as Draft);
+      } catch {
+        // Not a draft we can read; keep ours.
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // Forget slide images nothing refers to any more (after importing Figma again or starting over),
+  // keeping any the latest saved deck still uses.
   const keys = useMemo(() => imageKeys(draft.slides), [draft.slides]);
   useEffect(() => {
-    const timer = setTimeout(() => void pruneImages(keys), 1000);
+    const timer = setTimeout(() => void pruneImages([...keys, ...imageKeys(loadDraft().slides)]), 1000);
     return () => clearTimeout(timer);
   }, [keys]);
 
@@ -162,7 +179,10 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
       try {
         const nodes = await listSlides(current.fileKey, key.trim());
         const unchanged = nodes.length === figmaIds.length && nodes.every((node, i) => node.nodeId === figmaIds[i]);
-        if (!nodes.length || unchanged) return;
+        // Also bring them in again if any slide's saved image has gone missing (its thumbnail says "No preview").
+        const wanted = imageKeys(current.slides);
+        const imagesMissing = (await getImages(wanted)).size < wanted.length;
+        if (!nodes.length || (unchanged && !imagesMissing)) return;
         const { slides: incoming } = await loadFigmaSlides(current.fileKey, key.trim());
         setDraft((now) => (now.fileKey === current.fileKey ? { ...now, slides: mergeFigmaSlides(now.slides, incoming) } : now));
       } catch {

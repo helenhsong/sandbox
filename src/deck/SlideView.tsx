@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Globe, LoaderCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Globe, LoaderCircle, RotateCw } from "lucide-react";
 import { isImageLoading, resolveUrl, urlLabel, type FigmaSlide, type Slide, type WebSlide } from "./types";
 
 /**
@@ -40,8 +40,27 @@ function WebFrame({ slide }: { slide: WebSlide }) {
   return <WebFrameInner key={src} slide={slide} src={src} />;
 }
 
+/** Whether a page is on this site, so the window's back and forward can reach its history. */
+function isSameSite(src: string) {
+  try {
+    return new URL(src, window.location.href).origin === window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * A live page in a macOS-style window: back, forward and reload in the title bar to get unstuck,
+ * and the page's name in the middle.
+ */
 function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
   const [loaded, setLoaded] = useState(false);
+  // Changing this remounts the page at its starting address.
+  const [visit, setVisit] = useState(0);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const label = slide.title || urlLabel(slide.url);
+  // Other sites' pages keep their history to themselves, so only Sandbox pages get back and forward.
+  const sameSite = isSameSite(src);
 
   if (!slide.url) {
     return (
@@ -52,21 +71,70 @@ function WebFrameInner({ slide, src }: { slide: WebSlide; src: string }) {
     );
   }
 
+  const pageWindow = () => {
+    try {
+      return frameRef.current?.contentWindow ?? null;
+    } catch {
+      return null;
+    }
+  };
+  const restart = () => {
+    setLoaded(false);
+    setVisit((value) => value + 1);
+  };
+
   return (
     <div className="deck-web">
-      <div className="deck-web-body">
-        {!loaded ? (
-          <div className="deck-web-loading" aria-hidden>
-            <LoaderCircle className="deck-spin" size={20} strokeWidth={2} />
-          </div>
-        ) : null}
-        <iframe
-          title={slide.title || urlLabel(slide.url)}
-          src={src}
-          onLoad={() => setLoaded(true)}
-          allow="clipboard-read; clipboard-write; fullscreen"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
+      <div className="deck-window">
+        <div className="deck-window-bar">
+          <span className="deck-window-lights" aria-hidden>
+            <span />
+            <span />
+            <span />
+          </span>
+          <span className="deck-window-nav">
+            <button type="button" onClick={() => pageWindow()?.history.back()} disabled={!sameSite} aria-label="Back" title="Back">
+              <ChevronLeft size={16} strokeWidth={2} aria-hidden />
+            </button>
+            <button type="button" onClick={() => pageWindow()?.history.forward()} disabled={!sameSite} aria-label="Forward" title="Forward">
+              <ChevronRight size={16} strokeWidth={2} aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const page = pageWindow();
+                if (sameSite && page) page.location.reload();
+                else restart();
+              }}
+              aria-label="Reload"
+              title="Reload"
+            >
+              <RotateCw size={14} strokeWidth={2} aria-hidden />
+            </button>
+          </span>
+          <span className="deck-window-title">
+            <Globe size={14} strokeWidth={2} aria-hidden />
+            <span>{label}</span>
+          </span>
+          {/* Balances the controls on the left, so the title stays centered. */}
+          <span className="deck-window-spacer" aria-hidden />
+        </div>
+        <div className="deck-web-body">
+          {!loaded ? (
+            <div className="deck-web-loading" aria-hidden>
+              <LoaderCircle className="deck-spin" size={20} strokeWidth={2} />
+            </div>
+          ) : null}
+          <iframe
+            key={visit}
+            ref={frameRef}
+            title={label}
+            src={src}
+            onLoad={() => setLoaded(true)}
+            allow="clipboard-read; clipboard-write; fullscreen"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
       </div>
     </div>
   );
