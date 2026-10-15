@@ -114,10 +114,12 @@
 
 .deck-figma-live iframe {
   position: absolute;
-  top: calc(-1 * var(--figma-crop));
-  left: 0;
-  width: 100%;
-  height: calc(100% + 2 * var(--figma-crop));
+  /* 2px of bleed past every edge: the frame can be a fraction of a pixel wide while Figma draws
+     its slide at whole pixels, which otherwise leaves a hairline gap at an edge. */
+  top: calc(-1 * var(--figma-crop) - 2px);
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 2 * var(--figma-crop) + 4px);
   border: 0;
   /* Look-only: clicks never reach Figma, so its embed can't move to other slides. */
   pointer-events: none;
