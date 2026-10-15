@@ -11,6 +11,8 @@ interface DeckPlayerProps {
   onClose?: () => void;
   /** For a published deck: where its close button goes (the Sandbox home page). */
   exitHref?: string;
+  /** Called with the slide's position (0-based) whenever it changes, e.g. to keep a URL in step. */
+  onSlideChange?: (index: number) => void;
 }
 
 /** How long the controls show on opening, and how long the mouse can rest before the cursor hides. */
@@ -30,7 +32,7 @@ function nearbyWebIds(slides: Slide[], index: number) {
   return slides.slice(Math.max(index - 1, 0), index + 2).filter(isPersistent).map((slide) => slide.id);
 }
 
-export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitHref }: DeckPlayerProps) {
+export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitHref, onSlideChange }: DeckPlayerProps) {
   const slides = visibleSlides(allSlides);
   const standalone = !onClose;
   const rootRef = useRef<HTMLDivElement>(null);
@@ -239,6 +241,14 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   useEffect(() => {
     if (standalone) history.replaceState(null, "", `#${index + 1}`);
   }, [index, standalone]);
+
+  const slideChange = useRef(onSlideChange);
+  useEffect(() => {
+    slideChange.current = onSlideChange;
+  });
+  useEffect(() => {
+    slideChange.current?.(index);
+  }, [index]);
 
   // As an overlay, keep the page behind it from scrolling; restore it on close.
   useEffect(() => {

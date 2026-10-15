@@ -110,7 +110,14 @@ interface EditorProps {
 
 function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps) {
   const [selectedId, setSelectedId] = useState<string | null>(draft.slides[0]?.id ?? null);
-  const [presentFrom, setPresentFrom] = useState<number | null>(null);
+  // Presenting has its own address, /deck-builder/?present=3: refreshing or sharing it reopens
+  // the presentation on that slide, and Back closes it.
+  const [presentFrom, setPresentFrom] = useState<number | null>(() => (draft.slides.length ? readPresentParam() : null));
+  useEffect(() => {
+    const onPop = () => setPresentFrom(readPresentParam());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
   const [dialog, setDialog] = useState<"publish" | "reload" | "start-over" | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [addPreset, setAddPreset] = useState<AddPreset>({ kind: "live", placement: "after" });
@@ -255,6 +262,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
   const present = () => {
     const at = shown.findIndex((slide) => slide.id === selected?.id);
     setPresentFrom(Math.max(at, 0));
+    history.pushState({ deckPresent: true }, "", presentUrl(Math.max(at, 0)));
   };
 
   /** Saves the deck as a file, images included, so it can be imported in another browser. */
@@ -425,7 +433,18 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
       </div>
 
       {presentFrom !== null ? (
-        <DeckPlayer name={draft.name || "Untitled deck"} slides={slides} startIndex={presentFrom} onClose={() => setPresentFrom(null)} />
+        <DeckPlayer
+          name={draft.name || "Untitled deck"}
+          slides={slides}
+          startIndex={presentFrom}
+          onSlideChange={(at) => history.replaceState(history.state, "", presentUrl(at))}
+          onClose={() => {
+            // Opened with Present: step back to the editor's address. Opened from a link: drop the parameter.
+            if ((history.state as { deckPresent?: boolean } | null)?.deckPresent) history.back();
+            else history.replaceState(null, "", presentUrl(null));
+            setPresentFrom(null);
+          }}
+        />
       ) : null}
 
       <PublishDialog
@@ -459,6 +478,20 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
       />
     </div>
   );
+}
+
+/** The slide (0-based) in the address's ?present= parameter, or null when not presenting. */
+function readPresentParam() {
+  const value = Number.parseInt(new URLSearchParams(window.location.search).get("present") ?? "", 10);
+  return Number.isFinite(value) && value > 0 ? value - 1 : null;
+}
+
+/** This page's address with ?present= set to a slide (shown 1-based), or removed for null. */
+function presentUrl(at: number | null) {
+  const url = new URL(window.location.href);
+  if (at === null) url.searchParams.delete("present");
+  else url.searchParams.set("present", String(at + 1));
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 /** The list reorders display slides; apply the same order to the stored ones. */
