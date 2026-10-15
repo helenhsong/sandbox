@@ -96,7 +96,7 @@ function AddForms({ preset, ...props }: AddFormsProps) {
       <Tabs value={kind} onValueChange={(value) => setKind(value as AddKind)} className="add-tabs">
         <TabsList className="add-tabs-list">
           <TabsTrigger value="live">Live page</TabsTrigger>
-          <TabsTrigger value="figma">Figma slides</TabsTrigger>
+          <TabsTrigger value="figma">Figma Slides</TabsTrigger>
         </TabsList>
       </Tabs>
       {kind === "live" ? <LiveForm preset={preset} {...props} /> : <FigmaForm preset={preset} {...props} />}

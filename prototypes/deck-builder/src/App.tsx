@@ -15,7 +15,7 @@ import { isPersistent, visibleSlides, withFigmaEmbeds, type Deck, type Slide, ty
 import { AddSlide, type AddPreset, type FigmaImport } from "./AddSlide";
 import { readDeckFile } from "./deckFile";
 import { figmaFileName, listSlides, loadFigmaSlides } from "./figma";
-import { FigmaSource, RemoveFigmaDialog } from "./FigmaSource";
+import { FigmaLogo, FigmaSource, RemoveFigmaDialog } from "./FigmaSource";
 import { Inspector } from "./Inspector";
 import { PublishDialog } from "./PublishDialog";
 import { StartOverDialog } from "./SourceDialogs";
@@ -281,6 +281,13 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
     setAddOpen(true);
   };
 
+  /** Opens Add slide on Figma slides, with any current link selected, ready to paste another over it. */
+  const openFigmaImport = () => {
+    setAddPreset({ kind: "figma", placement: "after", slideId: selected?.id, replace: Boolean(draft.figmaUrl) });
+    // After this click (or menu) is done, or the dropdown would take it as a click outside and close.
+    setTimeout(() => setAddOpen(true), 0);
+  };
+
   /**
    * Brings in a Figma file's slides. The same file again updates them, keeping live pages after
    * the slides they followed; a different file replaces the Figma slides, keeping live pages.
@@ -363,6 +370,12 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
                 <ChevronDown size={20} strokeWidth={2} />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="deck-menu">
+                <DropdownMenuItem onClick={openFigmaImport}>
+                  <span className="deck-menu-icon">
+                    <FigmaLogo />
+                  </span>
+                  Import Figma Slides
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => fileInput.current?.click()}>
                   <FileUp size={16} strokeWidth={2} aria-hidden />
                   Import deck file
@@ -421,12 +434,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
             {figmaCount ? (
               <FigmaSource
                 name={draft.figmaName ?? ""}
-                onReplace={() => {
-                  // Opens Add slide on Figma slides, with the current link ready to swap for another.
-                  setAddPreset({ kind: "figma", placement: "after", slideId: selected?.id, replace: true });
-                  // After this click is done, or the dropdown would take it as a click outside and close.
-                  setTimeout(() => setAddOpen(true), 0);
-                }}
+                onReplace={openFigmaImport}
                 onRemove={() => setDialog("remove-figma")}
               />
             ) : null}

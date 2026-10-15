@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { plural } from "./draft";
 
 /** Figma's logo, in its own colors. */
-function FigmaLogo() {
+export function FigmaLogo() {
   return (
     <svg className="figma-logo" viewBox="0 0 38 57" width="11" height="16" aria-hidden>
       <path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z" />
@@ -23,7 +23,7 @@ interface FigmaSourceProps {
 }
 
 /**
- * The Figma file the deck's slides come from, joined to the bottom of Add slide: its name lets you
+ * The Figma file the deck's slides come from, just under Add slide: its name lets you
  * replace the file with another, and × removes its slides from the deck.
  */
 export function FigmaSource({ name, onReplace, onRemove }: FigmaSourceProps) {

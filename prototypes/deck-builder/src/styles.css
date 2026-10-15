@@ -179,6 +179,15 @@ p {
   letter-spacing: normal;
 }
 
+/* A 16px box for icons that aren't Lucide's (the Figma logo), so labels line up with the others. */
+.deck-menu-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
 /* Runs edge to edge, through the menu's 6px padding. */
 .deck-menu [role="separator"] {
   margin: 6px -6px;
@@ -192,19 +201,14 @@ p {
   width: 100%;
 }
 
-/* With a Figma file in the deck, its row hangs off the bottom of Add slide as one piece (10px matches the button's corners). */
-.sidebar-add:has(.figma-source) .add-trigger {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
+/* The deck's Figma file, its own button just under Add slide (10px matches the button's corners). */
 .figma-source {
   display: flex;
   align-items: stretch;
   height: 36px;
-  margin-top: -1px;
+  margin-top: 6px;
   border: 1px solid var(--border);
-  border-radius: 0 0 10px 10px;
+  border-radius: 10px;
   background: var(--background);
   overflow: hidden;
 }
