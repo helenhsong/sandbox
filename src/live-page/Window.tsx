@@ -19,7 +19,7 @@ interface PageWindowProps {
   src: string;
   /** The page's name, in the middle of the title bar. */
   label: string;
-  /** Dark in decks; light around a prototype opened on its own. */
+  /** Light everywhere (Sandbox pages and decks); dark is kept as an option. */
   theme?: "dark" | "light";
 }
 
@@ -28,7 +28,7 @@ interface PageWindowProps {
  * page's name in the middle, and the fast-forward button when a Sandbox prototype offers it.
  * Changing `src` should remount it (key it by src).
  */
-export function PageWindow({ src, label, theme = "dark" }: PageWindowProps) {
+export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
   const [loaded, setLoaded] = useState(false);
   // Changing this remounts the page at its starting address.
   const [visit, setVisit] = useState(0);

@@ -34,7 +34,7 @@ function FigmaFrame({ slide, src }: { slide: FigmaSlide; src: string }) {
   );
 }
 
-/** A live page: the dark macOS-style window, filling the slide. */
+/** A live page: the light macOS-style window on a light gray background, like on Sandbox pages. */
 function WebFrame({ slide }: { slide: WebSlide }) {
   if (!slide.url) {
     return (
@@ -48,7 +48,7 @@ function WebFrame({ slide }: { slide: WebSlide }) {
   return (
     <div className="deck-web">
       {/* Keyed by src so a new URL shows the loading state again. */}
-      <PageWindow key={src} src={src} label={slide.title || urlLabel(slide.url)} theme="dark" />
+      <PageWindow key={src} src={src} label={slide.title || urlLabel(slide.url)} theme="light" />
     </div>
   );
 }

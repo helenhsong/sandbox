@@ -32,9 +32,9 @@ unless their registry entry says otherwise.
 ## The prototype window
 
 Every prototype runs inside a macOS-style window with back, forward, reload and
-a fast-forward button (the cursor icon): a light window on a light gray page
-(no larger than on a 16-inch MacBook Pro) when it's opened on its own, and a dark one filling the slide when it's a live
-page in a deck. Each prototype's `main.tsx` starts it with `mountPrototype`
+a fast-forward button (the cursor icon): a light window on a light gray page,
+no larger than on a 16-inch MacBook Pro when it's opened on its own, and
+scaled to the slide when it's a live page in a deck. Each prototype's `main.tsx` starts it with `mountPrototype`
 from [`src/live-page`](src/live-page/mount.tsx), and uses the hooks in
 [`src/live-page/index.ts`](src/live-page/index.ts):
 
