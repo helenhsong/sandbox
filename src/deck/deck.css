@@ -1,5 +1,9 @@
 /* Presentation player shared by Deck Builder and every published deck. The player is always dark, like a projector. */
 
+.deck-player:focus {
+  outline: none;
+}
+
 .deck-player {
   --deck-bg: #0b0b0c;
   --deck-surface: #18181b;
@@ -56,8 +60,8 @@
   width: min(100%, (100dvh - var(--deck-controls-h) - 24px) * 16 / 9);
   aspect-ratio: 16 / 9;
   background: #000;
-  /* Square corners, like a real screen. */
-  border-radius: 0;
+  /* Slightly rounded in the window; square in full screen (below). */
+  border-radius: 8px;
   overflow: hidden;
   /* A hairline edge so dark slides still read as a frame on the dark stage. */
   box-shadow: 0 0 0 1px var(--deck-line);
@@ -65,6 +69,7 @@
 
 .deck-player[data-filling] .deck-frame {
   width: min(100%, (100dvh - var(--deck-controls-h)) * 16 / 9);
+  border-radius: 0;
   box-shadow: none;
 }
 

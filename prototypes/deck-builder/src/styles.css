@@ -259,8 +259,8 @@ p {
   max-width: 1040px;
   margin: 0 auto;
   aspect-ratio: 16 / 9;
-  /* Square corners, matching the slide in presentation mode. */
-  border-radius: 0;
+  /* Slightly rounded, like the slide in presentation mode outside full screen. */
+  border-radius: 8px;
   overflow: hidden;
   background: #000;
   box-shadow:

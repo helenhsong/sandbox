@@ -104,6 +104,54 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     return () => root.removeEventListener("click", onClick);
   }, []);
 
+  // On a live page, the keyboard follows the mouse: with the mouse over the slide, keys go to the
+  // page (its own arrow keys, scrolling, typing); move it off the slide and they change slides
+  // again, with no click needed. Focus moves into or out of the page's frame to make that happen.
+  const pointerInFrame = useRef(false);
+  const onLivePage = useRef(false);
+  useEffect(() => {
+    onLivePage.current = slides[index]?.kind === "web";
+  });
+  const activeFrame = useCallback(
+    () => rootRef.current?.querySelector<HTMLIFrameElement>(".deck-layer[data-active] iframe") ?? null,
+    [],
+  );
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const follow = (inside: boolean) => {
+      pointerInFrame.current = inside;
+      if (!onLivePage.current) return;
+      const frame = activeFrame();
+      if (inside && frame && document.activeElement !== frame) frame.focus({ preventScroll: true });
+      if (!inside && document.activeElement instanceof HTMLIFrameElement) root.focus({ preventScroll: true });
+    };
+    const onMove = (event: PointerEvent) => {
+      const box = root.querySelector(".deck-frame")?.getBoundingClientRect();
+      follow(Boolean(box) && event.clientX >= box!.left && event.clientX <= box!.right && event.clientY >= box!.top && event.clientY <= box!.bottom);
+    };
+    // Entering the page's frame: this document gets no more moves until the mouse comes back out.
+    const onOver = (event: PointerEvent) => {
+      if (event.target instanceof HTMLIFrameElement) follow(true);
+    };
+    const onLeave = () => follow(false);
+    root.addEventListener("pointermove", onMove);
+    root.addEventListener("pointerover", onOver);
+    root.addEventListener("pointerleave", onLeave);
+    return () => {
+      root.removeEventListener("pointermove", onMove);
+      root.removeEventListener("pointerover", onOver);
+      root.removeEventListener("pointerleave", onLeave);
+    };
+  }, [activeFrame]);
+
+  // Arriving on a live page with the mouse already over the slide hands the keyboard to the page.
+  useEffect(() => {
+    if (slides[index]?.kind !== "web" || !pointerInFrame.current) return;
+    const timer = setTimeout(() => activeFrame()?.focus({ preventScroll: true }), 0);
+    return () => clearTimeout(timer);
+  }, [index, slides, activeFrame]);
+
   const go = useCallback(
     (next: number) => {
       const clamped = Math.min(Math.max(next, 0), slides.length - 1);
@@ -171,8 +219,11 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
       const target = event.target;
       if (target instanceof Element && target.closest("input, textarea, select, [contenteditable]")) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      // With the mouse over a live page, its keys belong to the page, not the deck.
+      const slideKeys = ["ArrowRight", "ArrowLeft", "PageDown", "PageUp", " ", "Home", "End"];
+      if (!overview && onLivePage.current && pointerInFrame.current && slideKeys.includes(event.key)) return;
       // Moving through slides from the keyboard means presenting: tuck the controls away again.
-      if (!overview && ["ArrowRight", "ArrowLeft", "PageDown", "PageUp", " ", "Home", "End"].includes(event.key)) {
+      if (!overview && slideKeys.includes(event.key)) {
         setNear({ bar: false, close: false });
         setIdle(true);
         if (document.activeElement instanceof HTMLElement && rootRef.current?.contains(document.activeElement)) {
@@ -232,6 +283,8 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     <div
       className={`deck-player${onClose ? " deck-player-overlay" : ""}`}
       ref={rootRef}
+      // Focusable so the keyboard can be taken back from a live page when the mouse leaves it.
+      tabIndex={-1}
       role="region"
       aria-label={name}
       data-filling={filling || undefined}
