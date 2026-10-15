@@ -44,7 +44,7 @@
   color: var(--pw-fg);
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 14px;
-  line-height: 1;
+  line-height: 20px;
 }
 
 .page-window-lights {
