@@ -95,7 +95,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: min(280px, calc(100% - 288px));
+  width: min(340px, calc(100% - 288px));
   height: 30px;
   padding: 0 34px;
   border-radius: 15px;
