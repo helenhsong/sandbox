@@ -275,9 +275,9 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
     setAddOpen(true);
   };
 
-  /** Opens Add slide from its button: Figma first while the deck has no Figma file, otherwise a live page. */
+  /** Opens Add slide from its button, always on its first tab (Live page). Figma Slides opens only when asked for. */
   const openAdd = () => {
-    setAddPreset({ kind: draft.fileKey ? "live" : "figma", placement: "after", slideId: selected?.id });
+    setAddPreset({ kind: "live", placement: "after", slideId: selected?.id });
     setAddOpen(true);
   };
 
