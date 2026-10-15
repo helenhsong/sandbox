@@ -1,4 +1,7 @@
 import { Button } from "@helenhsong/ui";
+// Screens and flow steps use useHistoryState, and screens with required input offer
+// useDeckFill, so the prototype works in a deck's window (see "Prototypes in decks" in the README).
+// import { useDeckFill, useHistoryState } from "../../../src/live-page";
 
 export function App() {
   return (

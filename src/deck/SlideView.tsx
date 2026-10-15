@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Globe, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
+import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "../live-page/contract";
 import { isImageLoading, resolveUrl, urlLabel, type FigmaSlide, type Slide, type WebSlide } from "./types";
 
 /**
@@ -49,14 +50,7 @@ function isSameSite(src: string) {
   }
 }
 
-/** Fired by a Sandbox page when it starts or stops offering window.deckFill. */
-const DECK_FILL_EVENT = "deckfill";
-/** Fired by a Sandbox page when its screen history (window.deckHistory) moves. */
-const DECK_HISTORY_EVENT = "deckhistory";
-type DeckPage = Window & {
-  deckFill?: () => void;
-  deckHistory?: { back: () => void; forward: () => void; canBack: () => boolean; canForward: () => boolean };
-};
+type DeckPage = Window & LivePageWindow;
 
 /**
  * A live page in a macOS-style window: back, forward and reload in the title bar to get unstuck,

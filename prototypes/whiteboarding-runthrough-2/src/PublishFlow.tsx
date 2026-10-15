@@ -15,8 +15,8 @@ import {
   type ReviewType,
   type TemplateId,
 } from "./data";
-import { useHistoryState } from "./history";
-import { BookCover, Field, useDeckFill } from "./ui";
+import { useDeckFill, useHistoryState } from "../../../src/live-page";
+import { BookCover, Field } from "./ui";
 
 /** File names differ at the end (extension, version), so truncate the middle. */
 function middleTruncate(name: string, max = 40) {
@@ -191,17 +191,6 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
                 label="Manuscript"
                 htmlFor="manuscript"
                 error={errors.manuscript}
-                action={
-                  !book.manuscript && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => set({ manuscript: `${(book.title || "manuscript").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.docx` })}
-                    >
-                      Use sample (prototype)
-                    </Button>
-                  )
-                }
               >
                 {book.manuscript ? (
                   <div className="file-row">

@@ -85,7 +85,6 @@ type Props = {
   onPublish: (b: Book) => void;
   onEdit: (b: Book) => void;
   onCompleteReview: (b: Book, ok: boolean) => void;
-  onLoadSamples: () => void;
 };
 
 export function Books(p: Props) {
@@ -141,9 +140,6 @@ export function Books(p: Props) {
           </EmptyHeader>
           <EmptyContent>
             <div className="actions center">
-              <Button variant="outline" onClick={p.onLoadSamples}>
-                Load sample books (prototype)
-              </Button>
               <Button onClick={p.onNew}>Publish your first book</Button>
             </div>
           </EmptyContent>

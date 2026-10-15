@@ -2,8 +2,8 @@ import { useRef, useState, type ReactNode } from "react";
 import { Button } from "@helenhsong/ui";
 import { AlertCircle, Check, FileText, LoaderCircle, Lock, ShieldCheck, Sparkles, Upload, X } from "lucide-react";
 import { COVER_TEMPLATES, GENRES, RATING_HINT, RATING_LABEL, aiDescription, earnings, formatPrice, royaltyRate, type Book, type Rating } from "./data";
-import { useHistoryState } from "./history";
-import { Cover, Wordmark, useDeckFill, useScrollLock } from "./ui";
+import { useDeckFill, useHistoryState } from "../../../src/live-page";
+import { Cover, Wordmark, useScrollLock } from "./ui";
 
 const STEP_NAMES = ["Book details", "Cover", "Audience & price", "Review & submit"];
 
@@ -263,9 +263,6 @@ function DetailsStep({ book, update, errors, generating, onGenerate }: StepProps
             <span>Drag your manuscript here, or</span>
             <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
               Choose file
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => update({ manuscript: "manuscript-final.docx" })}>
-              Use sample file
             </Button>
           </div>
         )}

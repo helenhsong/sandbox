@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@helenhsong/ui";
 import { Gift } from "lucide-react";
 import { Books, type Banner, type View } from "./Books";
-import { useHistoryState } from "./history";
+import { useDeckFill, useHistoryState } from "../../../src/live-page";
 import { PublishFlow } from "./PublishFlow";
 import { Home, Landing } from "./Store";
 import { EMAIL, emptyBook, sampleBooks, type Book, type Notice } from "./data";
@@ -38,6 +38,16 @@ export function App() {
     setNotices((n) => [{ id: `n${Date.now()}${Math.random()}`, bookId, text, at: Date.now(), read: false }, ...n]);
 
   const upsert = (b: Book) => setBooks((list) => (list.some((x) => x.id === b.id) ? list.map((x) => (x.id === b.id ? b : x)) : [b, ...list]));
+
+  // In a deck, the window's fill button loads sample books into the empty Your books page.
+  useDeckFill(
+    screen === "books" && books.length === 0
+      ? () => {
+          setBooks(sampleBooks());
+          setView("all");
+        }
+      : null,
+  );
 
   const goBooks = (v?: View) => {
     setView(v ?? "all");
@@ -167,11 +177,6 @@ export function App() {
           onPublish={publish}
           onEdit={edit}
           onCompleteReview={(b, ok) => completeReview(b, ok, true)}
-          onLoadSamples={() => {
-            const s = sampleBooks();
-            setBooks(s);
-            setView("all");
-          }}
         />
       )}
       {screen === "published" && published && <Published book={published} onBooks={() => goBooks("published")} onHome={() => setScreen("home")} />}

@@ -28,3 +28,24 @@ npm run lint
 New prototypes start as a copy of `templates/prototype/`. They use the
 `default` system from [`@helenhsong/ui`](https://github.com/helenhsong/ui)
 unless their registry entry says otherwise.
+
+## Prototypes in decks
+
+A deck's live page shows a prototype in a macOS-style window with back, forward,
+reload and a fill button. Every prototype supports them with the hooks in
+[`src/live-page`](src/live-page/index.ts):
+
+- `useHistoryState` for the current screen and for each step of a flow (pass
+  `nested: true` for a step inside a screen), instead of `useState`. Back and
+  forward then step through them, in the deck window and in the browser.
+- `useDeckFill` on every screen with required input. Its function fills in
+  realistic values for whatever is still empty or invalid, or loads sample
+  data into an empty screen, so a flow can be walked through quickly. Don't
+  add sample or shortcut buttons to the prototype itself.
+
+```tsx
+import { useDeckFill, useHistoryState } from "../../../src/live-page";
+
+const [step, setStep] = useHistoryState("step", 0, { nested: true });
+useDeckFill(step === 0 ? () => update({ title: book.title || "The Lantern Keeper" }) : null);
+```
