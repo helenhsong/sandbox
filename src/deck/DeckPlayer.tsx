@@ -135,6 +135,10 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     () => rootRef.current?.querySelector<HTMLIFrameElement>(".deck-layer[data-active] iframe") ?? null,
     [],
   );
+  // Where the mouse was last seen over the deck, so a new slide can tell whether it's over the
+  // page without waiting for the mouse to move.
+  const lastPointer = useRef<{ x: number; y: number } | null>(null);
+  const followPointer = useRef<() => void>(() => {});
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -146,18 +150,30 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
       const frame = activeFrame();
       if (inside && frame && document.activeElement !== frame) frame.focus({ preventScroll: true });
     };
-    const onMove = (event: PointerEvent) => {
-      // On a live page, only the page itself counts, not the gray around its window; elsewhere,
-      // the whole slide does.
+    // On a live page, only the page itself counts, not the gray around its window; elsewhere,
+    // the whole slide does.
+    const isInside = (x: number, y: number) => {
       const target = onLivePage.current ? activeFrame() : root.querySelector(".deck-frame");
       const box = target?.getBoundingClientRect();
-      follow(Boolean(box) && event.clientX >= box!.left && event.clientX <= box!.right && event.clientY >= box!.top && event.clientY <= box!.bottom);
+      return Boolean(box) && x >= box!.left && x <= box!.right && y >= box!.top && y <= box!.bottom;
+    };
+    followPointer.current = () => {
+      const point = lastPointer.current;
+      follow(point ? isInside(point.x, point.y) : false);
+    };
+    const onMove = (event: PointerEvent) => {
+      lastPointer.current = { x: event.clientX, y: event.clientY };
+      follow(isInside(event.clientX, event.clientY));
     };
     // Entering the page's frame: this document gets no more moves until the mouse comes back out.
     const onOver = (event: PointerEvent) => {
+      lastPointer.current = { x: event.clientX, y: event.clientY };
       if (event.target instanceof HTMLIFrameElement) follow(true);
     };
-    const onLeave = () => follow(false);
+    const onLeave = () => {
+      lastPointer.current = null;
+      follow(false);
+    };
     root.addEventListener("pointermove", onMove);
     root.addEventListener("pointerover", onOver);
     root.addEventListener("pointerleave", onLeave);
@@ -172,24 +188,52 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   // itself as it loads). Unless the mouse is over a live page, take it straight back, so the
   // arrow keys keep working without a click.
   useEffect(() => {
-    const onBlur = () =>
-      setTimeout(() => {
-        const root = rootRef.current;
-        const active = document.activeElement;
-        if (!root || !(active instanceof HTMLIFrameElement) || !root.contains(active)) return;
-        const pageHasMouse = onLivePage.current && pointerInFrame.current && !active.closest(".deck-figma-live");
-        if (!pageHasMouse) root.focus({ preventScroll: true });
-      }, 0);
+    const reclaim = () => {
+      const root = rootRef.current;
+      const active = document.activeElement;
+      // Any frame on the page counts, the slide preview behind the presentation included.
+      if (!root || !(active instanceof HTMLIFrameElement)) return;
+      const pageHasMouse =
+        onLivePage.current &&
+        pointerInFrame.current &&
+        active.closest(".deck-layer[data-active]") !== null &&
+        !active.closest(".deck-figma-live");
+      if (!pageHasMouse) root.focus({ preventScroll: true });
+    };
+    // Focus moving into another site's frame (Figma's) can reach this page a little late, so
+    // check a few times rather than once.
+    const timers: number[] = [];
+    const onBlur = () => {
+      for (const delay of [0, 50, 150, 400]) timers.push(window.setTimeout(reclaim, delay));
+    };
     window.addEventListener("blur", onBlur);
-    return () => window.removeEventListener("blur", onBlur);
+    // The same when a live page loses the keyboard to another frame, which this page doesn't hear.
+    const watch = (frame: EventTarget | null) => {
+      if (!(frame instanceof HTMLIFrameElement)) return;
+      try {
+        frame.contentWindow?.addEventListener("blur", onBlur);
+      } catch {
+        // Another site's frame: the page's own blur covers it.
+      }
+    };
+    const onFrameLoad = (event: Event) => watch(event.target);
+    const root = rootRef.current;
+    root?.addEventListener("load", onFrameLoad, true);
+    root?.querySelectorAll("iframe").forEach(watch);
+    return () => {
+      window.removeEventListener("blur", onBlur);
+      root?.removeEventListener("load", onFrameLoad, true);
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
   }, []);
 
-  // Arriving on a live page with the mouse already over the slide hands the keyboard to the page.
+  // On a new slide, check again where the mouse is, without waiting for it to move: resting on
+  // the page in a live slide's window hands it the keyboard; anywhere else (the gray around the
+  // window, say) keeps the keyboard on the deck, so the arrow keys still change slides.
   useEffect(() => {
-    if (slides[index]?.kind !== "web" || !pointerInFrame.current) return;
-    const timer = setTimeout(() => activeFrame()?.focus({ preventScroll: true }), 0);
+    const timer = setTimeout(() => followPointer.current(), 0);
     return () => clearTimeout(timer);
-  }, [index, slides, activeFrame]);
+  }, [index, slides]);
 
   // The slide being shown, updated the moment it changes, so key presses quicker than the screen
   // updates still each move exactly one slide from the right place.
