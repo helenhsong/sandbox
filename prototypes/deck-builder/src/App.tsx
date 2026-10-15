@@ -482,7 +482,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
             </p>
           ) : null}
           {selected ? (
-            <>
+            <div className="builder-stage">
               <div className="builder-preview">
                 <SlideMenu
                   slide={selected}
@@ -504,9 +504,9 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
                 </SlideMenu>
               </div>
               <Inspector key={selected.id} draft={draft} index={selectedIndex} onChange={(next) => update({ slides: next })} />
-            </>
+            </div>
           ) : (
-            <div className="builder-preview">
+            <div className="builder-stage builder-preview">
               <div className="builder-empty">
                 <h2>Add your first slide</h2>
                 <p>Import slides from Figma, or add a live web page people can use during the presentation.</p>

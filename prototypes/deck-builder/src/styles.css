@@ -287,10 +287,20 @@ p {
 
 
 .builder-main {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
   background: var(--muted);
+}
+
+/*
+ * The slide and its details, centered top to bottom when there's room (on a tall screen the
+ * slide would otherwise hug the top), and scrolling from the top when there isn't.
+ */
+.builder-stage {
+  margin-block: auto;
 }
 
 .builder-preview {
