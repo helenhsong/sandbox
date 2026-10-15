@@ -298,10 +298,11 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
                 <ChevronDown size={20} strokeWidth={2} />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="deck-menu">
-                {draft.fileKey ? (
+                {/* Only once the deck has slides imported from Figma. */}
+                {draft.fileKey && draft.slides.some((slide) => slide.kind === "figma") ? (
                   <DropdownMenuItem onClick={() => setDialog("reload")}>
                     <RefreshCw size={16} strokeWidth={2} aria-hidden />
-                    Reload from Figma
+                    Update Figma slides
                   </DropdownMenuItem>
                 ) : null}
                 <DropdownMenuItem onClick={() => fileInput.current?.click()}>

@@ -6,7 +6,7 @@ import { isImageLoading, resolveUrl, urlLabel, type Slide, type WebSlide } from 
 export function SlideView({ slide }: { slide: Slide }) {
   if (slide.kind === "figma") {
     if (isImageLoading(slide.image)) return <div className="deck-slide-placeholder deck-slide-loading" aria-label="Loading slide" />;
-    if (!slide.image) return <div className="deck-slide-placeholder">No preview. Reload from Figma.</div>;
+    if (!slide.image) return <div className="deck-slide-placeholder">No preview. Update Figma slides.</div>;
     return <img className="deck-slide-image" src={slide.image} alt={slide.name} draggable={false} />;
   }
   return <WebFrame slide={slide} />;

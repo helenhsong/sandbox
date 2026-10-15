@@ -181,7 +181,7 @@ function FigmaForm({ figmaUrl, token, setToken, onClose, onImportFigma }: AddFor
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState("Importing…");
-  // The token field shows until one is saved; after that it lives in Reload from Figma.
+  // The token field shows until one is saved; after that it lives in Update Figma slides.
   const [askToken] = useState(!token);
   const fileKey = parseFigmaUrl(url);
   const replacing = Boolean(figmaUrl) && fileKey !== parseFigmaUrl(figmaUrl);

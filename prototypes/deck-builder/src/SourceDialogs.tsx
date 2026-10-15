@@ -29,7 +29,7 @@ interface ReloadDialogProps {
 export function ReloadDialog({ open, onOpenChange, draft, token, setToken, onReloaded }: ReloadDialogProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState("Reloading…");
+  const [progress, setProgress] = useState("Updating…");
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -52,10 +52,9 @@ export function ReloadDialog({ open, onOpenChange, draft, token, setToken, onRel
       <DialogContent className="dialog-md">
         <form onSubmit={submit} noValidate>
           <DialogHeader>
-            <DialogTitle>Reload from Figma</DialogTitle>
+            <DialogTitle>Update Figma slides</DialogTitle>
             <DialogDescription>
-              Gets the latest slides from Figma. Each live page stays after the same Figma slide, even if slides were
-              added or reordered; if that slide was deleted, the live page moves to the end.
+              Gets the latest version of this deck's slides from Figma. Live pages keep their places.
             </DialogDescription>
           </DialogHeader>
           <FieldGroup className="dialog-fields">
@@ -75,7 +74,7 @@ export function ReloadDialog({ open, onOpenChange, draft, token, setToken, onRel
             </Button>
             <Button type="submit" disabled={loading}>
               {loading ? <LoaderCircle className="deck-spin" size={16} strokeWidth={2} aria-hidden /> : null}
-              {loading ? progress : "Reload slides"}
+              {loading ? progress : "Update slides"}
             </Button>
           </DialogFooter>
         </form>
