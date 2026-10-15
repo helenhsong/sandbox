@@ -84,7 +84,7 @@
 }
 
 /*
- * The address bar, showing the project's name: centered on the window whatever sits at either
+ * The address bar, showing the project's slug: centered on the window whatever sits at either
  * end. Just a label, with no hover or focus state of its own.
  */
 .page-window-url {

@@ -14,6 +14,17 @@ function isSameSite(src: string) {
 
 type Page = Window & LivePageWindow;
 
+/** The page's slug (the last part of its path, like "whiteboarding-runthrough-2"), or the site's name for a home page. */
+function pageSlug(src: string) {
+  try {
+    const url = new URL(src, window.location.href);
+    const parts = url.pathname.split("/").filter(Boolean);
+    return decodeURIComponent(parts.at(-1) ?? url.hostname);
+  } catch {
+    return src;
+  }
+}
+
 /** The page's full address, without a hash, for opening it in a new tab. */
 function pageAddress(src: string) {
   try {
@@ -28,7 +39,7 @@ function pageAddress(src: string) {
 interface PageWindowProps {
   /** The page to show. */
   src: string;
-  /** The page's name, shown in the address bar. */
+  /** The page's name, for screen readers (the address bar shows its slug). */
   label: string;
   /** Light everywhere (Sandbox pages and decks); dark is kept as an option. */
   theme?: "dark" | "light";
@@ -47,6 +58,7 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
   // Other sites' pages can't be reached, so their back and forward stay off.
   const sameSite = isSameSite(src);
   const address = pageAddress(src);
+  const slug = pageSlug(src);
 
   // A Sandbox prototype offers its own screen history (window.deckHistory) for back and
   // forward. The browser's history isn't used: it's shared with the page around the window, so
@@ -148,11 +160,11 @@ export function PageWindow({ src, label, theme = "light" }: PageWindowProps) {
             <RotateCw size={14} strokeWidth={2} aria-hidden />
           </button>
         </span>
-        {/* The project's name, centered where a browser shows the address. It's only a label
+        {/* The project's slug, centered where a browser shows the address. It's only a label
             (nothing to type in); hovering it shows a button that opens the page in a new tab. */}
         <span className="page-window-url">
-          <span className="page-window-url-text" title={label}>
-            {label}
+          <span className="page-window-url-text" title={slug}>
+            {slug}
           </span>
           <a
             className="page-window-url-open"
