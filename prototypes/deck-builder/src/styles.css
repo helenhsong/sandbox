@@ -1,0 +1,838 @@
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+/* Shared bits */
+
+/* Back to Sandbox: an outlined squircle icon button, so it reads as a button at rest.
+   Its edge lines up with the content edge below it. */
+.builder-back {
+  flex-shrink: 0;
+  align-self: flex-start;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  /* True squircle corners where the browser supports them; rounded corners elsewhere. */
+  corner-shape: squircle;
+  background: var(--background);
+  color: var(--foreground);
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+@supports (corner-shape: squircle) {
+  .builder-back {
+    border-radius: 14px;
+  }
+}
+
+.playlist-row:focus-visible,
+.playlist-insert:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.dialog-md {
+  max-width: 480px;
+}
+
+.dialog-fields {
+  margin: 20px 0 24px;
+}
+
+/* Connect */
+
+.connect {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 72px 24px;
+}
+
+.connect-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.connect-intro h1 {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.connect-intro p {
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+
+.connect-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.connect-error,
+.publish-error {
+  color: var(--destructive);
+}
+
+.publish-error {
+  margin: -8px 0 16px;
+}
+
+.connect-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Editor */
+
+.builder {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+.builder-header {
+  display: grid;
+  /* Back on the left, the deck's name centered, Present and Publish on the right. */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  height: 56px;
+  flex-shrink: 0;
+  /* Even padding on both sides keeps the title on the true center line. */
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* In the header the arrow lines up with the sidebar content edge below it. */
+.builder-header .builder-back {
+  align-self: center;
+  justify-self: start;
+}
+
+/* Deck name: one line, an inline-editable title with a chevron that opens the deck menu. */
+.builder-title {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.builder-title-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  /* Matches the chevron on the right, so the name itself sits on the center line. */
+  padding-left: 26px;
+  min-width: 0;
+}
+
+.builder-title-menu {
+  color: var(--muted-foreground);
+}
+
+.builder-name {
+  field-sizing: content;
+  min-width: 8ch;
+  max-width: 420px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--foreground);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  text-overflow: ellipsis;
+  transition: border-color 150ms ease;
+}
+
+.builder-name:focus {
+  outline: none;
+  border-color: var(--ring);
+}
+
+.builder-header-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.builder-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  /* minmax(0, …) so slide images and pages can't widen the columns past the screen. */
+  grid-template-columns: 300px minmax(0, 1fr);
+}
+
+/* Sidebar: deck name, Add live page, then the slides as large thumbnails. */
+
+.builder-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border-right: 1px solid var(--border);
+}
+
+/* Deck options menu: roomier than the library's compact menu, and wide enough that no item wraps. */
+.deck-menu {
+  min-width: 220px;
+  padding: 6px;
+  white-space: nowrap;
+}
+
+.deck-menu [role="menuitem"] {
+  gap: 10px;
+  font-weight: 500;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 6px;
+}
+
+/* Keyboard hints at the same size as the labels, muted, with room before them. */
+.deck-menu [data-slot="context-menu-shortcut"] {
+  padding-left: 24px;
+  font-size: 14px;
+  letter-spacing: normal;
+}
+
+/* Runs edge to edge, through the menu's 6px padding. */
+.deck-menu [role="separator"] {
+  margin: 6px -6px;
+}
+
+.sidebar-add {
+  padding: 16px 16px 8px;
+}
+
+.add-trigger {
+  width: 100%;
+}
+
+.sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 12px 16px 8px;
+}
+
+.builder-main {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--muted);
+}
+
+.builder-preview {
+  padding: 24px 32px 0;
+}
+
+.builder-preview-frame {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.06),
+    0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.builder-preview-frame[data-hidden] {
+  opacity: 0.4;
+}
+
+/* Slide list */
+
+.playlist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.playlist-item {
+  position: relative;
+}
+
+/* Drop target while dragging a live page. */
+.playlist-item[data-drop]::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 36px;
+  right: 6px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--foreground);
+  z-index: 2;
+}
+
+.playlist-item:first-child[data-drop]::before {
+  top: -4px;
+}
+
+.playlist-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 10px;
+  cursor: default;
+  user-select: none;
+  transition: background-color 150ms ease;
+}
+
+/* Hover uses --muted; selected is one step darker, so it reads as chosen rather than pointed at. */
+.playlist-row[data-selected] {
+  background: color-mix(in oklch, var(--foreground) 7%, var(--background));
+}
+
+.playlist-row[data-kind="web"] {
+  cursor: grab;
+  touch-action: none;
+}
+
+.playlist[data-dragging],
+.playlist[data-dragging] * {
+  cursor: grabbing;
+}
+
+.playlist-row[data-dragging] {
+  opacity: 0.4;
+}
+
+.playlist-gutter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 22px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.playlist-number {
+  color: var(--muted-foreground);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.playlist-row[data-selected] .playlist-number {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.playlist-grip {
+  color: var(--muted-foreground);
+  opacity: 0.6;
+}
+
+.playlist-thumb {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--muted);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.playlist-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.playlist-row[data-hidden] .playlist-thumb img {
+  opacity: 0.35;
+}
+
+/* Hidden Figma slides: dimmed thumbnail with an eye-off mark. */
+.playlist-thumb-hidden {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--foreground);
+}
+
+.playlist-thumb-missing {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--muted-foreground);
+}
+
+/* Live pages: a white card with black text, edged like the Figma thumbnails. */
+.playlist-row[data-kind="web"] .playlist-thumb {
+  background: #fff;
+}
+
+.playlist-thumb-web {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.playlist-web-title {
+  max-width: 100%;
+  color: #0a0a0a;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-wrap: balance;
+}
+
+/* The one marker that a slide is a live page rather than a Figma slide: the tool's single accent
+   (Coinbase blue). The design system has no such token, so it's defined here for live pages only. */
+.builder {
+  --live: #0052ff;
+}
+
+.live-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px 0 8px;
+  border-radius: 999px;
+  background: var(--live);
+  color: #fff;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.live-tag svg {
+  flex-shrink: 0;
+}
+
+/*
+ * "Add live page" between slides: a fixed-height gap that shows a pill on hover or focus.
+ * The gap never changes height, so the list doesn't move under the pointer.
+ */
+.playlist-insert {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted-foreground);
+  font: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.playlist-end .playlist-insert {
+  height: 28px;
+}
+
+.playlist-insert-line {
+  position: absolute;
+  top: 50%;
+  left: 36px;
+  right: 6px;
+  height: 1px;
+  background: var(--border);
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.playlist-insert-pill {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 15px);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 12px 2px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--background);
+  color: var(--foreground);
+  line-height: 1.4;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.95);
+  transition:
+    opacity 150ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 150ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.playlist-insert:focus-visible .playlist-insert-line,
+.playlist-insert:focus-visible .playlist-insert-pill {
+  opacity: 1;
+}
+
+.playlist-insert:focus-visible .playlist-insert-pill {
+  transform: translate(-50%, -50%);
+}
+
+.playlist[data-dragging] .playlist-insert {
+  pointer-events: none;
+}
+
+/* Add live page dropdown */
+
+.add-popover {
+  width: min(380px, calc(100vw - 32px));
+}
+
+.add-fields {
+  margin-bottom: 20px;
+}
+
+/* The placement menu keeps its width when the slide menu beside it is hidden. */
+.add-placement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 8px;
+}
+
+/* Each select fills its column, so the two sit 8px apart. */
+.add-placement [data-slot="native-select-wrapper"],
+.add-placement [data-slot="native-select"] {
+  width: 100%;
+}
+
+
+/* Sandbox project suggestions under the link field. */
+.link-option-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.add-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Details panel under the preview: title and note on the left, actions as a toolbar on the
+   right, lined up with the preview's right edge. */
+
+.inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+  box-sizing: content-box;
+}
+
+/* The slide type, then (for live pages) its link right beside it. */
+.inspector-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* The kind of slide, as an icon and a short label. */
+.inspector-type {
+  display: inline-flex;
+  align-items: center;
+  /* As tall as the link field beside it, so the two share a center line. */
+  min-height: 32px;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.inspector-type svg {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+}
+
+.inspector-type[data-live] svg {
+  color: var(--live);
+}
+
+/* The live page's link, next to the "Live page" label. */
+.inspector-link {
+  flex: 0 1 320px;
+  min-width: 0;
+}
+
+/* White inside the field, so it stands out from the gray panel behind it. */
+.inspector-link [data-slot="input-group"] {
+  background: var(--background);
+}
+
+@media (max-width: 640px) {
+  .inspector-link {
+    flex-basis: 100%;
+  }
+}
+
+/* Publish */
+
+.slug-input {
+  display: flex;
+  align-items: center;
+}
+
+.slug-prefix {
+  flex-shrink: 0;
+  padding-right: 4px;
+  color: var(--muted-foreground);
+}
+
+.publish-problem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--muted);
+}
+
+.publish-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+  color: var(--muted-foreground);
+}
+
+.publish-done-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dialog-md code {
+  font-family: var(--font-mono);
+}
+
+/* Hover only where there's a real pointer, so taps don't leave things highlighted. */
+@media (hover: hover) and (pointer: fine) {
+  .builder-back:hover {
+    background: var(--muted);
+  }
+
+  .builder-name:hover {
+    border-color: var(--border);
+  }
+
+  .playlist-row:hover {
+    background: var(--muted);
+  }
+
+  .playlist-row[data-selected]:hover {
+    background: color-mix(in oklch, var(--foreground) 7%, var(--background));
+  }
+
+  .playlist-row[data-kind="web"]:hover .playlist-grip {
+    opacity: 1;
+  }
+
+  .playlist-insert:hover .playlist-insert-line,
+  .playlist-insert:hover .playlist-insert-pill {
+    opacity: 1;
+  }
+
+  .playlist-insert:hover .playlist-insert-pill {
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Touch screens can't hover, so the insert points stay visible there. */
+@media (hover: none) {
+  .playlist-insert {
+    height: 32px;
+  }
+
+  .playlist-insert-line,
+  .playlist-insert-pill {
+    opacity: 1;
+  }
+
+  .playlist-insert-pill {
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (max-width: 900px) {
+  .builder {
+    height: auto;
+    min-height: 100dvh;
+  }
+
+
+  .builder-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .builder-sidebar {
+    border-right: 0;
+    border-top: 1px solid var(--border);
+    order: 2;
+  }
+
+  .sidebar-scroll {
+    overflow: visible;
+  }
+
+  /* Stacked under the preview: slides in a two-column grid, like the player's grid view. */
+  .playlist {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  /* Between-slide insert points don't fit a grid; the button above and the one at the end stay. */
+  .playlist-item:not(.playlist-end) > .playlist-insert {
+    display: none;
+  }
+
+  .playlist-end {
+    grid-column: 1 / -1;
+  }
+
+  /* While dragging, the drop spot shows as a bar on the left of the slide it lands before. */
+  .playlist-item:not(.playlist-end)[data-drop]::before,
+  .playlist-item:first-child[data-drop]::before {
+    top: 6px;
+    bottom: 6px;
+    left: -5px;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+
+  .builder-main {
+    order: 1;
+    overflow: visible;
+  }
+
+  .builder-preview,
+  .inspector {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .builder-name,
+  .playlist-row,
+  .playlist-insert-line,
+  .playlist-insert-pill {
+    transition: none;
+  }
+}
+
+/* Phones: back and actions share the top row; the title gets its own centered row below. */
+@media (max-width: 640px) {
+  .builder-header {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "back actions"
+      "title title";
+    height: auto;
+    row-gap: 6px;
+    padding: 10px 16px 12px;
+  }
+
+  .builder-header .builder-back {
+    grid-area: back;
+  }
+
+  .builder-header-actions {
+    grid-area: actions;
+  }
+
+  .builder-title {
+    grid-area: title;
+    justify-content: center;
+  }
+
+  .builder-title-row {
+    padding-left: 26px;
+  }
+
+  .builder-name {
+    max-width: calc(100vw - 96px);
+  }
+}
+
+
+/* Read by screen readers, not shown. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Publishing over an existing deck: a heads-up, not an error. */
+.publish-replace {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: oklch(0.55 0.13 65);
+  line-height: 1.4;
+}
+
+.publish-replace svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}

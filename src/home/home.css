@@ -21,6 +21,22 @@ body {
   padding: 72px 30px;
 }
 
+/* Tool shortcut pinned to the top-right corner of the page. */
+.home-tool {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  /* The outline variant's border color isn't in the shared stylesheet; set it here. */
+  border-color: var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.home-tool:hover {
+  background: var(--muted);
+}
+
 .home-heading {
   margin: 0;
   padding-bottom: var(--spacing);

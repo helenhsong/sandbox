@@ -1,3 +1,5 @@
+import { buttonVariants } from "@helenhsong/ui";
+import { Presentation } from "lucide-react";
 import registry from "../../projects.json";
 
 type Project = {
@@ -25,6 +27,13 @@ export function Home() {
 
   return (
     <main className="home">
+      <a
+        className={buttonVariants({ variant: "outline", size: "sm", className: "home-tool" })}
+        href={`${import.meta.env.BASE_URL}deck-builder/`}
+      >
+        <Presentation size={16} strokeWidth={2} aria-hidden />
+        Create deck
+      </a>
       <h1 className="home-heading">Index</h1>
       {projects.length === 0 ? (
         <p className="home-empty">No prototypes yet.</p>

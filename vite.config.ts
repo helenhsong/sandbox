@@ -2,6 +2,7 @@ import { readdirSync, existsSync, renameSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
+import { deckPublish } from "./vite-plugins/deck-publish";
 
 const root = import.meta.dirname;
 
@@ -65,7 +66,7 @@ function flatPrototypeUrls(): Plugin {
 export default defineConfig({
   // Set by the Pages workflow so assets resolve under /sandbox/.
   base: process.env.BASE_PATH ?? "/",
-  plugins: [react(), flatPrototypeUrls()],
+  plugins: [react(), flatPrototypeUrls(), deckPublish()],
   build: {
     rollupOptions: {
       input: {

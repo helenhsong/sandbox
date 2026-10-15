@@ -20,6 +20,22 @@
       }
     },
     {
+      "name": "Permit Tester",
+      "slug": "permit-tester",
+      "path": "prototypes/permit-tester/",
+      "purpose": "design-challenge",
+      "status": "active",
+      "createdAt": "2026-10-12",
+      "designSource": {
+        "type": "ui",
+        "reference": "helenhsong/ui design-systems/default"
+      },
+      "publishedUrl": null,
+      "brief": {
+        "where": "Desktop web platform"
+      }
+    },
+    {
       "name": "tester #2",
       "slug": "tester-2",
       "path": "prototypes/tester-2/",
@@ -36,6 +52,26 @@
         "what": "See permits, tasks and inspections as one dependency lifecycle and catch blockers before they slip the schedule",
         "where": "Desktop web, at a desk",
         "how": "Multi-flow demo: project timeline, item detail, failed-inspection impact, unblocking, portfolio triage"
+      }
+    },
+    {
+      "name": "Contractor Permits",
+      "slug": "contractor-permits",
+      "path": "prototypes/contractor-permits/",
+      "purpose": "design-challenge",
+      "status": "active",
+      "createdAt": "2026-10-12",
+      "designSource": {
+        "type": "ui",
+        "reference": "helenhsong/ui design-systems/default"
+      },
+      "publishedUrl": null,
+      "brief": {
+        "who": "Permit coordinator at a mid-size general contractor",
+        "what": "Never miss a permit deadline across all jobs",
+        "when": "Morning check at a desk",
+        "where": "Desktop web",
+        "how": "Metric: fewer missed deadlines and expirations. Guardrail: no missed city corrections. Constraint: per-jurisdiction portals with no shared API. Scope: the morning-check flow"
       }
     },
     {
@@ -94,6 +130,34 @@
         "where": "Responsive public landing page, single product",
         "how": "Can't change the mattress; purchase flow out of scope; proof: conversion, time on page, revenue, with return rate as guardrail"
       }
+    },
+    {
+      "name": "PermitFlow (2026.10)",
+      "slug": "permitflow-2026-10",
+      "path": "prototypes/permitflow-2026-10/",
+      "purpose": "client-demo",
+      "status": "active",
+      "createdAt": "2026-10-15",
+      "designSource": {
+        "type": "figma",
+        "reference": "https://www.figma.com/deck/pseM3YmociSaKT09yMSNmv"
+      },
+      "publishedUrl": null,
+      "notes": "Presentation published from Deck Builder: Figma slides with live web pages in between."
+    },
+    {
+      "name": "PermitFlow (2026.10)",
+      "slug": "permitflow-2026-12",
+      "path": "prototypes/permitflow-2026-12/",
+      "purpose": "client-demo",
+      "status": "active",
+      "createdAt": "2026-10-15",
+      "designSource": {
+        "type": "figma",
+        "reference": "https://www.figma.com/deck/pseM3YmociSaKT09yMSNmv"
+      },
+      "publishedUrl": null,
+      "notes": "Presentation published from Deck Builder: Figma slides with live web pages in between."
     }
   ]
 }

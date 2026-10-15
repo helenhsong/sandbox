@@ -1,0 +1,467 @@
+/* Presentation player shared by Deck Builder and every published deck. The player is always dark, like a projector. */
+
+.deck-player {
+  --deck-bg: #0b0b0c;
+  --deck-surface: #18181b;
+  --deck-line: rgb(255 255 255 / 0.08);
+  --deck-text: #fafafa;
+  --deck-muted: #a1a1aa;
+  --deck-controls-h: 56px;
+  /* Live pages' accent (Coinbase blue), matching Deck Builder's "Live" tag. */
+  --deck-live: #0052ff;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100dvh;
+  background: var(--deck-bg);
+  color: var(--deck-text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+.deck-player-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+
+.deck-player-empty {
+  margin: auto;
+  color: var(--deck-muted);
+}
+
+.deck-stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  /* Without a fixed track the column grows to the slide image's natural 1920px width. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  padding: 24px 24px 0;
+}
+
+/* Full screen, or the fill-the-window fallback where full screen is blocked. */
+.deck-player[data-filling] .deck-stage {
+  padding: 0;
+}
+
+.deck-frame {
+  position: relative;
+  /* Largest 16:9 box that fits the stage. */
+  width: min(100%, (100dvh - var(--deck-controls-h) - 24px) * 16 / 9);
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  /* A hairline edge so dark slides still read as a frame on the dark stage. */
+  box-shadow: 0 0 0 1px var(--deck-line);
+}
+
+.deck-player[data-filling] .deck-frame {
+  width: min(100%, (100dvh - var(--deck-controls-h)) * 16 / 9);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Slides switch instantly: changes are keyboard-driven, and a presenter moves through them often. */
+.deck-layer {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+
+.deck-layer[data-active] {
+  visibility: visible;
+}
+
+.deck-slide-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+
+.deck-slide-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: #18181b;
+  color: #a1a1aa;
+}
+
+.deck-slide-loading {
+  background: linear-gradient(90deg, #18181b 0%, #222226 50%, #18181b 100%) 0 0 / 200% 100%;
+  animation: deck-shimmer 1.6s linear infinite;
+}
+
+@keyframes deck-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-slide-loading {
+    animation: none;
+  }
+}
+
+/* Live web page */
+
+.deck-web {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+}
+
+.deck-web-empty {
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--deck-surface, #18181b);
+  color: var(--deck-muted, #a1a1aa);
+}
+
+.deck-web-empty p {
+  margin: 0;
+}
+
+.deck-web-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.deck-web-body iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.deck-web-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #a1a1aa;
+  pointer-events: none;
+}
+
+.deck-spin {
+  animation: deck-spin 900ms linear infinite;
+}
+
+@keyframes deck-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Controls: what's showing on the left, slide navigation in the center, view actions on the right. */
+
+.deck-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  height: var(--deck-controls-h);
+  flex-shrink: 0;
+  padding: 0 16px 0 24px;
+}
+
+/*
+ * The bar and the close button show only while the mouse is near them (or they have keyboard
+ * focus), so the slide stands alone. The bar's space stays reserved, so the slide never resizes.
+ */
+.deck-controls,
+.deck-close {
+  transition: opacity 150ms ease-out;
+}
+
+.deck-player:not([data-show-bar]) .deck-controls:not(:has(:focus-visible)),
+.deck-player:not([data-show-close]) .deck-close:not(:focus-visible) {
+  opacity: 0;
+  transition-duration: 300ms;
+  /* A tap on a hidden control only brings the controls back; it doesn't press anything. */
+  pointer-events: none;
+}
+
+.deck-player[data-idle] .deck-stage {
+  cursor: none;
+}
+
+/*
+ * Close (or back to Sandbox), in the top-left corner. Styled like the bar's buttons, on the same
+ * background as the bar so it stays visible over light slides.
+ */
+.deck-close-zone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 72px;
+  height: 72px;
+}
+
+.deck-player .deck-close {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--deck-bg);
+}
+
+.deck-player[data-filling] .deck-controls {
+  padding-left: 16px;
+}
+
+.deck-controls-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* Same treatment as the deck title in the editor's top bar: 14px, medium weight, full contrast. */
+.deck-controls-name {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--deck-text);
+  font-weight: 500;
+}
+
+/* Marks a live page, the same "Live" tag as on the slide list's cards. */
+.deck-controls-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0 10px 0 8px;
+  border-radius: 999px;
+  background: var(--deck-live);
+  color: #fff;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.deck-controls-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.deck-counter {
+  min-width: 56px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--deck-muted);
+}
+
+.deck-counter-current {
+  color: var(--deck-text);
+}
+
+.deck-controls-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+}
+
+.deck-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #d4d4d8;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .deck-icon-button:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.08);
+    color: var(--deck-text);
+  }
+
+  /* The bar buttons' hover tint, laid over the close button's solid background. */
+  .deck-player .deck-close:hover {
+    background: color-mix(in srgb, #fff 8%, var(--deck-bg));
+  }
+
+  .deck-overview-item:hover .deck-overview-thumb {
+    outline-color: rgb(255 255 255 / 0.3);
+  }
+}
+
+.deck-icon-button:disabled {
+  color: rgb(255 255 255 / 0.2);
+  cursor: default;
+}
+
+.deck-icon-button:focus-visible,
+.deck-overview-item:focus-visible {
+  outline: 2px solid #a1a1aa;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-close,
+  .deck-controls,
+  .deck-icon-button,
+  .deck-overview-thumb {
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Hidden, not removed, so the slide controls stay centered. */
+  .deck-controls-info {
+    visibility: hidden;
+  }
+
+  .deck-controls {
+    padding: 0 8px;
+  }
+
+  .deck-stage {
+    padding: 12px 12px 0;
+  }
+}
+
+/* Overview */
+
+.deck-overview {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: rgb(11 11 12 / 0.96);
+  backdrop-filter: blur(8px);
+}
+
+.deck-overview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--deck-controls-h);
+  flex-shrink: 0;
+  padding: 0 16px 0 24px;
+  font-weight: 500;
+}
+
+.deck-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px;
+  margin: 0;
+  padding: 8px 24px 40px;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.deck-overview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.deck-overview-thumb {
+  display: block;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--deck-surface);
+  outline: 1px solid var(--deck-line);
+  transition: outline-color 150ms ease;
+}
+
+.deck-overview-item[data-active] .deck-overview-thumb {
+  outline: 2px solid #fafafa;
+}
+
+.deck-overview-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.deck-thumb-web {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  background: #0a0a0a;
+  color: #fff;
+  font-weight: 500;
+  text-align: center;
+}
+
+.deck-thumb-web-title {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.deck-live-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px 0 8px;
+  border-radius: 999px;
+  background: var(--deck-live);
+  color: #fff;
+  line-height: 1.6;
+}
+
+.deck-overview-label {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  color: var(--deck-muted);
+  line-height: 1.4;
+}
+
+.deck-overview-number {
+  color: var(--deck-text);
+  font-variant-numeric: tabular-nums;
+}
