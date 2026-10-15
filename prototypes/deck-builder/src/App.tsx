@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@helenhsong/ui";
-import { ArrowLeft, ChevronDown, Download, FileUp, Images, MonitorPlay, Play, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ChevronDown, Download, FileUp, Play, Plus, RefreshCw, Trash2, Upload } from "lucide-react";
 import { DeckPlayer } from "../../../src/deck/DeckPlayer";
 import { SlideView } from "../../../src/deck/SlideView";
 import { visibleSlides, withFigmaEmbeds, type Deck, type Slide, type WebSlide } from "../../../src/deck/types";
@@ -317,16 +317,10 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
               <DropdownMenuContent align="center" className="deck-menu">
                 {/* Only once the deck has slides imported from Figma. */}
                 {hasFigma ? (
-                  <>
-                    <DropdownMenuItem onClick={() => setDialog("reload")}>
-                      <RefreshCw size={16} strokeWidth={2} aria-hidden />
-                      Get latest from Figma
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => update({ figmaLive: !figmaLive })}>
-                      {figmaLive ? <Images size={16} strokeWidth={2} aria-hidden /> : <MonitorPlay size={16} strokeWidth={2} aria-hidden />}
-                      {figmaLive ? "Show Figma slides as images" : "Show Figma slides live"}
-                    </DropdownMenuItem>
-                  </>
+                  <DropdownMenuItem onClick={() => setDialog("reload")}>
+                    <RefreshCw size={16} strokeWidth={2} aria-hidden />
+                    Get latest from Figma
+                  </DropdownMenuItem>
                 ) : null}
                 <DropdownMenuItem onClick={() => fileInput.current?.click()}>
                   <FileUp size={16} strokeWidth={2} aria-hidden />

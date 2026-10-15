@@ -92,7 +92,7 @@
   user-select: none;
 }
 
-/* Live Figma slide: the image shows at once; Figma's embed replaces it, instantly, once loaded. */
+/* Live Figma slide: Figma's own embed of the slide. */
 .deck-figma-live {
   /* Extra embed height above and below the slide, cropped away: Figma fits the slide to the
      embed's width and draws its slide controls in the space below it, out of view. */
@@ -101,11 +101,6 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-}
-
-.deck-figma-live > :not(iframe) {
-  position: absolute;
-  inset: 0;
 }
 
 .deck-figma-live iframe {
@@ -117,12 +112,6 @@
   border: 0;
   /* Look-only: clicks never reach Figma, so its embed can't move to other slides. */
   pointer-events: none;
-  /* Hidden until Figma has loaded it, then shown at once (no fade). */
-  opacity: 0;
-}
-
-.deck-figma-live iframe[data-loaded] {
-  opacity: 1;
 }
 
 

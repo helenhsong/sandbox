@@ -23,7 +23,6 @@ export async function readDeckFile(file: File): Promise<Draft> {
     name: deck.name,
     slug: deck.slug,
     slugEdited: true,
-    figmaLive: deck.figmaLive ?? false,
     slides,
   };
 }
