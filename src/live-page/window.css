@@ -38,7 +38,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 44px;
+  height: 48px;
   flex-shrink: 0;
   padding: 0 12px;
   background: var(--pw-bar);
@@ -96,9 +96,9 @@
   align-items: center;
   justify-content: center;
   width: min(344px, calc(100% - 288px));
-  height: 30px;
-  padding: 0 34px;
-  border-radius: 15px;
+  height: 32px;
+  padding: 0 36px;
+  border-radius: 16px;
   background: var(--pw-field);
   font-size: 13px;
   cursor: default;
@@ -122,8 +122,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   color: inherit;
   opacity: 0;
