@@ -123,9 +123,9 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     return () => root.removeEventListener("click", onClick);
   }, []);
 
-  // On a live page, the keyboard follows the mouse: with the mouse over the slide, keys go to the
-  // page (its own arrow keys, scrolling, typing); move it off the slide and they change slides
-  // again, with no click needed. Focus moves into or out of the page's frame to make that happen.
+  // On a live page, the keyboard follows the mouse: with the mouse over the page in its window,
+  // keys go to the page (its own arrow keys, scrolling, typing); move it off the page and they
+  // change slides again, with no click needed. Focus moves into or out of the page's frame to make that happen.
   const pointerInFrame = useRef(false);
   const onLivePage = useRef(false);
   useEffect(() => {
@@ -147,7 +147,10 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
       if (inside && frame && document.activeElement !== frame) frame.focus({ preventScroll: true });
     };
     const onMove = (event: PointerEvent) => {
-      const box = root.querySelector(".deck-frame")?.getBoundingClientRect();
+      // On a live page, only the page itself counts, not the gray around its window; elsewhere,
+      // the whole slide does.
+      const target = onLivePage.current ? activeFrame() : root.querySelector(".deck-frame");
+      const box = target?.getBoundingClientRect();
       follow(Boolean(box) && event.clientX >= box!.left && event.clientX <= box!.right && event.clientY >= box!.top && event.clientY <= box!.bottom);
     };
     // Entering the page's frame: this document gets no more moves until the mouse comes back out.
