@@ -21,9 +21,21 @@ const IDLE_MS = 2500;
 const NEAR_BAR_PX = 120;
 const NEAR_CLOSE_PX = 120;
 
-function readHashIndex(count: number) {
-  const value = Number.parseInt(window.location.hash.slice(1), 10);
+/**
+ * The slide in a published deck's address, ?present=3 (the same format as presenting in the
+ * editor). Older links used #3, which still works.
+ */
+function readUrlIndex(count: number) {
+  const fromQuery = new URLSearchParams(window.location.search).get("present");
+  const value = Number.parseInt(fromQuery ?? window.location.hash.slice(1), 10);
   return Number.isFinite(value) ? Math.min(Math.max(value - 1, 0), Math.max(count - 1, 0)) : 0;
+}
+
+/** This page's address set to a slide, as ?present=3, keeping any other parameters. */
+function presentAddress(index: number) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("present", String(index + 1));
+  return `${url.pathname}${url.search}`;
 }
 
 /** Ids of web slides around `index`, so their pages start loading before they are shown. */
@@ -37,7 +49,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   const standalone = !onClose;
   const rootRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(() =>
-    standalone ? readHashIndex(slides.length) : Math.min(startIndex ?? 0, Math.max(slides.length - 1, 0)),
+    standalone ? readUrlIndex(slides.length) : Math.min(startIndex ?? 0, Math.max(slides.length - 1, 0)),
   );
   // Web pages stay mounted once loaded, so what the audience did on them survives going back and forth.
   // Every live Figma slide loads as soon as the presentation opens and stays loaded, so opening
@@ -239,7 +251,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   }, [index, slides, activeFrame, go, exit]);
 
   useEffect(() => {
-    if (standalone) history.replaceState(null, "", `#${index + 1}`);
+    if (standalone) history.replaceState(null, "", presentAddress(index));
   }, [index, standalone]);
 
   const slideChange = useRef(onSlideChange);
@@ -263,7 +275,11 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
 
   useEffect(() => {
     if (!standalone) return;
-    const onHash = () => go(readHashIndex(slides.length));
+    // An old-style #3 typed into the address still jumps there (and becomes ?present=3).
+    const onHash = () => {
+      const value = Number.parseInt(window.location.hash.slice(1), 10);
+      if (Number.isFinite(value)) go(value - 1);
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, [go, slides.length, standalone]);
