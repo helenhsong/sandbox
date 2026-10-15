@@ -208,54 +208,15 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   );
   const step = useCallback((delta: number) => go(indexRef.current + delta), [go]);
 
-  // Lets the live page's key listener (set up before toggleFullscreen exists) toggle full screen.
-  const toggleFullscreenRef = useRef<() => void>(() => undefined);
-
   /** Leaves the presentation: closes it in the editor, or goes back to Sandbox from a published deck. */
   const exit = useCallback(() => {
     if (onClose) onClose();
     else if (exitHref) window.location.assign(exitHref);
   }, [onClose, exitHref]);
 
-  // R restarts, X leaves and F toggles full screen even while a live page has the keyboard (unless you're typing in it). Pages from
-  // Sandbox are on this site, so their key presses can be heard; other sites' can't.
-  useEffect(() => {
-    if (slides[index]?.kind !== "web") return;
-    const frame = activeFrame();
-    if (!frame) return;
-    let win: Window | null = null;
-    const onKey = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
-      if (key !== "r" && key !== "x" && key !== "f") return;
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target as { closest?: (selector: string) => unknown } | null;
-      if (target?.closest?.("input, textarea, select, [contenteditable]")) return;
-      event.preventDefault();
-      rootRef.current?.focus({ preventScroll: true });
-      if (key === "x") exit();
-      else if (key === "f") toggleFullscreenRef.current();
-      else go(0);
-    };
-    const attach = () => {
-      try {
-        win?.removeEventListener("keydown", onKey, true);
-        win = frame.contentWindow;
-        win?.addEventListener("keydown", onKey, true);
-      } catch {
-        win = null; // Another site's page: its keys stay its own.
-      }
-    };
-    attach();
-    frame.addEventListener("load", attach);
-    return () => {
-      frame.removeEventListener("load", attach);
-      try {
-        win?.removeEventListener("keydown", onKey, true);
-      } catch {
-        // Already gone.
-      }
-    };
-  }, [index, slides, activeFrame, go, exit]);
+  // While the mouse is over a live page, the keyboard is the page's alone: the presentation's
+  // shortcuts (arrows, R, F, X) only work with the mouse off the page. N is the page window's own
+  // fast-forward, so it still works there.
 
   useEffect(() => {
     if (standalone) history.replaceState(null, "", presentAddress(index));
@@ -318,9 +279,6 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     request.then(fallBack, fallBack);
     window.setTimeout(fallBack, 400);
   }, [expanded]);
-  useEffect(() => {
-    toggleFullscreenRef.current = toggleFullscreen;
-  });
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
