@@ -170,9 +170,13 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     return () => clearTimeout(timer);
   }, [index, slides, activeFrame]);
 
+  // The slide being shown, updated the moment it changes, so key presses quicker than the screen
+  // updates still each move exactly one slide from the right place.
+  const indexRef = useRef(index);
   const go = useCallback(
     (next: number) => {
       const clamped = Math.min(Math.max(next, 0), slides.length - 1);
+      indexRef.current = clamped;
       setIndex(clamped);
       setMounted((current) => {
         const ids = nearbyWebIds(slides, clamped).filter((id) => !current.has(id));
@@ -181,6 +185,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     },
     [slides],
   );
+  const step = useCallback((delta: number) => go(indexRef.current + delta), [go]);
 
   /** Leaves the presentation: closes it in the editor, or goes back to Sandbox from a published deck. */
   const exit = useCallback(() => {
@@ -306,13 +311,13 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
         case " ":
           if (overview) return;
           event.preventDefault();
-          go(index + 1);
+          step(1);
           break;
         case "ArrowLeft":
         case "PageUp":
           if (overview) return;
           event.preventDefault();
-          go(index - 1);
+          step(-1);
           break;
         case "Home":
         case "r":
@@ -341,7 +346,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [expanded, exit, go, index, onClose, overview, slides.length, toggleFullscreen]);
+  }, [expanded, exit, go, onClose, overview, slides.length, step, toggleFullscreen]);
 
   if (slides.length === 0) {
     return (
@@ -410,7 +415,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
           <button
             type="button"
             className="deck-icon-button"
-            onClick={() => go(index - 1)}
+            onClick={() => step(-1)}
             disabled={index === 0}
             aria-label="Previous slide"
             title="Previous (←)"
@@ -423,7 +428,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
           <button
             type="button"
             className="deck-icon-button"
-            onClick={() => go(index + 1)}
+            onClick={() => step(1)}
             disabled={index === slides.length - 1}
             aria-label="Next slide"
             title="Next (→)"
