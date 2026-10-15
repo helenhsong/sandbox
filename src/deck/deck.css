@@ -265,8 +265,9 @@
   left: 0;
   z-index: 1;
   padding-left: 16px;
-  /* Readable over light slides while it's showing. */
-  background: linear-gradient(rgb(0 0 0 / 0), rgb(0 0 0 / 0.72));
+  /* The deck's dark bar, nearly opaque, so its text reads over any slide while it's showing. */
+  background: rgb(11 11 12 / 0.92);
+  backdrop-filter: blur(8px);
 }
 
 .deck-controls-info {
