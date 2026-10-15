@@ -101,7 +101,7 @@ p {
   align-items: center;
   gap: 2px;
   /* Matches the chevron on the right, so the name itself sits on the center line. */
-  padding-left: 26px;
+  padding-left: 30px;
   min-width: 0;
 }
 
@@ -807,7 +807,7 @@ p {
   }
 
   .builder-title-row {
-    padding-left: 26px;
+    padding-left: 30px;
   }
 
   .builder-name {

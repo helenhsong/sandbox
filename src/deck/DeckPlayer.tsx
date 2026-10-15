@@ -164,6 +164,43 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     [slides],
   );
 
+  // R restarts even while a live page has the keyboard (unless you're typing in it). Pages from
+  // Sandbox are on this site, so their key presses can be heard; other sites' can't.
+  useEffect(() => {
+    if (slides[index]?.kind !== "web") return;
+    const frame = activeFrame();
+    if (!frame) return;
+    let win: Window | null = null;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "r" && event.key !== "R") return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as { closest?: (selector: string) => unknown } | null;
+      if (target?.closest?.("input, textarea, select, [contenteditable]")) return;
+      event.preventDefault();
+      rootRef.current?.focus({ preventScroll: true });
+      go(0);
+    };
+    const attach = () => {
+      try {
+        win?.removeEventListener("keydown", onKey, true);
+        win = frame.contentWindow;
+        win?.addEventListener("keydown", onKey, true);
+      } catch {
+        win = null; // Another site's page: its keys stay its own.
+      }
+    };
+    attach();
+    frame.addEventListener("load", attach);
+    return () => {
+      frame.removeEventListener("load", attach);
+      try {
+        win?.removeEventListener("keydown", onKey, true);
+      } catch {
+        // Already gone.
+      }
+    };
+  }, [index, slides, activeFrame, go]);
+
   useEffect(() => {
     if (standalone) history.replaceState(null, "", `#${index + 1}`);
   }, [index, standalone]);
@@ -221,7 +258,8 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       // With the mouse over a live page, its keys belong to the page, not the deck.
       const slideKeys = ["ArrowRight", "ArrowLeft", "PageDown", "PageUp", " ", "Home", "End", "r", "R"];
-      if (!overview && onLivePage.current && pointerInFrame.current && slideKeys.includes(event.key)) return;
+      const restart = event.key === "r" || event.key === "R";
+      if (!overview && !restart && onLivePage.current && pointerInFrame.current && slideKeys.includes(event.key)) return;
       // Moving through slides from the keyboard means presenting: tuck the controls away again.
       if (!overview && slideKeys.includes(event.key)) {
         setNear({ bar: false, close: false });

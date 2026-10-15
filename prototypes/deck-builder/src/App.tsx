@@ -294,8 +294,8 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
               aria-label="Deck name"
             />
             <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="ghost" size="icon-xs" aria-label="Deck options" className="builder-title-menu" />}>
-                <ChevronDown size={16} strokeWidth={2} />
+              <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Deck options" className="builder-title-menu" />}>
+                <ChevronDown size={20} strokeWidth={2} />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="deck-menu">
                 {draft.fileKey ? (
