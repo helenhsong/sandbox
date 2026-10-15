@@ -150,7 +150,7 @@ p {
   min-height: 0;
   display: grid;
   /* minmax(0, …) so slide images and pages can't widen the columns past the screen. */
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: 272px minmax(0, 1fr);
 }
 
 /* Sidebar: deck name, Add live page, then the slides as large thumbnails. */
@@ -202,10 +202,6 @@ p {
 .sidebar-add {
   /* A clear gap (16px, plus the list's 8px) between the buttons and the first slide. */
   padding: 16px 16px 16px;
-  /* Reserves the slide list's scrollbar space on both sides, like the list below, so everything
-     in the sidebar is centered and lines up whether or not a scrollbar shows. */
-  overflow: hidden;
-  scrollbar-gutter: stable both-edges;
 }
 
 .add-trigger {
@@ -280,7 +276,9 @@ p {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  scrollbar-gutter: stable both-edges;
+  /* No visible scrollbar here (it still scrolls), so it never takes room from one side: the
+     sidebar stays 16px in on both sides, in line with the back button above. */
+  scrollbar-width: none;
   /* The selected row's background reaches 6px past the buttons on each side, so the thumbnails
      line up with the buttons' edges. */
   padding: 8px 10px 16px 10px;
@@ -836,11 +834,6 @@ p {
     overflow: visible;
   }
 
-  /* Stacked, the list doesn't scroll on its own, so no scrollbar space to match. */
-  .sidebar-add,
-  .sidebar-scroll {
-    scrollbar-gutter: auto;
-  }
 
   /* Stacked under the preview: slides in a two-column grid, like the player's grid view. */
   .playlist {
