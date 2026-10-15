@@ -82,6 +82,20 @@
   box-shadow: none;
 }
 
+/* A live page in full screen: its window fills the whole screen, width and height, and keeps the
+   window's rounded corners. */
+.deck-player[data-filling][data-live-page] .deck-frame {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  background: transparent;
+}
+
+.deck-player[data-filling] .deck-web {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
 /* Slides switch instantly: changes are keyboard-driven, and a presenter moves through them often. */
 .deck-layer {
   position: absolute;
