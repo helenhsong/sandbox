@@ -55,7 +55,7 @@ function WebItems({ slide, actions }: { slide: WebSlide; actions: SlideActions }
     <>
       <ContextMenuItem onClick={() => openLink(resolveUrl(slide.url))}>
         <ExternalLink size={16} strokeWidth={2} aria-hidden />
-        Open page
+        Open source page
       </ContextMenuItem>
       <ContextMenuSeparator />
       <ContextMenuItem onClick={() => actions.duplicate(id)}>
@@ -81,7 +81,7 @@ function WebItems({ slide, actions }: { slide: WebSlide; actions: SlideActions }
       <ContextMenuSeparator />
       <ContextMenuItem variant="destructive" onClick={() => actions.remove(id)}>
         <Trash2 size={16} strokeWidth={2} aria-hidden />
-        Remove
+        Delete
         <ContextMenuShortcut>⌫</ContextMenuShortcut>
       </ContextMenuItem>
     </>
