@@ -254,7 +254,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
     figmaLink: (slide) => figmaSlideLink(draft, slide),
   };
 
-  // ⌘D / ⌘C / ⌘V, and Delete or Backspace to remove a live page, on the selected slide, unless
+  // ⌘D / ⌘C / ⌘V, and Delete or Backspace to delete (or, for Figma, hide), on the selected slide, unless
   // typing in a field or a dialog or the player is open.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -264,11 +264,12 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
       if (target instanceof Element && target.closest("input, textarea, select, [contenteditable], [role='dialog'], [role='menu']")) return;
       if (!selected) return;
       const modified = event.metaKey || event.ctrlKey;
-      // Figma slides come from the Figma file, so they're hidden rather than removed one by one.
+      // Figma slides come from the Figma file, so Delete hides one from the deck instead.
       if (!modified && (event.key === "Delete" || event.key === "Backspace")) {
-        if (selected.kind !== "web" || event.repeat) return;
+        if (event.repeat) return;
         event.preventDefault();
-        actions.remove(selected.id);
+        if (selected.kind === "web") actions.remove(selected.id);
+        else if (!selected.hidden) actions.toggleHidden(selected.id);
         return;
       }
       if (!modified) return;

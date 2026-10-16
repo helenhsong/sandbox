@@ -101,6 +101,7 @@ function FigmaItems({ slide, actions }: { slide: FigmaSlide; actions: SlideActio
       <ContextMenuItem onClick={() => actions.toggleHidden(slide.id)}>
         {slide.hidden ? <Eye size={16} strokeWidth={2} aria-hidden /> : <EyeOff size={16} strokeWidth={2} aria-hidden />}
         {slide.hidden ? "Show in deck" : "Hide from deck"}
+        {slide.hidden ? null : <ContextMenuShortcut>⌫</ContextMenuShortcut>}
       </ContextMenuItem>
       {actions.paste ? (
         <>
