@@ -288,9 +288,11 @@ export async function listSlides(fileKey: string, token: string): Promise<SlideN
     const doc = new DOMParser().parseFromString(await response.text(), "image/svg+xml");
     const groups = [...doc.querySelectorAll("g[data-node-id]")];
     // A slide is a group whose own first shape is the slide-sized background (1920×1080 by default),
-    // and which isn't inside another slide.
+    // and which isn't inside another slide. When something on a slide runs past its edges (a big
+    // screenshot, say), Figma wraps the slide's contents in a clipping group, so the background
+    // can sit one unnamed group down.
     const slides = groups.filter((group) => {
-      const background = group.querySelector(":scope > rect");
+      const background = group.querySelector(":scope > rect, :scope > g:not([data-node-id]) > rect");
       const width = Number(background?.getAttribute("width"));
       const height = Number(background?.getAttribute("height"));
       return width >= 640 && height >= 360 && Math.abs(width / height - 16 / 9) < 0.02;
