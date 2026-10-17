@@ -166,8 +166,12 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
     let running = false;
     let lastCheck = 0;
     // The file's state when its slide list was last compared, so unchanged files aren't re-read.
+    // Figma's renders lag a little behind edits, so after the file changes its slides are re-read
+    // on every check for a minute, not just once.
     let seenStamp = "";
     let seenFile = "";
+    let lastStamp = "";
+    let changedAt = 0;
     const check = async () => {
       const { draft: current, token: key } = latest.current;
       const figmaIds = current.slides.flatMap((slide) => (slide.kind === "figma" ? [slide.nodeId] : []));
@@ -183,6 +187,11 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
       lastCheck = Date.now();
       try {
         const stamp = await figmaFileStamp(current.fileKey, key.trim());
+        if (stamp !== lastStamp) {
+          // The first look isn't a change: the slides are read once and compared as usual.
+          changedAt = lastStamp ? Date.now() : 0;
+          lastStamp = stamp;
+        }
         if (current.fileKey === seenFile && stamp === seenStamp) return;
         const nodes = await listSlides(current.fileKey, key.trim());
         const unchanged = nodes.length === figmaIds.length && nodes.every((node, i) => node.nodeId === figmaIds[i]);
@@ -193,8 +202,10 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
           const { slides: incoming } = await loadFigmaSlides(current.fileKey, key.trim());
           setDraft((now) => (now.fileKey === current.fileKey ? { ...now, slides: mergeFigmaSlides(now.slides, incoming) } : now));
         }
-        seenFile = current.fileKey;
-        seenStamp = stamp;
+        if (Date.now() - changedAt > 60_000) {
+          seenFile = current.fileKey;
+          seenStamp = stamp;
+        }
       } catch {
         // Offline, rate-limited, or the token stopped working: try again next time.
       } finally {
