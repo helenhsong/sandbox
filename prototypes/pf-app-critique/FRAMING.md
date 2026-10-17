@@ -24,11 +24,14 @@
 
 ## 2. Person
 
-- **Primary person:** someone new on the team (chosen over someone experienced) who needs to ramp up quickly.
-- **What matters (Helen):** knowing who to go to for help; seeing who has worked on a specific part of the product.
-- **Context Claude added:** whether someone owns an area or only touched it, since that decides whether it's okay to ask them.
+- **Primary person (revised by Helen):** a team lead with lots of new people on the team. Earlier choice, someone new on the team, was dropped for not having enough opportunity.
+- **What matters (Helen):**
+  - pairing the people best suited to work together on a project that needs very specific domain knowledge;
+  - finding who has the correct files for something;
+  - checking who was responsible for a project and what they're involved with now.
 - **Secondary consumer:** agents. Richer profile context would let Slack make better suggestions and pair the right people.
-- **Narrowing (open):** finding who to ask about a topic vs. understanding someone they've already been pointed to.
+- **Out of scope (Helen):** capacity planning.
+- **Narrowing (open):** staffing a new project vs. answering a new hire's "who owned this?"
 
 ## 3. Present
 
@@ -50,5 +53,5 @@ _Open._
 
 - **Confirmed:** product is Slack; the three challenge themes; the session deliverables above.
 - **Assumed:** desktop app is the surface under review.
-- **Open:** which of the person's two jobs matters most.
+- **Open:** which team-lead moment to design for.
 - **Leaning, not yet chosen:** richer profile page as the focus problem.
