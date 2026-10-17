@@ -332,6 +332,15 @@ async function exportSlides(fileKey: string, token: string, nodes: SlideNode[], 
   return blobs;
 }
 
+/**
+ * A cheap fingerprint of the file's current state (its version and when it was last edited),
+ * so the editor can poll for changes without rendering the whole deck each time.
+ */
+export async function figmaFileStamp(fileKey: string, token: string) {
+  const meta = await figmaGet<{ file: { version?: string; last_touched_at?: string } }>(`/v1/files/${fileKey}/meta`, token);
+  return `${meta.file.version ?? ""}|${meta.file.last_touched_at ?? ""}`;
+}
+
 /** The Figma file's name, as shown in Figma. */
 export async function figmaFileName(fileKey: string, token: string) {
   const meta = await figmaGet<{ file: { name: string } }>(`/v1/files/${fileKey}/meta`, token);

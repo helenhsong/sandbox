@@ -14,7 +14,7 @@ import { SlideView } from "../../../src/deck/SlideView";
 import { isPersistent, visibleSlides, withFigmaEmbeds, type Deck, type Slide, type WebSlide } from "../../../src/deck/types";
 import { AddSlide, type AddPreset, type FigmaImport } from "./AddSlide";
 import { readDeckFile } from "./deckFile";
-import { figmaFileName, listSlides, loadFigmaSlides } from "./figma";
+import { figmaFileName, figmaFileStamp, listSlides, loadFigmaSlides } from "./figma";
 import { FigmaLogo, FigmaSource, RemoveFigmaDialog } from "./FigmaSource";
 import { Inspector } from "./Inspector";
 import { PublishDialog } from "./PublishDialog";
@@ -154,9 +154,10 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
   const update = (change: Partial<Draft>) => setDraft({ ...draft, ...change });
   const figmaCount = draft.fileKey ? draft.slides.filter((slide) => slide.kind === "figma").length : 0;
 
-  // Keeps the deck in step with its Figma file without a button: whenever the editor opens or
-  // you come back to it, check Figma's slide list (at most once a minute) and, only if slides
-  // were added, removed or reordered, bring them in. Live pages keep their places.
+  // Keeps the deck in step with its Figma file without a button. While the editor is showing, it
+  // asks Figma every few seconds whether the file changed (a small request), and only when it has
+  // reads the slide list and, if slides were added, removed or reordered, brings them in. Coming
+  // back to the editor checks right away. Live pages keep their places.
   const latest = useRef({ draft, token });
   useEffect(() => {
     latest.current = { draft, token };
@@ -164,6 +165,9 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
   useEffect(() => {
     let running = false;
     let lastCheck = 0;
+    // The file's state when its slide list was last compared, so unchanged files aren't re-read.
+    let seenStamp = "";
+    let seenFile = "";
     const check = async () => {
       const { draft: current, token: key } = latest.current;
       const figmaIds = current.slides.flatMap((slide) => (slide.kind === "figma" ? [slide.nodeId] : []));
@@ -173,31 +177,39 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
           .then((name) => setDraft((now) => (now.fileKey === current.fileKey ? { ...now, figmaName: name } : now)))
           .catch(() => undefined);
       }
-      if (running || Date.now() - lastCheck < 60_000 || !current.fileKey || !key.trim() || !figmaIds.length) return;
+      if (document.visibilityState !== "visible") return;
+      if (running || Date.now() - lastCheck < 4_000 || !current.fileKey || !key.trim() || !figmaIds.length) return;
       running = true;
       lastCheck = Date.now();
       try {
+        const stamp = await figmaFileStamp(current.fileKey, key.trim());
+        if (current.fileKey === seenFile && stamp === seenStamp) return;
         const nodes = await listSlides(current.fileKey, key.trim());
         const unchanged = nodes.length === figmaIds.length && nodes.every((node, i) => node.nodeId === figmaIds[i]);
         // Also bring them in again if any slide's saved image has gone missing (its thumbnail says "No preview").
         const wanted = imageKeys(current.slides);
         const imagesMissing = (await getImages(wanted)).size < wanted.length;
-        if (!nodes.length || (unchanged && !imagesMissing)) return;
-        const { slides: incoming } = await loadFigmaSlides(current.fileKey, key.trim());
-        setDraft((now) => (now.fileKey === current.fileKey ? { ...now, slides: mergeFigmaSlides(now.slides, incoming) } : now));
+        if (nodes.length && !(unchanged && !imagesMissing)) {
+          const { slides: incoming } = await loadFigmaSlides(current.fileKey, key.trim());
+          setDraft((now) => (now.fileKey === current.fileKey ? { ...now, slides: mergeFigmaSlides(now.slides, incoming) } : now));
+        }
+        seenFile = current.fileKey;
+        seenStamp = stamp;
       } catch {
-        // Offline, or the token stopped working: try again next time.
+        // Offline, rate-limited, or the token stopped working: try again next time.
       } finally {
         running = false;
       }
     };
     void check();
+    const poll = window.setInterval(() => void check(), 10_000);
     const onReturn = () => {
       if (document.visibilityState === "visible") void check();
     };
     document.addEventListener("visibilitychange", onReturn);
     window.addEventListener("focus", onReturn);
     return () => {
+      window.clearInterval(poll);
       document.removeEventListener("visibilitychange", onReturn);
       window.removeEventListener("focus", onReturn);
     };
