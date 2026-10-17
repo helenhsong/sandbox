@@ -31,7 +31,11 @@
   - checking who was responsible for a project and what they're involved with now.
 - **Secondary consumer:** agents. Richer profile context would let Slack make better suggestions and pair the right people.
 - **Out of scope (Helen):** capacity planning.
-- **Narrowing (open):** staffing a new project vs. answering a new hire's "who owned this?"
+- **Moment (Helen):** a lead staffing a new project and choosing who works together, pairing people new to the team with more experienced people; also deciding who gets staffed on what in general.
+- **Secondary (Helen):** referring back to previous projects for performance planning.
+- **Context Claude supplied:** at a startup of about 60 people, leads staff projects every few weeks, informally, from memory, DMs and old channels; performance planning is once or twice a year in an HR tool, not Slack. So staffing is the core moment; performance lookups are secondary.
+
+> We are designing for **a team lead staffing a new project** because **they need to pair new people with experienced people who have the right domain knowledge**.
 
 ## 3. Present
 
@@ -53,5 +57,5 @@ _Open._
 
 - **Confirmed:** product is Slack; the three challenge themes; the session deliverables above.
 - **Assumed:** desktop app is the surface under review.
-- **Open:** which team-lead moment to design for.
+- **Open:** current path in Slack (Present).
 - **Leaning, not yet chosen:** richer profile page as the focus problem.
