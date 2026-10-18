@@ -59,12 +59,26 @@ export function cursorAt(doc: Document, x: number, y: number): CursorName {
   if (!element) return "default";
   const value = (doc.defaultView?.getComputedStyle(element).cursor ?? "auto").split(",").pop()!.trim();
   if (value === "auto") {
-    // The browser's own choice: a text cursor over fields and editable text, an arrow elsewhere.
+    // The browser's own choice: a text cursor over fields, editable text and any text that can be
+    // selected; an arrow elsewhere.
     const typing = element.closest(
       "input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=range]):not([type=color]), textarea, [contenteditable=true], [contenteditable='']",
     );
-    return typing ? "text" : "default";
+    return typing || overSelectableText(doc, x, y) ? "text" : "default";
   }
   if (ALIASES[value]) return ALIASES[value];
   return NAMES.has(value) ? (value as CursorName) : "default";
+}
+
+/** Whether the point is on the glyphs of text that can be selected, where a browser shows a text cursor. */
+function overSelectableText(doc: Document, x: number, y: number) {
+  const range = doc.caretRangeFromPoint?.(x, y);
+  const node = range?.startContainer;
+  if (!node || node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) return false;
+  const parent = node.parentElement;
+  if (!parent || doc.defaultView?.getComputedStyle(parent).userSelect === "none") return false;
+  // The caret lands on the nearest text even from blank space, so check the text is really there.
+  const text = doc.createRange();
+  text.selectNodeContents(node);
+  return Array.from(text.getClientRects()).some((rect) => x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
 }
