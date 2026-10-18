@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "name": "test-deck",
+  "slug": "test-deck",
+  "createdAt": "2026-10-18",
+  "source": {
+    "figmaUrl": "https://www.figma.com/deck/pseM3YmociSaKT09yMSNmv",
+    "fileKey": "pseM3YmociSaKT09yMSNmv"
+  },
+  "figmaLive": true,
+  "slides": [
+    {
+      "id": "figma-mvcfxgoi-1",
+      "kind": "figma",
+      "nodeId": "2068:82",
+      "name": "1",
+      "image": "01.webp",
+      "notes": "Slack's motto is to work"
+    },
+    {
+      "id": "figma-mvd47xmq-2",
+      "kind": "figma",
+      "nodeId": "2279:141",
+      "name": "2",
+      "image": "02.webp"
+    },
+    {
+      "id": "figma-mvd47xmq-3",
+      "kind": "figma",
+      "nodeId": "2279:121",
+      "name": "3",
+      "image": "03.webp"
+    },
+    {
+      "id": "figma-mvcfxgoi-3",
+      "kind": "figma",
+      "nodeId": "2114:89",
+      "name": "4",
+      "image": "04.webp"
+    },
+    {
+      "id": "figma-mvce2q6s-2",
+      "kind": "figma",
+      "nodeId": "2068:35",
+      "name": "5",
+      "image": "05.webp"
+    },
+    {
+      "id": "figma-mvcfxgoi-5",
+      "kind": "figma",
+      "nodeId": "2068:78",
+      "name": "6",
+      "image": "06.webp"
+    },
+    {
+      "id": "figma-mvcd9qne-4",
+      "kind": "figma",
+      "nodeId": "2068:19",
+      "name": "7",
+      "image": "07.webp"
+    },
+    {
+      "id": "web-mvc6rd8k-2",
+      "kind": "web",
+      "url": "sandbox:/whiteboarding-runthrough-1/",
+      "title": "Whiteboarding Runthrough 1",
+      "notes": "a"
+    },
+    {
+      "id": "figma-mvcd9qne-5",
+      "kind": "figma",
+      "nodeId": "6:4",
+      "name": "8",
+      "image": "08.webp"
+    },
+    {
+      "id": "figma-mvcd9qne-6",
+      "kind": "figma",
+      "nodeId": "1979:29",
+      "name": "10",
+      "image": "09.webp"
+    },
+    {
+      "id": "figma-mvcd9qne-7",
+      "kind": "figma",
+      "nodeId": "1:94",
+      "name": "11",
+      "image": "10.webp",
+      "notes": "l,;l,;,"
+    }
+  ]
+}

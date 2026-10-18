@@ -58,6 +58,20 @@
         "where": "Responsive public landing page, single product",
         "how": "Can't change the mattress; purchase flow out of scope; proof: conversion, time on page, revenue, with return rate as guardrail"
       }
+    },
+    {
+      "name": "test-deck",
+      "slug": "test-deck",
+      "path": "prototypes/test-deck/",
+      "purpose": "client-demo",
+      "status": "active",
+      "createdAt": "2026-10-18",
+      "designSource": {
+        "type": "figma",
+        "reference": "https://www.figma.com/deck/pseM3YmociSaKT09yMSNmv"
+      },
+      "publishedUrl": null,
+      "notes": "Presentation published from Deck Builder: Figma slides with live web pages in between."
     }
   ]
 }
