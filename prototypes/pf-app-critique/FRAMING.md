@@ -74,6 +74,7 @@ Helen's outline:
 - **Scenario:** a new joiner in a very busy project channel. Lots of messages every day, and people sometimes forget to tag them in threads, so things get missed.
 - **Entry:** in the channel, they click a specific person's profile, which opens the profile panel.
 - **Header:** basic info: name, position, team, location.
+- **Search at the top** of the panel, scoped to this person: searches file names and attachments, messages, and more.
 - **Tabs below it:**
   - **Info:** standard profile info (email, phone, etc.), pinned items, and maybe an AI summary of what this person is good at answering questions about.
   - **Activity:** all their recent activity, like DMs or posts.
@@ -82,7 +83,7 @@ Helen's outline:
 - **Privacy:** anything gated (shared in a private channel) is hinted at but not exposed.
 - **Proof:** the success metrics above (time to find a message or file, projects, shared files).
 
-Open in the outline: where "projects they're involved in" lives, or whether it's out of scope; where the message summary sits; whether the in-panel search and expand icon from the chosen direction stay.
+Open in the outline: where "projects they're involved in" lives, or whether it's out of scope; where the message summary sits; whether the expand icon from the chosen direction stays.
 
 ## Captured for later Ps
 
