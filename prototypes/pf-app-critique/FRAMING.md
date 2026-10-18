@@ -31,7 +31,19 @@ We are designing for **a new joiner at a startup who was dropped into the middle
 - **The person needs:** to find something a specific teammate shared with them, starting from the person they remember.
 - **The pain point is:** they remember who shared it, but not where (DM, thread, or team channel), and search makes them pick a place first.
 - **We assume:** Open.
-- **We must work within:** Open.
+- **We must work within:** desktop only; no IA changes to the rest of Slack; scope limited to what's in the profile page; no designs for pages it leads to elsewhere in the product, except a "view all" style view.
+
+> When **they remember a teammate shared something with them but not where**, **a new joiner dropped into the middle of a startup project** wants to **find it starting from the person they remember**, so they can **get up to speed quickly without digging through DMs, threads, and channels**.
+
+> Business benefit: Slack becomes more usable and people get more value out of it, which should show up in CSAT and NPS.
+
+### Success metrics (Helen)
+
+- Time to find a specific message or file from a person.
+- Time to find all the projects someone is involved in.
+- Time to find all the files someone has shared with a specific person.
+- Business: CSAT, NPS.
+- Guardrail: Open.
 
 ## Captured for later Ps
 
