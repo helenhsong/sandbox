@@ -118,12 +118,6 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
   const current = slides[index] as Slide | undefined;
   const notes = current?.notes ?? "";
 
-  // Live pages run here too, mirrored with the audience view: what you do on one here happens
-  // there, and the other way round. Each stays loaded once opened, like in the audience view.
-  const [liveIds, setLiveIds] = useState<string[]>([]);
-  if (current?.kind === "web" && !liveIds.includes(current.id)) setLiveIds([...liveIds, current.id]);
-  const livePages = slides.filter((slide) => slide.kind === "web" && liveIds.includes(slide.id));
-
   return (
     <div className="presenter dark" data-list={listOpen || undefined}>
       <header className="presenter-header">
@@ -155,7 +149,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
                   <button type="button" onClick={() => go(i)} aria-current={i === index} aria-label={`Slide ${i + 1}: ${slideName(slide)}`}>
                     <span className="presenter-list-number">{i + 1}</span>
                     <span className="presenter-slide presenter-thumb">
-                      <PresenterSlide slide={slide} />
+                      <PresenterSlide slide={slide} compact />
                     </span>
                   </button>
                 </li>
@@ -166,17 +160,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
 
         <main className="presenter-stage">
           <div className="presenter-current">
-            <div className="presenter-slide">
-              {current?.kind === "figma" ? <PresenterSlide slide={current} /> : null}
-              {livePages.map((slide) => {
-                const active = slide.id === current?.id;
-                return (
-                  <div key={slide.id} className="presenter-live-layer" data-active={active || undefined} aria-hidden={!active} inert={!active}>
-                    <SlideView slide={slide} mirror />
-                  </div>
-                );
-              })}
-            </div>
+            <div className="presenter-slide">{current ? <PresenterSlide slide={current} /> : null}</div>
           </div>
           <div className="presenter-controls">
             <div className="presenter-nav">
@@ -265,13 +249,17 @@ function slideName(slide: Slide) {
   return slide.kind === "figma" ? slide.name : slide.title || "Live page";
 }
 
-/** A slide as a still: Figma slides as their image, and live pages (in the list) as a card. */
-function PresenterSlide({ slide }: { slide: Slide }) {
+/**
+ * A slide as the presenter sees it: Figma slides as their image, and live pages as a card (the
+ * page itself runs in the audience view, where people use it).
+ */
+function PresenterSlide({ slide, compact = false }: { slide: Slide; compact?: boolean }) {
   if (slide.kind === "figma") return <SlideView slide={{ ...slide, embedUrl: undefined }} />;
   return (
     <div className="presenter-live">
-      <Globe size={16} strokeWidth={2} aria-hidden />
+      <Globe size={compact ? 16 : 24} strokeWidth={2} aria-hidden />
       <p className="presenter-live-title">{slide.title || "Live page"}</p>
+      {compact ? null : <p className="presenter-live-hint">Live page. Use it in the audience view.</p>}
     </div>
   );
 }
