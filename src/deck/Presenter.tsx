@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { Button, Textarea } from "@helenhsong/ui";
-import { ChevronLeft, ChevronRight, GalleryVerticalEnd, Globe, Minus, MonitorPlay, PanelBottom, PanelRight, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Globe, Minus, MonitorPlay, PanelBottom, PanelLeft, PanelRight, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
 import { closeTab, openPresentChannel, openView, viewTabName, viewUrl, type PresentMessage } from "./presentSync";
 import { SlideView } from "./SlideView";
 import { visibleSlides, type Slide } from "./types";
@@ -250,7 +250,9 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
             aria-label={listOpen ? "Hide slides" : "Show slides"}
             title={listOpen ? "Hide slides" : "Show slides"}
           >
-            <GalleryVerticalEnd size={16} strokeWidth={2} aria-hidden />
+            <PanelLeft size={16} strokeWidth={2} aria-hidden>
+              {listOpen ? <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4z" fill="currentColor" /> : null}
+            </PanelLeft>
           </Button>
           <span className="presenter-name">{name}</span>
         </div>

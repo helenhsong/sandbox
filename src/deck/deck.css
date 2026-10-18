@@ -850,10 +850,6 @@
 }
 
 /* Which side the notes sit on: two icon buttons, the current one highlighted. */
-.presenter-title > [aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--foreground);
-}
 
 /*
  * The notes position toggle: one outlined control holding both layouts, the current one raised.
