@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "@helenhsong/ui/style.css";
 import "./deck.css";
@@ -24,10 +24,40 @@ export function mountDeck(deck: Deck, images: Record<string, string>) {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       {presenterAt !== null ? (
-        <Presenter name={deck.name} slides={slides} startIndex={presenterAt} />
+        <PublishedPresenter name={deck.name} slides={slides} startIndex={presenterAt} />
       ) : (
         <DeckPlayer name={deck.name} slides={slides} exitHref={import.meta.env.BASE_URL} />
       )}
     </StrictMode>,
   );
+}
+
+/** Notes edited in a published deck's presenter view, kept in this browser (slide id → notes). */
+const notesKey = () => `deck-notes:${window.location.pathname}`;
+
+function readNotes(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(notesKey()) ?? "{}") as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * A published deck's presenter view. Notes can be edited here too: the changes are kept in this
+ * browser (a published deck can't save back to Sandbox), over the notes it was published with.
+ */
+function PublishedPresenter({ name, slides, startIndex }: { name: string; slides: Slide[]; startIndex: number }) {
+  const [edited, setEdited] = useState(readNotes);
+  const shown = slides.map((slide) => (slide.id in edited ? { ...slide, notes: edited[slide.id] } : slide));
+  const onNotesChange = (id: string, notes: string) => {
+    const next = { ...edited, [id]: notes };
+    setEdited(next);
+    try {
+      localStorage.setItem(notesKey(), JSON.stringify(next));
+    } catch {
+      // Not saved for next time; the change still shows now.
+    }
+  };
+  return <Presenter name={name} slides={shown} startIndex={startIndex} onNotesChange={onNotesChange} />;
 }

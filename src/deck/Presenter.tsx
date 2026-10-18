@@ -10,8 +10,8 @@ interface PresenterProps {
   slides: Slide[];
   startIndex: number;
   /**
-   * Saves a slide's notes, edited here with Edit, so the editor has them too. Left out for a
-   * published deck, which can't save changes.
+   * Saves a slide's notes, edited here with Edit: into the editor's deck, or, for a published
+   * deck, in this browser. Without it, Edit is hidden.
    */
   onNotesChange?: (slideId: string, notes: string) => void;
 }
