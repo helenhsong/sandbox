@@ -225,13 +225,6 @@ button {
   font-weight: 500;
   cursor: pointer;
 }
-.thread-replies {
-  margin: 4px 0 0 -20px;
-  border-left: 2px solid var(--border);
-}
-.thread-replies .msg {
-  padding-left: 16px;
-}
 .composer {
   padding: 0 20px 16px;
 }
@@ -479,4 +472,45 @@ mark {
   .msg {
     transition: none;
   }
+}
+
+.panel-bar-sub {
+  margin-left: 6px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 400;
+}
+.panel > .composer {
+  padding: 12px 20px 16px;
+}
+.thread-panel {
+  padding-top: 8px;
+}
+.thread-count {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 20px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.thread-count::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.msg[data-active] {
+  background: var(--muted);
+}
+.search-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px 0;
+}
+.search-filters .count {
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
 }

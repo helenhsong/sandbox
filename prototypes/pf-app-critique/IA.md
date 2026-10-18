@@ -20,7 +20,8 @@ Slack (signed in, desktop)
 └ #proj-onboarding (busy project channel)        ← entry, existing page
   └ Profile panel: Priya Raman (right side)
     ├ Search (scoped to Priya) → results: Messages, Files
-    ├ Info (default)        contact, pinned, "Ask Priya about" summary
+    ├ Search filters (while searching): All | Messages | Files · Where (Anywhere, Shared with you, DMs, Channels, Threads)
+    ├ Info (default)        contact, pinned, then "Ask Priya about" summary
     ├ Activity              recent topics summary (added) + recent messages
     └ Shared                All (default) | Shared with you
 ```
@@ -29,7 +30,8 @@ Slack (signed in, desktop)
 
 - Side navigation (Slack's sidebar) is for which conversation you're in; it stays as it is.
 - The profile panel's tabs are for how you see the person: Info, Activity, Shared. The search above them looks across all three.
-- Clicking any message or file jumps the channel to it and highlights it, with the panel left open (*added*: the panel stays, so the new joiner can keep looking).
+- One side panel at a time, as in Slack: a thread or a profile. Clicking a name inside a thread replaces the thread with that profile (Helen).
+- Clicking a message or file in a channel or DM jumps the channel to it and highlights it, with the profile left open. Clicking one that lives in a thread opens that thread in the side panel (replacing the profile) with the reply highlighted, and a back arrow returns to the profile.
 - Rejected: a full-page profile. It loses the channel the new joiner is reading and changes Slack's structure.
 
 ## Screens
@@ -44,23 +46,29 @@ Profile panel
 │ Growth team · San Francisco · 2:14 PM local                    │
 ├ [Search Priya's messages and files]                            ┤
 ├ Tabs: Info* | Activity | Shared                                ┤
-│ Info:     "Ask Priya about" (AI summary, with sources)         │
-│           Pinned · Contact (email, phone)                      │
+│ Info:     Contact (email, phone) · Pinned                      │
+│           "Ask Priya about" (AI summary, with sources)         │
 │ Activity: Recent topics (AI) · messages: snippet, where, time  │
 │ Shared:   All 14 | Shared with you 9                           │
 │           file rows: icon, name, where shared, date            │
 │           locked row: "2 files in private channels"            │
-└ Search results replace the tab content until cleared          ┘
+└ Search results replace the tab content until cleared, with    ┘
+  type and where filters above them
+
+Thread panel (same slot)
+┌ [Back to Priya's profile] Thread #proj-onboarding      [Close] ┐
+├ Parent message · "3 replies" · replies (jumped-to one highlighted)┤
+└ Reply composer                                                 ┘
 ```
 
-States: search with no results; Shared with you empty for someone who hasn't shared anything with you (*added*); private items hinted as a locked row, never named (from the outline).
+States: search with no results, and no results for the current filters (with Clear filters); Shared with you empty for someone who hasn't shared anything with you (*added*); private items hinted as a locked row, never named (from the outline).
 
 ## Core flow (4 steps)
 
 1. In #proj-onboarding, click Priya's name on one of her messages. The profile panel opens on Info.
 2. Open **Shared** and switch to **Shared with you** (or type in the search at the top).
 3. Find the file: "Onboarding flow v3", shared in a thread in #proj-onboarding.
-4. Click it. The channel jumps to that thread message and highlights it, and the panel stays open.
+4. Click it. The thread opens in the side panel with Priya's reply highlighted; the back arrow returns to her profile.
 
 ## Assumptions and open questions
 

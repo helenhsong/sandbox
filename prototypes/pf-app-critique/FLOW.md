@@ -9,17 +9,17 @@ still presses each screen's own button.
 | Screen | Key | Reached from | Fast-forward |
 | --- | --- | --- | --- |
 | Conversation (#proj-onboarding by default) | `conv` | Sidebar item, or jumping to an item from the profile | Nothing (null) while no profile is open |
-| Profile panel | `profile` | Clicking a person's name or avatar on any message | Fills the panel search with "onboarding flow" when it's empty |
+| Side panel: profile or thread | `side` | Profile: a person's name or avatar on any message (also inside a thread, which it replaces). Thread: "N replies" in the channel, or a thread item from the profile | Profile: fills the panel search with "onboarding flow" when it's empty. Thread: nothing |
 | Profile tab (Info, Activity, Shared), per person | `tab:<person>` | Tabs under the panel search | Same as the panel |
 | Shared filter (All, Shared with you), per person | `filter:<person>` | Toggle at the top of Shared | Same as the panel |
 | Jump target (highlighted message, thread opened) | `target` | Clicking a pinned item, message, file or search result in the panel | Same as the panel |
 
-The panel search text is ordinary state; clearing it (X or Escape) returns to the tabs.
+The panel search text and its filters (type, where) are ordinary state, reset when a new profile opens; clearing it (X or Escape) returns to the tabs.
 
 ## Flow steps
 
 Core flow: click Priya Raman's name → Shared → Shared with you → "Onboarding flow v3" → the
-channel opens that thread and highlights her reply. Nothing is required to continue at any step;
+thread opens in the side panel with her reply highlighted; the back arrow returns to her profile. Nothing is required to continue at any step;
 there's no validation.
 
 ## Simulated waits
