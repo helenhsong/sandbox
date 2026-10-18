@@ -828,7 +828,14 @@
 
 /* Which side the notes sit on: two icon buttons, the current one highlighted. */
 .presenter-place {
+  display: flex;
+  gap: 2px;
   margin-right: 4px;
+}
+
+.presenter-place [aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--foreground);
 }
 
 /*

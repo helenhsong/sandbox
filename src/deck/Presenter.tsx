@@ -257,20 +257,32 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
         </div>
         <Timer />
         <div className="presenter-actions">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="presenter-place"
-            onClick={() => placeNotes(notesPlace === "right" ? "below" : "right")}
-            aria-label={notesPlace === "right" ? "Move notes below the slide" : "Move notes to the right"}
-            title={notesPlace === "right" ? "Move notes below the slide" : "Move notes to the right"}
-          >
-            {notesPlace === "right" ? (
-              <PanelRight size={16} strokeWidth={2} aria-hidden />
-            ) : (
-              <PanelBottom size={16} strokeWidth={2} aria-hidden />
-            )}
-          </Button>
+          <div className="presenter-place" role="group" aria-label="Notes position">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => placeNotes("right")}
+              aria-pressed={notesPlace === "right"}
+              aria-label="Notes on the right"
+              title="Notes on the right"
+            >
+              <PanelRight size={16} strokeWidth={2} aria-hidden>
+                {notesPlace === "right" ? <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4z" fill="currentColor" /> : null}
+              </PanelRight>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => placeNotes("below")}
+              aria-pressed={notesPlace === "below"}
+              aria-label="Notes below the slide"
+              title="Notes below the slide"
+            >
+              <PanelBottom size={16} strokeWidth={2} aria-hidden>
+                {notesPlace === "below" ? <path d="M3 15h18v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="currentColor" /> : null}
+              </PanelBottom>
+            </Button>
+          </div>
           <Button onClick={end}>End presentation</Button>
         </div>
       </header>
