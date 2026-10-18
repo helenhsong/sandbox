@@ -182,7 +182,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
             {/* Goes to the audience view's tab if it's open, or opens one on this slide. */}
             <Button
               variant="outline"
-              size="sm"
+              size="default"
               nativeButton={false}
               render={<a href={viewUrl("audience", index)} target={viewTabName("audience")} rel="opener" />}
               onClick={(event: MouseEvent) => openView("audience", indexRef.current, event)}
@@ -216,7 +216,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
           </div>
           <div className="presenter-notes-tools">
             {onNotesChange ? (
-              <Button variant="outline" size="sm" onClick={() => setEditing((on) => !on)} aria-pressed={editing}>
+              <Button variant="outline" size="default" onClick={() => setEditing((on) => !on)} aria-pressed={editing}>
                 {editing ? null : <Pencil size={16} strokeWidth={2} aria-hidden />}
                 {editing ? "Done" : "Edit"}
               </Button>
@@ -224,12 +224,12 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
               <span />
             )}
             <div className="presenter-notes-size">
-              <Button variant="outline" size="icon-sm" onClick={() => resize(-1)} disabled={notesSize <= NOTES_SIZES[0]} aria-label="Smaller notes" title="Smaller notes">
+              <Button variant="outline" size="icon" onClick={() => resize(-1)} disabled={notesSize <= NOTES_SIZES[0]} aria-label="Smaller notes" title="Smaller notes">
                 <Minus size={16} strokeWidth={2} aria-hidden />
               </Button>
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => resize(1)}
                 disabled={notesSize >= NOTES_SIZES[NOTES_SIZES.length - 1]}
                 aria-label="Larger notes"

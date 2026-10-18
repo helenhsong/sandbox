@@ -674,7 +674,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 0 24px 24px;
+  /* The same height as the notes' tool row, so the buttons on both sides line up. */
+  height: 72px;
+  flex-shrink: 0;
+  padding: 0 24px;
 }
 
 .presenter-nav {
@@ -778,8 +781,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 12px 24px;
+  height: 72px;
+  flex-shrink: 0;
+  padding: 0 24px;
   border-top: 1px solid var(--border);
+  box-sizing: border-box;
 }
 
 .presenter-notes-size {
