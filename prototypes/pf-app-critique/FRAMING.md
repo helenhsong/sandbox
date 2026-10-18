@@ -59,6 +59,10 @@ Options Helen is exploring (none chosen yet):
 | 5 | **Profile panel stays open** while you follow a link to a specific page and keep navigating | Medium: keeps the person's context while you jump to the item | Medium | Touches navigation; check against "no IA changes" |
 | 6 | **Search inside the profile panel**, scoped to this person | Medium-high: find one exact item without leaving the panel | Medium | |
 
+**Chosen direction (Helen):** nested sections in the profile panel. Clicking a section opens a nested view inside the panel where you can search (combines options 4 and 6). An expand icon hints at a full expanded view (option 2), but the expanded view itself is not designed.
+
+- Rejected: stacked sections, because Helen doesn't want to add length to the panel.
+
 Combination noted in "thoughts?": nested sections on the panel, with "view all" opening the pre-filtered view. Open: which leads on the profile, what they shared with you or the projects they're in?
 
 ## Captured for later Ps
