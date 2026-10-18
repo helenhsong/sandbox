@@ -554,6 +554,16 @@
   gap: 4px;
 }
 
+/* The timer's pause and restart buttons stay quiet beside the time, and brighten on hover. */
+.presenter-timer > button {
+  color: var(--muted-foreground);
+}
+
+.presenter-timer > button:hover,
+.presenter-timer > button:focus-visible {
+  color: var(--foreground);
+}
+
 .presenter-time {
   min-width: 56px;
   font-size: 16px;
