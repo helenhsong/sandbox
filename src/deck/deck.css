@@ -564,6 +564,7 @@
 
 .presenter-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 8px;
 }
@@ -797,6 +798,44 @@
 .presenter-notes-size {
   display: flex;
   gap: 4px;
+}
+
+/* Notes under the slide instead of beside it: the slide and its controls on top, the notes below. */
+.presenter[data-notes="below"] .presenter-body {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(200px, 36%);
+}
+
+.presenter[data-notes="below"][data-list] .presenter-body {
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+
+.presenter[data-notes="below"] .presenter-list {
+  grid-row: 1 / span 2;
+}
+
+.presenter[data-notes="below"] .presenter-stage {
+  grid-column: -2 / -1;
+  grid-row: 1;
+}
+
+.presenter[data-notes="below"] .presenter-notes {
+  grid-column: -2 / -1;
+  grid-row: 2;
+  border-top: 1px solid var(--border);
+  border-left: 0;
+}
+
+/* Which side the notes sit on: two icon buttons, the current one highlighted. */
+.presenter-place {
+  display: flex;
+  gap: 2px;
+  margin-right: 4px;
+}
+
+.presenter-place [aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--foreground);
 }
 
 @media (max-width: 900px) {

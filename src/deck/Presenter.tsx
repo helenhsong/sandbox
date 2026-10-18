@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { Button, Textarea } from "@helenhsong/ui";
-import { ChevronLeft, ChevronRight, Globe, Minus, MonitorPlay, PanelLeft, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Globe, Minus, MonitorPlay, PanelBottom, PanelLeft, PanelRight, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
 import { closeTab, openPresentChannel, openView, viewTabName, viewUrl, type PresentMessage } from "./presentSync";
 import { SlideView } from "./SlideView";
 import { visibleSlides, type Slide } from "./types";
@@ -17,6 +17,16 @@ interface PresenterProps {
 }
 
 const NOTES_SIZE_KEY = "deck-builder:notes-size";
+const NOTES_PLACE_KEY = "deck-builder:notes-place";
+type NotesPlace = "right" | "below";
+
+function readNotesPlace(): NotesPlace {
+  try {
+    return localStorage.getItem(NOTES_PLACE_KEY) === "below" ? "below" : "right";
+  } catch {
+    return "right";
+  }
+}
 const NOTES_SIZES = [16, 20, 24, 28, 32, 40];
 
 function readNotesSize() {
@@ -41,6 +51,16 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
   const [listOpen, setListOpen] = useState(true);
   const [editing, setEditing] = useState(false);
   const [notesSize, setNotesSize] = useState(readNotesSize);
+  // Notes beside the slide, or under it (remembered for next time).
+  const [notesPlace, setNotesPlace] = useState(readNotesPlace);
+  const placeNotes = (place: NotesPlace) => {
+    setNotesPlace(place);
+    try {
+      localStorage.setItem(NOTES_PLACE_KEY, place);
+    } catch {
+      // Not remembered; it still applies now.
+    }
+  };
   const channel = useRef<BroadcastChannel | null>(null);
   const indexRef = useRef(index);
 
@@ -125,7 +145,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
   const livePages = slides.filter((slide) => slide.kind === "web" && liveIds.includes(slide.id));
 
   return (
-    <div className="presenter dark" data-list={listOpen || undefined}>
+    <div className="presenter dark" data-list={listOpen || undefined} data-notes={notesPlace}>
       <header className="presenter-header">
         <div className="presenter-title">
           <Button
@@ -142,6 +162,28 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
         </div>
         <Timer />
         <div className="presenter-actions">
+          <div className="presenter-place" role="group" aria-label="Notes position">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => placeNotes("right")}
+              aria-pressed={notesPlace === "right"}
+              aria-label="Notes on the right"
+              title="Notes on the right"
+            >
+              <PanelRight size={16} strokeWidth={2} aria-hidden />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => placeNotes("below")}
+              aria-pressed={notesPlace === "below"}
+              aria-label="Notes below the slide"
+              title="Notes below the slide"
+            >
+              <PanelBottom size={16} strokeWidth={2} aria-hidden />
+            </Button>
+          </div>
           <Button onClick={end}>End presentation</Button>
         </div>
       </header>

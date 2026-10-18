@@ -123,7 +123,13 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
   // A restart asked for by another window doesn't ask the others to start over again.
   const restartedRemotely = useRef(false);
   const stopCapture = useRef<() => void>(() => undefined);
-  const [cursor, setCursor] = useState<{ x: number; y: number; kind: CursorName } | null>(null);
+  const [cursor, setCursor] = useState<{ x: number; y: number; kind: CursorName; scale: number } | null>(null);
+  // How much the page is scaled on screen (a deck shrinks its window to fit the slide), so the
+  // cursor can be drawn at its real size rather than shrunk with the page.
+  const screenScale = () => {
+    const frame = frameRef.current;
+    return frame && frame.offsetWidth ? frame.getBoundingClientRect().width / frame.offsetWidth || 1 : 1;
+  };
   const perform = (action: WindowAction) => {
     if (action === "restart") restart();
     else if (action === "fill") fill();
@@ -144,7 +150,7 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
       }
       if (showCursor && op.k === "leave") setCursor(null);
       if (!loaded) {
-        if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: "default" });
+        if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: "default", scale: screenScale() });
         return;
       }
       try {
@@ -152,10 +158,10 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
         if (doc) replayInput(doc, op);
         // The cursor takes the shape the page asks for at that spot: a hand over links and
         // buttons, a text cursor over text you can type in, and so on.
-        if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: doc ? cursorAt(doc, op.x, op.y) : "default" });
+        if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: doc ? cursorAt(doc, op.x, op.y) : "default", scale: screenScale() });
       } catch {
         // The page went away, or can't be reached.
-        if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: "default" });
+        if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: "default", scale: screenScale() });
       }
     };
   });
@@ -312,7 +318,19 @@ function isTyping(target: EventTarget | null) {
 }
 
 /** The presenter's mouse over a mirrored page, in the shape the page gives it there. */
-function MirroredCursor({ x, y, kind }: { x: number; y: number; kind: CursorName }) {
+function MirroredCursor({ x, y, kind, scale }: { x: number; y: number; kind: CursorName; scale: number }) {
   const { src, hotSpot } = cursorImage(kind);
-  return <img className="page-window-cursor" src={src} alt="" style={{ transform: `translate(${x - hotSpot[0]}px, ${y - hotSpot[1]}px)` }} />;
+  // Scaled back up by however much the page is shrunk, around its hot spot, so it's as big as a
+  // real cursor on screen.
+  return (
+    <img
+      className="page-window-cursor"
+      src={src}
+      alt=""
+      style={{
+        transformOrigin: `${hotSpot[0]}px ${hotSpot[1]}px`,
+        transform: `translate(${x - hotSpot[0]}px, ${y - hotSpot[1]}px) scale(${1 / scale})`,
+      }}
+    />
+  );
 }
