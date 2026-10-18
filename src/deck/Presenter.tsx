@@ -266,15 +266,15 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
             aria-label={notesPlace === "right" ? "Notes on the right. Move them below the slide" : "Notes below the slide. Move them to the right"}
             title={notesPlace === "right" ? "Move notes below the slide" : "Move notes to the right"}
           >
-            <span className="presenter-place-option" data-active={notesPlace === "right" || undefined}>
-              <PanelRight size={16} strokeWidth={2} aria-hidden>
-                {notesPlace === "right" ? <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4z" fill="currentColor" /> : null}
-              </PanelRight>
-            </span>
             <span className="presenter-place-option" data-active={notesPlace === "below" || undefined}>
               <PanelBottom size={16} strokeWidth={2} aria-hidden>
                 {notesPlace === "below" ? <path d="M3 15h18v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="currentColor" /> : null}
               </PanelBottom>
+            </span>
+            <span className="presenter-place-option" data-active={notesPlace === "right" || undefined}>
+              <PanelRight size={16} strokeWidth={2} aria-hidden>
+                {notesPlace === "right" ? <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4z" fill="currentColor" /> : null}
+              </PanelRight>
             </span>
           </button>
           <Button onClick={end}>End presentation</Button>
