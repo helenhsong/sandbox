@@ -242,6 +242,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
           <Button
             variant="ghost"
             size="icon-sm"
+            className="presenter-list-toggle"
             onClick={() => setListOpen((open) => !open)}
             aria-pressed={listOpen}
             aria-label={listOpen ? "Hide slides" : "Show slides"}

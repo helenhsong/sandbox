@@ -967,14 +967,24 @@
     display: none;
   }
 
-  .presenter-body,
-  .presenter[data-list] .presenter-body {
+  /* Too narrow for the slide list: one column, with the notes under the slide whichever way they're set. */
+  .presenter .presenter-body,
+  .presenter[data-list] .presenter-body,
+  .presenter[data-notes="below"] .presenter-body,
+  .presenter[data-notes="below"][data-list] .presenter-body {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(240px, 1fr) auto;
     overflow-y: auto;
   }
 
-  .presenter-list {
+  .presenter[data-notes] .presenter-stage,
+  .presenter[data-notes] .presenter-notes {
+    grid-column: 1;
+  }
+
+  .presenter-list,
+  .presenter-list-toggle,
+  .presenter-place {
     display: none;
   }
 
