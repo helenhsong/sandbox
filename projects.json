@@ -92,6 +92,20 @@
         "where": "Slack desktop, profile panel opened from a message in a channel",
         "how": "Desktop only; an improvement to the existing profile, not a redesign; private channels the viewer isn't in never appear; success signal: time to find something, plus CSAT/NPS and profile engagement"
       }
+    },
+    {
+      "name": "pf-deck-2026-10",
+      "slug": "pf-deck-2026-10",
+      "path": "prototypes/pf-deck-2026-10/",
+      "purpose": "client-demo",
+      "status": "active",
+      "createdAt": "2026-10-18",
+      "designSource": {
+        "type": "figma",
+        "reference": "https://www.figma.com/deck/pseM3YmociSaKT09yMSNmv"
+      },
+      "publishedUrl": null,
+      "notes": "Presentation published from Deck Builder: Figma slides with live web pages in between."
     }
   ]
 }
