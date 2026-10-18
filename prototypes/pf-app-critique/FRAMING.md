@@ -20,6 +20,19 @@ We are designing for **a new joiner at a startup who was dropped into the middle
 - What matters most: quickly learning who's responsible for what, who's most expert at what, what resources have been shared, and which questions they can take to which person.
 - Not the focus (for now): team leads.
 
+## 3. Present
+
+**Remembers a conversation where a teammate shared something with them → searches their DMs → isn't sure whether it came in a DM, a thread, or a message to the whole team, so doesn't know where to look.**
+
+- Context: the new joiner is taking in a lot very quickly and may have spoken to this person only once or twice.
+
+## 4. Problem
+
+- **The person needs:** to find something a specific teammate shared with them, starting from the person they remember.
+- **The pain point is:** they remember who shared it, but not where (DM, thread, or team channel), and search makes them pick a place first.
+- **We assume:** Open.
+- **We must work within:** Open.
+
 ## Captured for later Ps
 
 - Perspective: a startup employee (Helen).
