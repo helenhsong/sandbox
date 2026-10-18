@@ -9,21 +9,29 @@
 
 ## 1. Purpose
 
-- User need: Open.
-- Company need: Open.
+- User need: people working on projects, often with small teams or specific individuals, need to find the right context (how things connect, what someone said or shared) without digging through channels and search. This is hardest on larger teams and for new joiners.
+- Company need: Slack's job is to make finding context more efficient. It wants to provide the correct context for people, and in the future for agents, so they can suggest better team structures or staffing.
 - In this session, we hope to: brainstorm a few focused areas for improvement in Slack, choose one, and share a point of view on what isn't working, its impact on users and the business, and why this problem over the others considered (from the prompt).
 
 ## Captured for later Ps
 
+- Perspective: a startup employee (Helen).
+- Possible people mentioned: team leads, new joiners. Not yet chosen.
+- Problem area Helen wants to address: how people find context as they use Slack. Surface important context when it's needed instead of forcing people to search, starting with the user profile page.
+- Current path (from Helen): you look someone up because you remember something they said or a file they shared, then dig through search and filters to get to the exact thing.
+- Today's profile page: fairly static. At larger companies it shows useful info like team and manager. Opportunity Helen sees: also show work they've done, how they've interacted with others, and what they have context on.
+- Other problems considered (for "Why this problem"):
+  - Sidebar organization: Slack organizes thoroughly by section and channel, but people often think by project. Team and project channels get mixed together, and it's not clear how things connect, especially on larger teams.
+  - Search fragmentation: several ways to search (channels, whole product, per page) with some filtering.
 - Lenses from the prompt: surfacing the most urgent and important items; coordinating inputs from multiple users; bringing structure to messy, complex communication.
 
 ## Confirmed
 
 - Product under critique: Slack.
 - Mode: Whiteboarding (Helen).
+- Problem area: surfacing important context about people on the user profile page.
 
 ## Assumed
 
 ## Open
 
-- Why the problem needs solving for the user, and for the company.
