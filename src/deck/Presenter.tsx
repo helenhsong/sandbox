@@ -217,7 +217,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
           <div className="presenter-notes-tools">
             {onNotesChange ? (
               <Button variant="outline" size="sm" onClick={() => setEditing((on) => !on)} aria-pressed={editing}>
-                <Pencil size={16} strokeWidth={2} aria-hidden />
+                {editing ? null : <Pencil size={16} strokeWidth={2} aria-hidden />}
                 {editing ? "Done" : "Edit"}
               </Button>
             ) : (
