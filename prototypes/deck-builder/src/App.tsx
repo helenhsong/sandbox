@@ -155,9 +155,10 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
   const figmaCount = draft.fileKey ? draft.slides.filter((slide) => slide.kind === "figma").length : 0;
 
   // Keeps the deck in step with its Figma file without a button. While the editor is showing, it
-  // asks Figma every few seconds whether the file changed (a small request), and only when it has
-  // reads the slide list and, if slides were added, removed or reordered, brings them in. Coming
-  // back to the editor checks right away. Live pages keep their places.
+  // asks Figma every few seconds whether the file changed (a small request). Slides added, removed
+  // or reordered come in right away; edits to slides refresh their images once Figma has caught
+  // up (its renders lag a little behind edits). Edits made while the editor was closed are picked
+  // up when it opens. Coming back to the editor checks right away. Live pages keep their places.
   const latest = useRef({ draft, token });
   useEffect(() => {
     latest.current = { draft, token };
@@ -165,11 +166,6 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
   useEffect(() => {
     let running = false;
     let lastCheck = 0;
-    // The file's state when its slide list was last compared, so unchanged files aren't re-read.
-    // Figma's renders lag a little behind edits, so after the file changes its slides are re-read
-    // on every check for a minute, not just once.
-    let seenStamp = "";
-    let seenFile = "";
     let lastStamp = "";
     let changedAt = 0;
     const check = async () => {
@@ -186,26 +182,29 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
       running = true;
       lastCheck = Date.now();
       try {
-        const stamp = await figmaFileStamp(current.fileKey, key.trim());
+        const fileKey = current.fileKey;
+        const stamp = await figmaFileStamp(fileKey, key.trim());
         if (stamp !== lastStamp) {
-          // The first look isn't a change: the slides are read once and compared as usual.
+          // Seen changing while the editor is open: give Figma's renders time to catch up. The
+          // first look counts as settled, since any edits were made before the editor opened.
           changedAt = lastStamp ? Date.now() : 0;
           lastStamp = stamp;
         }
-        if (current.fileKey === seenFile && stamp === seenStamp) return;
-        const nodes = await listSlides(current.fileKey, key.trim());
-        const unchanged = nodes.length === figmaIds.length && nodes.every((node, i) => node.nodeId === figmaIds[i]);
-        // Also bring them in again if any slide's saved image has gone missing (its thumbnail says "No preview").
+        const settled = Date.now() - changedAt >= 20_000;
         const wanted = imageKeys(current.slides);
         const imagesMissing = (await getImages(wanted)).size < wanted.length;
-        if (nodes.length && !(unchanged && !imagesMissing)) {
-          const { slides: incoming } = await loadFigmaSlides(current.fileKey, key.trim());
-          setDraft((now) => (now.fileKey === current.fileKey ? { ...now, slides: mergeFigmaSlides(now.slides, incoming) } : now));
-        }
-        if (Date.now() - changedAt > 60_000) {
-          seenFile = current.fileKey;
-          seenStamp = stamp;
-        }
+        if (stamp === current.figmaStamp && !imagesMissing) return;
+        const nodes = await listSlides(fileKey, key.trim());
+        if (!nodes.length) return;
+        const reordered = nodes.length !== figmaIds.length || nodes.some((node, i) => node.nodeId !== figmaIds[i]);
+        // New or moved slides right away; fresh images for edited ones once Figma has settled.
+        if (!reordered && !imagesMissing && !settled) return;
+        const { slides: incoming } = await loadFigmaSlides(fileKey, key.trim());
+        setDraft((now) =>
+          now.fileKey === fileKey
+            ? { ...now, slides: mergeFigmaSlides(now.slides, incoming), figmaStamp: settled ? stamp : now.figmaStamp }
+            : now,
+        );
       } catch {
         // Offline, rate-limited, or the token stopped working: try again next time.
       } finally {
