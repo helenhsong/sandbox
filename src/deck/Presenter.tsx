@@ -178,7 +178,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
       if (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable]")) return;
       if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(event.key)) go(indexRef.current + 1);
       else if (["ArrowLeft", "ArrowUp", "PageUp"].includes(event.key)) go(indexRef.current - 1);
-      else if (event.key === "Home") go(0);
+      else if (["Home", "r", "R"].includes(event.key)) go(0);
       else if (event.key === "End") go(last);
       else return;
       event.preventDefault();
