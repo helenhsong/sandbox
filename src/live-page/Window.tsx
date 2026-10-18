@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@helenhsong/ui";
 import { ArrowLeft, ArrowRight, ArrowUpRight, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
 import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "./contract";
+import { cursorAt, cursorImage, type CursorName } from "./cursors";
 import { captureInput, openMirrorChannel, replayInput, type MirrorOp, type MirrorOptions, type WindowAction } from "./mirror";
 import "./window.css";
 
@@ -122,7 +123,7 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
   // A restart asked for by another window doesn't ask the others to start over again.
   const restartedRemotely = useRef(false);
   const stopCapture = useRef<() => void>(() => undefined);
-  const [cursor, setCursor] = useState<{ x: number; y: number; kind: CursorKind } | null>(null);
+  const [cursor, setCursor] = useState<{ x: number; y: number; kind: CursorName } | null>(null);
   const perform = (action: WindowAction) => {
     if (action === "restart") restart();
     else if (action === "fill") fill();
@@ -150,8 +151,8 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
         const doc = frameRef.current?.contentDocument;
         if (doc) replayInput(doc, op);
         // The cursor takes the shape the page asks for at that spot: a hand over links and
-        // buttons, a text cursor over text you can type in.
-        if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: doc ? cursorKindAt(doc, op.x, op.y) : "default" });
+        // buttons, a text cursor over text you can type in, and so on.
+        if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: doc ? cursorAt(doc, op.x, op.y) : "default" });
       } catch {
         // The page went away, or can't be reached.
         if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: "default" });
@@ -310,46 +311,8 @@ function isTyping(target: EventTarget | null) {
   return Boolean(element.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])"));
 }
 
-type CursorKind = "default" | "pointer" | "text";
-
-/** The kind of cursor the page shows at a point, from the CSS of the element there. */
-function cursorKindAt(doc: Document, x: number, y: number): CursorKind {
-  const element = doc.elementFromPoint(x, y);
-  if (!element) return "default";
-  const value = doc.defaultView?.getComputedStyle(element).cursor ?? "auto";
-  if (value === "pointer") return "pointer";
-  if (value === "text") return "text";
-  if (value === "auto" && element.closest("input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]), textarea, [contenteditable=true]")) return "text";
-  return "default";
-}
-
 /** The presenter's mouse over a mirrored page, in the shape the page gives it there. */
-function MirroredCursor({ x, y, kind }: { x: number; y: number; kind: CursorKind }) {
-  // Each shape is placed so its hot spot (arrow tip, fingertip, beam center) sits on the point.
-  if (kind === "pointer") {
-    return (
-      <svg className="page-window-cursor" style={{ transform: `translate(${x - 10}px, ${y - 2}px)` }} width="24" height="24" viewBox="0 0 24 24" aria-hidden>
-        <path
-          d="M8.5 3a1.5 1.5 0 0 1 3 0v7h.6V8.5a1.5 1.5 0 0 1 3 0V10h.6V9.5a1.5 1.5 0 0 1 3 0V11h.3a1.5 1.5 0 0 1 3 0v4.4c0 3.6-2.6 6.6-6.5 6.6h-1.7c-2 0-3.4-.7-4.7-2.2l-3.9-4.6a1.6 1.6 0 0 1 2.3-2.2l2 1.9V3Z"
-          fill="#fff"
-          stroke="#111"
-          strokeWidth="1.3"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
-  }
-  if (kind === "text") {
-    return (
-      <svg className="page-window-cursor" style={{ transform: `translate(${x - 6}px, ${y - 10}px)` }} width="12" height="20" viewBox="0 0 12 20" aria-hidden>
-        <path d="M2.5 1.5H5c.6 0 1 .4 1 1v15c0 .6.4 1 1 1h2.5M2.5 18.5H5c.6 0 1-.4 1-1M9.5 1.5H7c-.6 0-1 .4-1 1" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-        <path d="M2.5 1.5H5c.6 0 1 .4 1 1v15c0 .6.4 1 1 1h2.5M2.5 18.5H5c.6 0 1-.4 1-1M9.5 1.5H7c-.6 0-1 .4-1 1" fill="none" stroke="#111" strokeWidth="1.3" strokeLinecap="round" />
-      </svg>
-    );
-  }
-  return (
-    <svg className="page-window-cursor" style={{ transform: `translate(${x - 2}px, ${y - 1}px)` }} width="20" height="24" viewBox="0 0 20 24" aria-hidden>
-      <path d="M2 1.5v18.2l4.9-4.6 3 7.1 3.4-1.5-3-6.9h6.8L2 1.5Z" fill="#111" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round" />
-    </svg>
-  );
+function MirroredCursor({ x, y, kind }: { x: number; y: number; kind: CursorName }) {
+  const { src, hotSpot } = cursorImage(kind);
+  return <img className="page-window-cursor" src={src} alt="" style={{ transform: `translate(${x - hotSpot[0]}px, ${y - hotSpot[1]}px)` }} />;
 }
