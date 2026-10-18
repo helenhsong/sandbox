@@ -337,14 +337,19 @@ p {
 .present-menu {
   width: max-content;
   min-width: 240px;
+  padding: 6px;
 }
 
 .present-option {
+  gap: 10px;
+  padding: 8px 10px;
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .present-option [data-slot="dropdown-menu-shortcut"] {
-  padding-left: 16px;
+  padding-left: 24px;
+  font-weight: 400;
 }
 
 /* A new deck with no slides yet: a 16:9 placeholder where the slide will be. */
