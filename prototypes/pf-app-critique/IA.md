@@ -73,6 +73,8 @@ States: search with no results, and no results for the current filters (with Cle
 ## Visual notes
 
 - Matches Slack's desktop shell (aubergine rail and sidebar, white content card) and uses Lato, Slack's typeface, at 400 and 700.
+- Message, Huddle and a ⋮ menu (copy display name, view files, copy member ID, copy link to profile, hide) sit in a fixed footer at the bottom of the profile panel (Helen). Huddle and Hide are hints only.
+- On windows under 1000px the sidebar hides so the channel keeps its width; sidebar and panel widths scale with the window.
 - Messages, files and pins in the panel are bordered cards with a gap between them, like Slack's search results (Helen); panel sections are divided by a rule.
 
 ## Assumptions and open questions

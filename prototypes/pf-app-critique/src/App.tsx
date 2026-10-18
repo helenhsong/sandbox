@@ -14,8 +14,10 @@ import {
   InputGroupInput,
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Tabs,
   TabsContent,
@@ -38,6 +40,7 @@ import {
   ChevronDown,
   ChevronLeft,
   Files,
+  EllipsisVertical,
   Headphones,
   House,
   MessageCircle,
@@ -343,6 +346,9 @@ function ChannelView({
 
       <div className="channel-scroll" ref={scroller}>
         {!conv.joined && <p className="channel-preview">You're viewing #{conv.name}. You're not a member of this channel.</p>}
+        {conv.kind === "dm" && messages.length === 0 && (
+          <p className="channel-preview">This is the start of your direct messages with {conv.name}.</p>
+        )}
         {messages.map((m) => {
           const showDay = m.day !== lastDay;
           lastDay = m.day;
@@ -607,9 +613,36 @@ function ProfilePanel({
         <Button variant="outline">
           <Headphones /> Huddle
         </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button variant="outline" size="icon" aria-label={`More actions for ${person.name}`} />}>
+            <EllipsisVertical />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side="top" className="more-menu">
+            <DropdownMenuItem onClick={() => copy(`@${first}`)}>Copy display name: @{first}</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                onQuery("");
+                onTab("shared");
+              }}
+            >
+              View files
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => copy(`U0${person.id.toUpperCase()}`)}>Copy member ID</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => copy(`https://northwind.slack.com/team/${person.id}`)}>Copy link to profile</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            {/* Hint only: hiding people is outside this prototype. */}
+            <DropdownMenuItem variant="destructive">Hide {first}</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </footer>
     </aside>
   );
+}
+
+function copy(text: string) {
+  navigator.clipboard?.writeText(text).catch(() => {});
 }
 
 function Section({ title, icon, children, note }: { title: string; icon?: ReactNode; children: ReactNode; note?: ReactNode }) {

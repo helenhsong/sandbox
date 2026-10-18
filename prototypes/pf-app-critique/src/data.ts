@@ -229,6 +229,9 @@ export const conversations: Conversation[] = [
     joined: true,
     messages: [{ id: "dmm1", author: "marcus", day: "Mon, Oct 13", time: "10:00 AM", text: "Let's do a 1:1 Thursday to talk through the roadmap." }],
   },
+  // No history yet: opened from the profile's Message button.
+  { id: "dm-jordan", name: "Jordan Ellis", kind: "dm", joined: true, messages: [] },
+  { id: "dm-aisha", name: "Aisha Okafor", kind: "dm", joined: true, messages: [] },
 ];
 
 export const sidebar = {

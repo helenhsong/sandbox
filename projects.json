@@ -78,13 +78,13 @@
       "slug": "pf-app-critique",
       "path": "prototypes/pf-app-critique/",
       "purpose": "whiteboarding",
-      "status": "active",
+      "status": "published",
       "createdAt": "2026-10-18",
       "designSource": {
         "type": "ui",
         "reference": "@helenhsong/ui"
       },
-      "publishedUrl": null,
+      "publishedUrl": "https://helenhsong.com/sandbox/pf-app-critique/",
       "brief": {
         "who": "A new joiner at a startup dropped into the middle of a project",
         "what": "They remember who shared something but not where; surface a person's context on the Slack profile so they can find it without digging through DMs, threads and channels",
