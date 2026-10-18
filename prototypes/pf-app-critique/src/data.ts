@@ -277,3 +277,8 @@ function stamp(m: Message) {
 export function shortDate(m: Message) {
   return m.day === "Thu, Oct 16" ? m.time : m.day.split(", ")[1];
 }
+
+/** "Today" in the prototype is Thu, Oct 16. */
+export function inLastWeek(m: Message) {
+  return stamp(m) >= new Date(2026, 9, 10).getTime();
+}

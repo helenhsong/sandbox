@@ -20,7 +20,7 @@ Slack (signed in, desktop)
 └ #proj-onboarding (busy project channel)        ← entry, existing page
   └ Profile panel: Priya Raman (right side)
     ├ Search (scoped to Priya) → results: Messages, Files
-    ├ Search filters (while searching): All | Messages | Files · Where (Anywhere, Shared with you, DMs, Channels, Threads)
+    ├ Search filters (while searching, Slack's set): type ▾ · In ▾ | Includes me · Threads only · Last 7 days
     ├ Info (default)        contact, pinned, then "Ask Priya about" summary
     ├ Activity              recent topics summary (added) + recent messages
     └ Shared                All (default) | Shared with you
@@ -69,6 +69,11 @@ States: search with no results, and no results for the current filters (with Cle
 2. Open **Shared** and switch to **Shared with you** (or type in the search at the top).
 3. Find the file: "Onboarding flow v3", shared in a thread in #proj-onboarding.
 4. Click it. The thread opens in the side panel with Priya's reply highlighted; the back arrow returns to her profile.
+
+## Visual notes
+
+- Matches Slack's desktop shell (aubergine rail and sidebar, white content card) and uses Lato, Slack's typeface, at 400 and 700.
+- Messages, files and pins in the panel are bordered cards with a gap between them, like Slack's search results (Helen); panel sections are divided by a rule.
 
 ## Assumptions and open questions
 

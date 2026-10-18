@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
-  Avatar,
-  AvatarFallback,
   Badge,
   Button,
   Empty,
@@ -14,12 +12,16 @@ import {
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-  NativeSelect,
-  NativeSelectOption,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
+  Toggle,
   ToggleGroup,
   ToggleGroupItem,
   Tooltip,
@@ -28,7 +30,19 @@ import {
   TooltipTrigger,
 } from "@helenhsong/ui";
 import {
+  Bell,
+  CalendarDays,
+  ListFilter,
+  UserRound,
+  BookUser,
+  ChevronDown,
   ChevronLeft,
+  Files,
+  Headphones,
+  House,
+  MessageCircle,
+  MessageSquareText,
+  MessagesSquare,
   Clock,
   FileImage,
   FileSpreadsheet,
@@ -51,8 +65,10 @@ import { useDeckFill, useHistoryState } from "../../../src/live-page";
 import {
   ME,
   activityFor,
+  conversations,
   convById,
   filesFor,
+  inLastWeek,
   people,
   shortDate,
   sidebar,
@@ -67,13 +83,14 @@ import {
 type Target = { conv: string; msg: string };
 type JumpTarget = Target & { parent?: string };
 type Side =
-  | { kind: "profile"; id: string }
+  | { kind: "profile"; id: string; fromThread?: { conv: string; parent: string } }
   | { kind: "thread"; conv: string; parent: string; highlight?: string; from?: string }
   | null;
 type Tab = "info" | "activity" | "shared";
 type SharedFilter = "all" | "with-you";
-export type SearchType = "all" | "messages" | "files";
-export type SearchWhere = "anywhere" | "with-you" | "dms" | "channels" | "threads";
+type SearchType = "all" | "messages" | "files";
+type SearchFilters = { type: SearchType; in: string; includesMe: boolean; threadsOnly: boolean; lastWeek: boolean };
+const NO_FILTERS: SearchFilters = { type: "all", in: "anywhere", includesMe: false, threadsOnly: false, lastWeek: false };
 
 export function App() {
   const [convId, setConvId] = useHistoryState("conv", "proj-onboarding", { nested: true });
@@ -81,8 +98,7 @@ export function App() {
   const [side, setSide] = useHistoryState<Side>("side", null, { nested: true });
   const [target, setTarget] = useHistoryState<Target | null>("target", null, { nested: true });
   const [query, setQuery] = useState("");
-  const [searchType, setSearchType] = useState<SearchType>("all");
-  const [searchWhere, setSearchWhere] = useState<SearchWhere>("anywhere");
+  const [filters, setFilters] = useState<SearchFilters>(NO_FILTERS);
   const [sent, setSent] = useState<Record<string, Message[]>>({});
 
   const profileId = side?.kind === "profile" ? side.id : null;
@@ -90,9 +106,10 @@ export function App() {
   const openProfile = (id: string) => {
     if (id === profileId) return;
     setQuery("");
-    setSearchType("all");
-    setSearchWhere("anywhere");
-    setSide({ kind: "profile", id });
+    setFilters(NO_FILTERS);
+    // Opening a profile from a thread replaces the thread; the back arrow returns to it.
+    const fromThread = side?.kind === "thread" ? { conv: side.conv, parent: side.parent } : undefined;
+    setSide({ kind: "profile", id, fromThread });
   };
 
   const jumpTo = (t: Target & { parent?: string }) => {
@@ -121,7 +138,9 @@ export function App() {
   return (
     <TooltipProvider>
       <div className="slack">
+        <Rail />
         <Sidebar active={convId} onSelect={(id) => setConvId(id)} />
+        <div className="card">
         <ChannelView
           conv={conv}
           extra={sent[convId] ?? []}
@@ -137,11 +156,15 @@ export function App() {
             person={people[profileId]}
             query={query}
             onQuery={setQuery}
-            searchType={searchType}
-            onSearchType={setSearchType}
-            searchWhere={searchWhere}
-            onSearchWhere={setSearchWhere}
+            filters={filters}
+            onFilters={setFilters}
             onJump={jumpTo}
+            onMessage={conversations.some((c) => c.id === `dm-${profileId}`) ? () => setConvId(`dm-${profileId}`) : undefined}
+            onBack={
+              side?.kind === "profile" && side.fromThread
+                ? () => setSide({ kind: "thread", ...side.fromThread! })
+                : undefined
+            }
             onClose={() => setSide(null)}
           />
         )}
@@ -159,12 +182,36 @@ export function App() {
             onClose={() => setSide(null)}
           />
         )}
+        </div>
       </div>
     </TooltipProvider>
   );
 }
 
 /* ---------- Slack shell ---------- */
+
+function Rail() {
+  // Slack's app-level navigation, shown for context; this prototype only covers Home.
+  const items = [
+    { icon: House, label: "Home", active: true },
+    { icon: MessagesSquare, label: "DMs" },
+    { icon: Bell, label: "Activity" },
+    { icon: Files, label: "Files" },
+  ];
+  return (
+    <div className="rail" aria-hidden="true">
+      <div className="rail-workspace">N</div>
+      {items.map(({ icon: Icon, label, active }) => (
+        <div key={label} className="rail-item" data-active={active || undefined}>
+          <span className="rail-icon">
+            <Icon size={18} />
+          </span>
+          {label}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function Sidebar({ active, onSelect }: { active: string; onSelect: (id: string) => void }) {
   const item = (id: string) => {
@@ -173,7 +220,7 @@ function Sidebar({ active, onSelect }: { active: string; onSelect: (id: string) 
     return (
       <li key={id}>
         <button className="side-item" data-active={id === active || undefined} onClick={() => onSelect(id)}>
-          {person ? <span className="side-dot" style={{ background: person.color }} /> : <Hash size={14} />}
+          {person ? <PersonTile person={person} size={20} /> : <Hash size={16} />}
           {c.name}
         </button>
       </li>
@@ -181,7 +228,20 @@ function Sidebar({ active, onSelect }: { active: string; onSelect: (id: string) 
   };
   return (
     <nav className="side" aria-label="Workspace">
-      <div className="side-workspace">Northwind</div>
+      <div className="side-workspace">
+        Northwind <ChevronDown size={16} />
+      </div>
+      <ul className="side-shortcuts" aria-hidden="true">
+        <li>
+          <MessageSquareText size={16} /> Threads
+        </li>
+        <li>
+          <Headphones size={16} /> Huddles
+        </li>
+        <li>
+          <BookUser size={16} /> Directories
+        </li>
+      </ul>
       <p className="side-label">Channels</p>
       <ul>{sidebar.channels.map(item)}</ul>
       <p className="side-label">Direct messages</p>
@@ -250,13 +310,36 @@ function ChannelView({
   return (
     <main className="channel">
       <header className="channel-head">
-        <h1>
-          {conv.kind === "channel" ? <Hash size={16} /> : null}
-          {conv.name}
-        </h1>
-        {conv.topic && <span className="channel-topic">{conv.topic}</span>}
-        {conv.members && <span className="channel-members">{conv.members} members</span>}
+        <div className="channel-title">
+          <h1>
+            {conv.kind === "channel" ? <Hash size={18} /> : null}
+            {conv.name}
+          </h1>
+          {conv.topic && <span className="channel-topic">{conv.topic}</span>}
+          {conv.members && (
+            <span className="channel-members">
+              <span className="member-stack" aria-hidden="true">
+                {["priya", "marcus", "jordan"].map((id) => (
+                  <PersonTile key={id} person={people[id]} size={20} />
+                ))}
+              </span>
+              {conv.members} members
+            </span>
+          )}
+        </div>
+        <div className="channel-tabs" aria-hidden="true">
+          <span data-active>
+            <MessageCircle size={16} /> Messages
+          </span>
+          <span>
+            <Files size={16} /> Files & links
+          </span>
+          <span>
+            <Pin size={16} /> Pins
+          </span>
+        </div>
       </header>
+
       <div className="channel-scroll" ref={scroller}>
         {!conv.joined && <p className="channel-preview">You're viewing #{conv.name}. You're not a member of this channel.</p>}
         {messages.map((m) => {
@@ -269,7 +352,11 @@ function ChannelView({
               {m.replies && (
                 <div className="thread">
                   <button className="thread-toggle" onClick={() => onOpenThread(m.id)}>
-                    <MessageSquare size={14} />
+                    <span className="member-stack">
+                      {[...new Set(m.replies.map((r) => r.author))].slice(0, 3).map((id) => (
+                        <PersonTile key={id} person={people[id]} size={20} />
+                      ))}
+                    </span>
                     {m.replies.length} {m.replies.length === 1 ? "reply" : "replies"}
                   </button>
                 </div>
@@ -314,9 +401,9 @@ function ThreadPanel({
             <ChevronLeft />
           </Button>
         )}
-        <span className="panel-bar-title">
+        <h2 className="panel-bar-title">
           Thread <span className="panel-bar-sub">#{conv.name}</span>
-        </span>
+        </h2>
         <Button variant="ghost" size="icon-sm" aria-label="Close thread" onClick={onClose}>
           <X />
         </Button>
@@ -345,13 +432,14 @@ function useEscape(onClose: () => void) {
   }, [onClose]);
 }
 
-function PersonAvatar({ person, size }: { person: Person; size?: "sm" | "lg" }) {
+function PersonTile({ person, size = 36 }: { person: Person; size?: number }) {
   return (
-    <Avatar size={size}>
-      <AvatarFallback style={{ background: person.color, color: "white" }}>
-        {person.name.split(" ").map((p) => p[0]).join("")}
-      </AvatarFallback>
-    </Avatar>
+    <span
+      className="tile"
+      style={{ background: person.color, width: size, height: size, fontSize: Math.round(size * 0.4), borderRadius: Math.round(size * 0.22) }}
+    >
+      {size < 28 ? person.name[0] : person.name.split(" ").map((p) => p[0]).join("")}
+    </span>
   );
 }
 
@@ -370,7 +458,7 @@ function MessageRow({
   return (
     <article id={`msg-${m.id}`} className="msg" data-highlight={highlight || undefined} data-active={active || undefined}>
       <button className="msg-avatar" onClick={() => onOpenProfile(person.id)} aria-label={`Open ${person.name}'s profile`}>
-        <PersonAvatar person={person} />
+        <PersonTile person={person} />
       </button>
       <div className="msg-body">
         <div className="msg-meta">
@@ -397,21 +485,21 @@ function ProfilePanel({
   person,
   query,
   onQuery,
-  searchType,
-  onSearchType,
-  searchWhere,
-  onSearchWhere,
+  filters,
+  onFilters,
   onJump,
+  onMessage,
+  onBack,
   onClose,
 }: {
   person: Person;
   query: string;
   onQuery: (q: string) => void;
-  searchType: SearchType;
-  onSearchType: (t: SearchType) => void;
-  searchWhere: SearchWhere;
-  onSearchWhere: (w: SearchWhere) => void;
+  filters: SearchFilters;
+  onFilters: (f: SearchFilters) => void;
   onJump: (t: JumpTarget) => void;
+  onMessage?: () => void;
+  onBack?: () => void;
   onClose: () => void;
 }) {
   // Each person's panel opens on Info and remembers its own tab and filter.
@@ -426,7 +514,12 @@ function ProfilePanel({
   return (
     <aside className="panel" aria-label={`${person.name}'s profile`}>
       <div className="panel-bar">
-        <span className="panel-bar-title">Profile</span>
+        {onBack && (
+          <Button variant="ghost" size="icon-sm" aria-label="Back to thread" onClick={onBack}>
+            <ChevronLeft />
+          </Button>
+        )}
+        <h2 className="panel-bar-title">Profile</h2>
         <Tooltip>
           <TooltipTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Open full profile" />}>
             <Maximize2 />
@@ -439,17 +532,25 @@ function ProfilePanel({
       </div>
 
       <div className="panel-person">
-        <PersonAvatar person={person} size="lg" />
-        <div>
-          <h2>{person.name}</h2>
-          <p className="panel-title">{person.title}</p>
+        <PersonTile person={person} size={72} />
+        <div className="panel-person-text">
+          <h3 className="panel-name">{person.name}</h3>
+          <p>{person.title}</p>
           <p className="panel-facts">
-            <span>{person.team} team</span>
-            <span>{person.location}</span>
-            <span><Clock size={12} /> {person.localTime} local</span>
+            {person.team} team · {person.location}
+          </p>
+          <p className="panel-facts">
+            <Clock size={14} /> {person.localTime} local time
           </p>
         </div>
       </div>
+      {onMessage && (
+        <div className="panel-actions">
+          <Button variant="outline" size="sm" onClick={onMessage}>
+            <MessageCircle /> Message
+          </Button>
+        </div>
+      )}
 
       <div className="panel-search">
         <InputGroup>
@@ -479,10 +580,8 @@ function ProfilePanel({
           activity={activity}
           files={files}
           first={first}
-          type={searchType}
-          onType={onSearchType}
-          where={searchWhere}
-          onWhere={onSearchWhere}
+          filters={filters}
+          onFilters={onFilters}
           onJump={onJump}
         />
       ) : (
@@ -549,7 +648,7 @@ function InfoTab({ person, first, onJump }: { person: Person; first: string; onJ
         </Section>
       )}
       {person.askAbout.length > 0 && (
-        <Section title={`Ask ${first} about`} icon={<Sparkles size={14} />} note="Summarized from messages in channels you can see">
+        <Section title={`Ask ${first} about`} icon={<Sparkles size={14} />} note="AI summary of messages in channels you can see">
           <div className="ask-chips">
             {person.askAbout.map((a) => (
               <Badge key={a} variant="secondary">{a}</Badge>
@@ -565,7 +664,7 @@ function InfoTab({ person, first, onJump }: { person: Person; first: string; onJ
 function ActivityTab({ person, activity, onJump }: { person: Person; activity: ReturnType<typeof activityFor>; onJump: (t: JumpTarget) => void }) {
   return (
     <>
-      <Section title="Recent topics" icon={<Sparkles size={14} />} note="Summarized from messages in channels you can see">
+      <Section title="Recent topics" icon={<Sparkles size={14} />} note="AI summary of messages in channels you can see">
         <p className="psec-body">{person.recentTopics}</p>
       </Section>
       <Section title="Recent messages">
@@ -574,11 +673,11 @@ function ActivityTab({ person, activity, onJump }: { person: Person; activity: R
             {activity.map((m) => (
               <li key={m.id}>
                 <button className="row row-msg" onClick={() => onJump({ conv: m.conv.id, msg: m.id, parent: m.parent?.id })}>
-                  <span className="row-main row-snippet">{m.text}</span>
                   <span className="row-sub">
                     <span className="row-where">{whereLabel(m.conv, m.parent)}</span>
-                    <span>{shortDate(m)}</span>
+                    <span className="row-date">{shortDate(m)}</span>
                   </span>
+                  <span className="row-main row-snippet">{m.text}</span>
                 </button>
               </li>
             ))}
@@ -668,20 +767,58 @@ function SharedTab({
   );
 }
 
-const WHERE_OPTIONS: { value: SearchWhere; label: string }[] = [
-  { value: "anywhere", label: "Anywhere" },
-  { value: "with-you", label: "Shared with you" },
-  { value: "dms", label: "Direct messages" },
-  { value: "channels", label: "Channels" },
-  { value: "threads", label: "Threads" },
-];
+const TYPE_LABELS: Record<SearchType, string> = { all: "All types", messages: "Messages", files: "Files" };
 
-function matchesWhere(conv: Conversation, parent: Message | undefined, where: SearchWhere) {
-  if (where === "with-you") return conv.joined;
-  if (where === "dms") return conv.kind === "dm";
-  if (where === "channels") return conv.kind === "channel" && !parent;
-  if (where === "threads") return !!parent;
+function matches(conv: Conversation, parent: Message | undefined, msg: Message, f: SearchFilters) {
+  if (f.in === "dms" ? conv.kind !== "dm" : f.in !== "anywhere" && conv.id !== f.in) return false;
+  if (f.includesMe && !conv.joined) return false;
+  if (f.threadsOnly && !parent) return false;
+  if (f.lastWeek && !inLastWeek(msg)) return false;
   return true;
+}
+
+function FilterMenu({
+  icon,
+  label,
+  active,
+  value,
+  options,
+  onChange,
+}: {
+  icon: ReactNode;
+  label: string;
+  active: boolean;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button variant={active ? "secondary" : "outline"} size="sm" />}>
+        {icon}
+        {label}
+        <ChevronDown />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="filter-menu">
+        <DropdownMenuRadioGroup value={value} onValueChange={(v) => onChange(v as string)}>
+          {options.map((o) => (
+            <DropdownMenuRadioItem key={o.value} value={o.value}>
+              {o.label}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function FilterChip({ icon, label, pressed, onPressed }: { icon: ReactNode; label: string; pressed: boolean; onPressed: (p: boolean) => void }) {
+  return (
+    <Toggle variant="outline" size="sm" pressed={pressed} onPressedChange={onPressed}>
+      {icon}
+      {label}
+    </Toggle>
+  );
 }
 
 function SearchResults({
@@ -689,53 +826,57 @@ function SearchResults({
   activity,
   files,
   first,
-  type,
-  onType,
-  where,
-  onWhere,
+  filters,
+  onFilters,
   onJump,
 }: {
   query: string;
   activity: ReturnType<typeof activityFor>;
   files: SharedFile[];
   first: string;
-  type: SearchType;
-  onType: (t: SearchType) => void;
-  where: SearchWhere;
-  onWhere: (w: SearchWhere) => void;
+  filters: SearchFilters;
+  onFilters: (f: SearchFilters) => void;
   onJump: (t: JumpTarget) => void;
 }) {
+  const type = filters.type;
+  const set = (patch: Partial<SearchFilters>) => onFilters({ ...filters, ...patch });
+  const places = [...new Map(activity.map((m) => [m.conv.id, m.conv])).values()];
+  const inOptions = [
+    { value: "anywhere", label: "Anywhere" },
+    ...(places.some((c) => c.kind === "dm") ? [{ value: "dms", label: "Direct messages" }] : []),
+    ...places.filter((c) => c.kind === "channel").map((c) => ({ value: c.id, label: `#${c.name}` })),
+  ];
+  const inLabel = filters.in === "anywhere" ? "In" : inOptions.find((o) => o.value === filters.in)?.label ?? "In";
   const q = query.toLowerCase();
-  const fileHits = files.filter((f) => f.name.toLowerCase().includes(q) && matchesWhere(f.conv, f.parent, where));
-  const msgHits = activity.filter((m) => m.text.toLowerCase().includes(q) && matchesWhere(m.conv, m.parent, where));
+  const fileHits = files.filter((f) => f.name.toLowerCase().includes(q) && matches(f.conv, f.parent, f.msg, filters));
+  const msgHits = activity.filter((m) => m.text.toLowerCase().includes(q) && matches(m.conv, m.parent, m, filters));
   const showFiles = type !== "messages" && fileHits.length > 0;
   const showMsgs = type !== "files" && msgHits.length > 0;
-  const filtered = type !== "all" || where !== "anywhere";
+  const filtered = JSON.stringify(filters) !== JSON.stringify(NO_FILTERS);
 
   return (
     <div className="panel-scroll">
-      <div className="search-filters">
-        <ToggleGroup
-          value={[type]}
-          onValueChange={(v: string[]) => v[0] && onType(v[0] as SearchType)}
-          variant="outline"
-          size="sm"
-          aria-label="Result type"
-        >
-          <ToggleGroupItem value="all">All <span className="count">{fileHits.length + msgHits.length}</span></ToggleGroupItem>
-          <ToggleGroupItem value="messages">Messages <span className="count">{msgHits.length}</span></ToggleGroupItem>
-          <ToggleGroupItem value="files">Files <span className="count">{fileHits.length}</span></ToggleGroupItem>
-        </ToggleGroup>
-        <NativeSelect
-          size="sm"
-          aria-label="Where it was shared"
-          value={where}
-          onChange={(e) => onWhere(e.target.value as SearchWhere)}
-        >
-          {WHERE_OPTIONS.map((o) => (
-            <NativeSelectOption key={o.value} value={o.value}>{o.label}</NativeSelectOption>
-          ))}
-        </NativeSelect>
+      <div className="search-filters" role="group" aria-label="Search filters">
+        <FilterMenu
+          icon={<ListFilter />}
+          label={TYPE_LABELS[type]}
+          active={type !== "all"}
+          value={type}
+          options={(Object.keys(TYPE_LABELS) as SearchType[]).map((t) => ({ value: t, label: TYPE_LABELS[t] }))}
+          onChange={(v) => set({ type: v as SearchType })}
+        />
+        <FilterMenu
+          icon={<Hash />}
+          label={inLabel}
+          active={filters.in !== "anywhere"}
+          value={filters.in}
+          options={inOptions}
+          onChange={(v) => set({ in: v })}
+        />
+        <span className="search-filters-divider" aria-hidden="true" />
+        <FilterChip icon={<UserRound />} label="Includes me" pressed={filters.includesMe} onPressed={(p) => set({ includesMe: p })} />
+        <FilterChip icon={<MessageSquareText />} label="Threads only" pressed={filters.threadsOnly} onPressed={(p) => set({ threadsOnly: p })} />
+        <FilterChip icon={<CalendarDays />} label="Last 7 days" pressed={filters.lastWeek} onPressed={(p) => set({ lastWeek: p })} />
       </div>
       {!showFiles && !showMsgs && (
         <Empty className="panel-empty">
@@ -751,10 +892,7 @@ function SearchResults({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  onType("all");
-                  onWhere("anywhere");
-                }}
+                onClick={() => onFilters(NO_FILTERS)}
               >
                 Clear filters
               </Button>
@@ -777,11 +915,11 @@ function SearchResults({
             {msgHits.map((m) => (
               <li key={m.id}>
                 <button className="row row-msg" onClick={() => onJump({ conv: m.conv.id, msg: m.id, parent: m.parent?.id })}>
-                  <span className="row-main row-snippet"><Mark text={m.text} query={query} /></span>
                   <span className="row-sub">
                     <span className="row-where">{whereLabel(m.conv, m.parent)}</span>
-                    <span>{shortDate(m)}</span>
+                    <span className="row-date">{shortDate(m)}</span>
                   </span>
+                  <span className="row-main row-snippet"><Mark text={m.text} query={query} /></span>
                 </button>
               </li>
             ))}
