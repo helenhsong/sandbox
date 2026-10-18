@@ -72,6 +72,19 @@
       },
       "publishedUrl": null,
       "notes": "Presentation published from Deck Builder: Figma slides with live web pages in between."
+    },
+    {
+      "name": "PF App Critique",
+      "slug": "pf-app-critique-2026-10",
+      "path": "prototypes/pf-app-critique-2026-10/",
+      "purpose": "whiteboarding",
+      "status": "active",
+      "createdAt": "2026-10-18",
+      "designSource": {
+        "type": "ui",
+        "reference": "shadcn/base-mira"
+      },
+      "publishedUrl": null
     }
   ]
 }
