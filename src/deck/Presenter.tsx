@@ -375,9 +375,12 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
               nativeButton={false}
               render={<a href={viewUrl("audience", index)} target={viewTabName("audience")} rel="opener" />}
               onClick={(event: MouseEvent) => openView("audience", indexRef.current, event)}
+              className="presenter-audience"
+              aria-label="Audience view"
+              title="Audience view"
             >
               <MonitorPlay size={16} strokeWidth={2} aria-hidden />
-              Audience view
+              <span className="presenter-audience-label">Audience view</span>
             </Button>
           </div>
         </main>

@@ -698,6 +698,29 @@
   gap: 8px;
 }
 
+/* A narrow slide column: the audience view button shrinks to its icon, then the row tightens. */
+@container (max-width: 420px) {
+  .presenter-audience {
+    width: 36px;
+    padding: 0;
+  }
+
+  .presenter-audience-label {
+    display: none;
+  }
+}
+
+@container (max-width: 300px) {
+  .presenter-controls {
+    gap: 8px;
+    padding: 0 16px;
+  }
+
+  .presenter-nav > :first-child {
+    display: none;
+  }
+}
+
 .presenter-stepper {
   display: flex;
   align-items: center;
