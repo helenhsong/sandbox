@@ -57,6 +57,9 @@ Options Helen is exploring (none chosen yet):
 | 3 | **Sections** stacked on the page | Medium | Low | Helen dislikes the scrolling |
 | 4 | **Nested sections**, like a messaging app's contact page: what they've shared with you plus contact info | Medium-high: familiar pattern | Low-medium | A direction Helen is leaning toward |
 | 5 | **Profile panel stays open** while you follow a link to a specific page and keep navigating | Medium: keeps the person's context while you jump to the item | Medium | Touches navigation; check against "no IA changes" |
+| 6 | **Search inside the profile panel**, scoped to this person | Medium-high: find one exact item without leaving the panel | Medium | |
+
+Combination noted in "thoughts?": nested sections on the panel, with "view all" opening the pre-filtered view. Open: which leads on the profile, what they shared with you or the projects they're in?
 
 ## Captured for later Ps
 
