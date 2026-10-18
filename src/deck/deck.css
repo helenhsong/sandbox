@@ -571,13 +571,13 @@
 
 .presenter-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+  grid-template-columns: minmax(0, 1fr) var(--notes-w, 360px);
   flex: 1;
   min-height: 0;
 }
 
 .presenter[data-list] .presenter-body {
-  grid-template-columns: 240px minmax(0, 1fr) minmax(280px, 380px);
+  grid-template-columns: var(--list-w, 240px) minmax(0, 1fr) var(--notes-w, 360px);
 }
 
 /* The slides, down the left: click one to go to it. */
@@ -803,11 +803,11 @@
 /* Notes under the slide instead of beside it: the slide and its controls on top, the notes below. */
 .presenter[data-notes="below"] .presenter-body {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) minmax(200px, 36%);
+  grid-template-rows: minmax(0, 1fr) var(--notes-h, 280px);
 }
 
 .presenter[data-notes="below"][data-list] .presenter-body {
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: var(--list-w, 240px) minmax(0, 1fr);
 }
 
 .presenter[data-notes="below"] .presenter-list {
@@ -838,7 +838,97 @@
   color: var(--foreground);
 }
 
+/*
+ * Drag handles on the panels' edges: the slide list's width, and the notes' width (beside the
+ * slide) or height (under it). They sit over the dividing lines, a little wider than the line.
+ */
+.presenter-body {
+  position: relative;
+}
+
+.presenter-resize {
+  position: absolute;
+  z-index: 3;
+  touch-action: none;
+}
+
+.presenter-resize::after {
+  content: "";
+  position: absolute;
+  background: var(--ring);
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.presenter-resize:hover::after,
+.presenter-resize[data-dragging]::after {
+  opacity: 1;
+}
+
+.presenter-resize[data-axis="x"] {
+  top: 0;
+  bottom: 0;
+  width: 9px;
+  cursor: col-resize;
+}
+
+.presenter-resize[data-axis="x"]::after {
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 3px;
+}
+
+.presenter-resize[data-axis="y"] {
+  right: 0;
+  height: 9px;
+  cursor: row-resize;
+}
+
+.presenter-resize[data-axis="y"]::after {
+  left: 0;
+  right: 0;
+  top: 3px;
+  height: 3px;
+}
+
+.presenter-resize[data-edge="list"] {
+  left: calc(var(--list-w, 240px) - 5px);
+}
+
+.presenter-resize[data-edge="notes-w"] {
+  right: calc(var(--notes-w, 360px) - 4px);
+}
+
+.presenter-resize[data-edge="notes-h"] {
+  left: 0;
+  bottom: calc(var(--notes-h, 280px) - 4px);
+}
+
+.presenter[data-list] .presenter-resize[data-edge="notes-h"] {
+  left: var(--list-w, 240px);
+}
+
+/* While dragging, pages in the panels don't catch the mouse, and the whole view shows the resize cursor. */
+.presenter[data-resizing] iframe {
+  pointer-events: none;
+}
+
+.presenter[data-resizing="x"] {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.presenter[data-resizing="y"] {
+  cursor: row-resize;
+  user-select: none;
+}
+
 @media (max-width: 900px) {
+  .presenter-resize {
+    display: none;
+  }
+
   .presenter-body,
   .presenter[data-list] .presenter-body {
     grid-template-columns: minmax(0, 1fr);

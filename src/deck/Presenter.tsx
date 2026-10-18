@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { Button, Textarea } from "@helenhsong/ui";
 import { ChevronLeft, ChevronRight, Globe, Minus, MonitorPlay, PanelBottom, PanelLeft, PanelRight, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
 import { closeTab, openPresentChannel, openView, viewTabName, viewUrl, type PresentMessage } from "./presentSync";
@@ -19,6 +19,23 @@ interface PresenterProps {
 const NOTES_SIZE_KEY = "deck-builder:notes-size";
 const NOTES_PLACE_KEY = "deck-builder:notes-place";
 type NotesPlace = "right" | "below";
+
+/** The panels' sizes in pixels, as last dragged (remembered for next time). */
+const SIZES_KEY = "deck-builder:presenter-sizes";
+interface PanelSizes {
+  list: number;
+  notesWidth: number;
+  notesHeight: number;
+}
+const DEFAULT_SIZES: PanelSizes = { list: 240, notesWidth: 360, notesHeight: 280 };
+
+function readSizes(): PanelSizes {
+  try {
+    return { ...DEFAULT_SIZES, ...(JSON.parse(localStorage.getItem(SIZES_KEY) ?? "{}") as Partial<PanelSizes>) };
+  } catch {
+    return DEFAULT_SIZES;
+  }
+}
 
 function readNotesPlace(): NotesPlace {
   try {
@@ -51,6 +68,68 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
   const [listOpen, setListOpen] = useState(true);
   const [editing, setEditing] = useState(false);
   const [notesSize, setNotesSize] = useState(readNotesSize);
+  // Panel sizes, changed by dragging the edges between panels; double-click an edge to reset it.
+  const [sizes, setSizes] = useState(readSizes);
+  const [resizing, setResizing] = useState<"x" | "y" | null>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const saveSizes = (next: PanelSizes) => {
+    try {
+      localStorage.setItem(SIZES_KEY, JSON.stringify(next));
+    } catch {
+      // Not remembered; it still applies now.
+    }
+  };
+  // The drag in progress, so a new one (or leaving the view) always ends the last one cleanly.
+  const endDrag = useRef<() => void>(() => undefined);
+  useEffect(() => () => endDrag.current(), []);
+  const startResize = (edge: "list" | "notes-w" | "notes-h", event: ReactPointerEvent<HTMLDivElement>) => {
+    const body = bodyRef.current;
+    if (!body || event.button !== 0) return;
+    event.preventDefault();
+    endDrag.current();
+    const handle = event.currentTarget;
+    handle.dataset.dragging = "";
+    setResizing(edge === "notes-h" ? "y" : "x");
+    const onMove = (move: PointerEvent) => {
+      const box = body.getBoundingClientRect();
+      // Keep room for the slide: at least 360px wide and 240px tall.
+      setSizes((now) => {
+        if (edge === "list") {
+          const max = box.width - (notesPlace === "right" ? now.notesWidth : 0) - 360;
+          return { ...now, list: Math.round(Math.min(Math.max(move.clientX - box.left, 160), Math.max(max, 160))) };
+        }
+        if (edge === "notes-w") {
+          const max = box.width - (listOpen ? now.list : 0) - 360;
+          return { ...now, notesWidth: Math.round(Math.min(Math.max(box.right - move.clientX, 240), Math.max(max, 240))) };
+        }
+        return { ...now, notesHeight: Math.round(Math.min(Math.max(box.bottom - move.clientY, 120), Math.max(box.height - 240, 120))) };
+      });
+    };
+    const onUp = () => endDrag.current();
+    endDrag.current = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("blur", onUp);
+      delete handle.dataset.dragging;
+      setResizing(null);
+      setSizes((now) => {
+        saveSizes(now);
+        return now;
+      });
+      endDrag.current = () => undefined;
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    window.addEventListener("blur", onUp);
+  };
+  const resetSize = (key: keyof PanelSizes) => {
+    const next = { ...sizes, [key]: DEFAULT_SIZES[key] };
+    setSizes(next);
+    saveSizes(next);
+  };
+
   // Notes beside the slide, or under it (remembered for next time).
   const [notesPlace, setNotesPlace] = useState(readNotesPlace);
   const placeNotes = (place: NotesPlace) => {
@@ -145,7 +224,19 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
   const livePages = slides.filter((slide) => slide.kind === "web" && liveIds.includes(slide.id));
 
   return (
-    <div className="presenter dark" data-list={listOpen || undefined} data-notes={notesPlace}>
+    <div
+      className="presenter dark"
+      data-list={listOpen || undefined}
+      data-notes={notesPlace}
+      data-resizing={resizing ?? undefined}
+      style={
+        {
+          "--list-w": `${sizes.list}px`,
+          "--notes-w": `${sizes.notesWidth}px`,
+          "--notes-h": `${sizes.notesHeight}px`,
+        } as CSSProperties
+      }
+    >
       <header className="presenter-header">
         <div className="presenter-title">
           <Button
@@ -188,7 +279,48 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
         </div>
       </header>
 
-      <div className="presenter-body">
+      <div className="presenter-body" ref={bodyRef}>
+        {listOpen ? (
+          <div
+            key="list"
+            className="presenter-resize"
+            data-axis="x"
+            data-edge="list"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize the slide list"
+            title="Drag to resize, double-click to reset"
+            onPointerDown={(event) => startResize("list", event)}
+            onDoubleClick={() => resetSize("list")}
+          />
+        ) : null}
+        {notesPlace === "right" ? (
+          <div
+            key="notes-w"
+            className="presenter-resize"
+            data-axis="x"
+            data-edge="notes-w"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize the notes"
+            title="Drag to resize, double-click to reset"
+            onPointerDown={(event) => startResize("notes-w", event)}
+            onDoubleClick={() => resetSize("notesWidth")}
+          />
+        ) : (
+          <div
+            key="notes-h"
+            className="presenter-resize"
+            data-axis="y"
+            data-edge="notes-h"
+            role="separator"
+            aria-orientation="horizontal"
+            aria-label="Resize the notes"
+            title="Drag to resize, double-click to reset"
+            onPointerDown={(event) => startResize("notes-h", event)}
+            onDoubleClick={() => resetSize("notesHeight")}
+          />
+        )}
         {listOpen ? (
           <nav className="presenter-list" aria-label="Slides">
             <ol ref={listRef}>
