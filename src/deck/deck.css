@@ -827,34 +827,8 @@
 }
 
 /* Which side the notes sit on: two icon buttons, the current one highlighted. */
-/* One segmented control: a muted track with the chosen layout raised inside it. */
 .presenter-place {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px;
   margin-right: 4px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--muted);
-}
-
-.presenter-place > button {
-  width: 28px;
-  height: 24px;
-  border-radius: calc(var(--radius-md) - 3px);
-  color: var(--muted-foreground);
-}
-
-.presenter-place > button:hover {
-  background: transparent;
-  color: var(--foreground);
-}
-
-.presenter-place > button[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--foreground);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
 }
 
 /*

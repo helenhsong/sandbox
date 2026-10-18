@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { Button, Textarea } from "@helenhsong/ui";
-import { ChevronLeft, ChevronRight, Globe, Minus, MonitorPlay, PanelBottom, PanelLeft, PanelRight, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Globe, Minus, MonitorPlay, PanelBottom, PanelLeftClose, PanelLeftOpen, PanelRight, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
 import { closeTab, openPresentChannel, openView, viewTabName, viewUrl, type PresentMessage } from "./presentSync";
 import { SlideView } from "./SlideView";
 import { visibleSlides, type Slide } from "./types";
@@ -243,38 +243,34 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
             variant="ghost"
             size="icon-sm"
             onClick={() => setListOpen((open) => !open)}
-            aria-pressed={listOpen}
+            aria-expanded={listOpen}
             aria-label={listOpen ? "Hide slides" : "Show slides"}
             title={listOpen ? "Hide slides" : "Show slides"}
           >
-            <PanelLeft size={16} strokeWidth={2} aria-hidden />
+            {listOpen ? (
+              <PanelLeftClose size={16} strokeWidth={2} aria-hidden />
+            ) : (
+              <PanelLeftOpen size={16} strokeWidth={2} aria-hidden />
+            )}
           </Button>
           <span className="presenter-name">{name}</span>
         </div>
         <Timer />
         <div className="presenter-actions">
-          <div className="presenter-place" role="group" aria-label="Notes position">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => placeNotes("right")}
-              aria-pressed={notesPlace === "right"}
-              aria-label="Notes on the right"
-              title="Notes on the right"
-            >
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="presenter-place"
+            onClick={() => placeNotes(notesPlace === "right" ? "below" : "right")}
+            aria-label={notesPlace === "right" ? "Move notes below the slide" : "Move notes to the right"}
+            title={notesPlace === "right" ? "Move notes below the slide" : "Move notes to the right"}
+          >
+            {notesPlace === "right" ? (
               <PanelRight size={16} strokeWidth={2} aria-hidden />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => placeNotes("below")}
-              aria-pressed={notesPlace === "below"}
-              aria-label="Notes below the slide"
-              title="Notes below the slide"
-            >
+            ) : (
               <PanelBottom size={16} strokeWidth={2} aria-hidden />
-            </Button>
-          </div>
+            )}
+          </Button>
           <Button onClick={end}>End presentation</Button>
         </div>
       </header>
