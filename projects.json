@@ -72,26 +72,6 @@
       },
       "publishedUrl": null,
       "notes": "Presentation published from Deck Builder: Figma slides with live web pages in between."
-    },
-    {
-      "name": "PF App Critique",
-      "slug": "pf-app-critique",
-      "path": "prototypes/pf-app-critique/",
-      "purpose": "whiteboarding",
-      "status": "published",
-      "createdAt": "2026-10-18",
-      "designSource": {
-        "type": "ui",
-        "reference": "@helenhsong/ui"
-      },
-      "publishedUrl": "https://helenhsong.com/sandbox/pf-app-critique/",
-      "brief": {
-        "who": "A new joiner at a startup dropped into the middle of a project",
-        "what": "They remember who shared something but not where; surface a person's context on the Slack profile so they can find it without digging through DMs, threads and channels",
-        "when": "Reading a busy project channel and looking someone up",
-        "where": "Slack desktop, profile panel only",
-        "how": "Desktop only, no IA changes elsewhere; proof: time to find a message or file from a person, time to find their projects and files shared with you, profile usage, CSAT/NPS"
-      }
     }
   ]
 }
