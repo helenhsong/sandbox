@@ -9,6 +9,8 @@ export interface FigmaSlide {
   image: string;
   /** Left out of the published deck. */
   hidden?: boolean;
+  /** What the presenter wants to say on this slide. Only in the editor; never published. */
+  notes?: string;
   /**
    * Set while showing the deck with live Figma slides: Figma's own embed of this slide, drawn
    * over the image. Not stored; it's worked out from the deck's Figma file.
@@ -23,6 +25,8 @@ export interface WebSlide {
   /** An absolute URL, or `sandbox:/<slug>/` for a page in this Sandbox. */
   url: string;
   title: string;
+  /** What the presenter wants to say on this slide. Only in the editor; never published. */
+  notes?: string;
 }
 
 export type Slide = FigmaSlide | WebSlide;

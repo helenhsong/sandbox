@@ -294,7 +294,7 @@ p {
   overflow-y: auto;
   background: var(--muted);
   /* The slide fills the space, like Figma's editor: as wide as the panel allows, but never so
-     tall that it and its details (about 104px) don't fit on screen. */
+     tall that it, its details above and its notes below (about 232px with the gaps) don't fit. */
   --stage-gutter: 36px;
   --stage-width: 100%;
 }
@@ -303,7 +303,7 @@ p {
   .builder-main {
     container-type: size;
     /* No larger than on a 16-inch MacBook Pro (a 1728px-wide window, less the slide list and gutters). */
-    --stage-width: min(1384px, 100cqw - 2 * var(--stage-gutter), (100cqh - var(--stage-gutter) - 104px) * 16 / 9);
+    --stage-width: min(1384px, 100cqw - 2 * var(--stage-gutter), (100cqh - 2 * var(--stage-gutter) - 160px) * 16 / 9);
   }
 }
 
@@ -312,12 +312,55 @@ p {
  * slide would otherwise hug the top), and scrolling from the top when there isn't.
  */
 .builder-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   margin-block: auto;
-  padding-inline: var(--stage-gutter);
+  padding: var(--stage-gutter);
 }
 
-.builder-preview {
-  padding-top: var(--stage-gutter);
+/* Presenter notes for the selected slide, under it and as wide. */
+.slide-notes {
+  width: var(--stage-width);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.slide-notes [data-slot="textarea"] {
+  height: 96px;
+  min-height: 96px;
+  resize: vertical;
+  background: var(--background);
+}
+
+/* Present's two choices, each with a line saying what it opens. */
+.present-menu {
+  min-width: 360px;
+}
+
+.present-option {
+  align-items: flex-start;
+  padding-block: 8px;
+}
+
+.present-option > svg {
+  margin-top: 2px;
+}
+
+.present-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.present-option-title {
+  font-weight: 500;
+}
+
+.present-option-description {
+  color: var(--muted-foreground);
+  font-size: 12px;
 }
 
 /* A new deck with no slides yet: a 16:9 placeholder where the slide will be. */
@@ -700,7 +743,6 @@ p {
   width: var(--stage-width);
   max-width: 100%;
   margin: 0 auto;
-  padding: 24px 0 48px;
 }
 
 /* The slide type, then (for live pages) its link right beside it. */
@@ -968,4 +1010,180 @@ p {
 .publish-replace svg {
   flex-shrink: 0;
   margin-top: 2px;
+}
+
+/*
+ * Presenter view: its own tab beside the audience view. The current slide large on the left;
+ * the next slide, then the notes, on the right.
+ */
+.presenter {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--muted);
+}
+
+.presenter-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--background);
+}
+
+.presenter-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+
+.presenter-name {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.presenter-count {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.presenter-timer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.presenter-time {
+  min-width: 64px;
+  font-size: 20px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.presenter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.presenter-body {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+  padding: 24px;
+}
+
+.presenter-current {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+.presenter-side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 0;
+}
+
+.presenter-side h2 {
+  margin: 0 0 8px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.presenter-slide {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--background);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.06),
+    0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.presenter-current .presenter-slide {
+  /* As large as fits above the buttons. */
+  width: min(100%, (100dvh - 200px) * 16 / 9);
+  margin: 0 auto;
+}
+
+.presenter-slide-end,
+.presenter-live {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  padding: 16px;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+.presenter-live-title {
+  margin: 0;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.presenter-live-hint {
+  margin: 0;
+  font-size: 14px;
+}
+
+.presenter-nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.presenter-notes {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.presenter-notes p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.presenter-notes .presenter-notes-empty {
+  color: var(--muted-foreground);
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .presenter-body {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .presenter-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .presenter-timer {
+    order: 3;
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
 }

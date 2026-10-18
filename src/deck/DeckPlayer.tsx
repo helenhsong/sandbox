@@ -13,6 +13,11 @@ interface DeckPlayerProps {
   exitHref?: string;
   /** Called with the slide's position (0-based) whenever it changes, e.g. to keep a URL in step. */
   onSlideChange?: (index: number) => void;
+  /**
+   * Moves to a slide from outside, such as the presenter view in another tab. A new object each
+   * time, so asking for the same slide twice still moves there.
+   */
+  goTo?: { index: number };
 }
 
 /** How long the controls show on opening, and how long the mouse can rest before the cursor hides. */
@@ -44,7 +49,7 @@ function nearbyWebIds(slides: Slide[], index: number) {
   return slides.slice(Math.max(index - 1, 0), index + 2).filter(isPersistent).map((slide) => slide.id);
 }
 
-export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitHref, onSlideChange }: DeckPlayerProps) {
+export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitHref, onSlideChange, goTo }: DeckPlayerProps) {
   const slides = visibleSlides(allSlides);
   const standalone = !onClose;
   const rootRef = useRef<HTMLDivElement>(null);
@@ -251,6 +256,13 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
     [slides],
   );
   const step = useCallback((delta: number) => go(indexRef.current + delta), [go]);
+
+  const handledGoTo = useRef(goTo);
+  useEffect(() => {
+    if (!goTo || goTo === handledGoTo.current) return;
+    handledGoTo.current = goTo;
+    if (goTo.index !== indexRef.current) go(goTo.index);
+  }, [goTo, go]);
 
   /** Leaves the presentation: closes it in the editor, or goes back to Sandbox from a published deck. */
   const exit = useCallback(() => {
