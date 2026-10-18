@@ -545,14 +545,6 @@ function ProfilePanel({
           </p>
         </div>
       </div>
-      {onMessage && (
-        <div className="panel-actions">
-          <Button variant="outline" size="sm" onClick={onMessage}>
-            <MessageCircle /> Message
-          </Button>
-        </div>
-      )}
-
       <div className="panel-search">
         <InputGroup>
           <InputGroupAddon>
@@ -605,6 +597,17 @@ function ProfilePanel({
           </div>
         </Tabs>
       )}
+      <footer className="panel-footer">
+        {onMessage && (
+          <Button variant="outline" onClick={onMessage}>
+            <MessageCircle /> Message
+          </Button>
+        )}
+        {/* Hint only: huddles are outside this prototype. */}
+        <Button variant="outline">
+          <Headphones /> Huddle
+        </Button>
+      </footer>
     </aside>
   );
 }

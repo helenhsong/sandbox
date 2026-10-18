@@ -437,7 +437,7 @@ button {
 .panel-person {
   display: flex;
   gap: 16px;
-  padding: 4px 20px 12px;
+  padding: 4px 20px 16px;
 }
 .panel-person .tile {
   font-size: 24px !important;
@@ -461,10 +461,14 @@ button {
   gap: 6px;
   color: var(--muted-foreground);
 }
-.panel-actions {
-  display: flex;
+.panel-footer {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
   gap: 8px;
-  padding: 0 20px 12px 108px;
+  flex-shrink: 0;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
 }
 .panel-search {
   padding: 0 20px 12px;
@@ -477,10 +481,21 @@ button {
   gap: 0;
 }
 .panel-tablist {
+  height: 40px !important;
   padding: 0 20px;
   border-bottom: 1px solid var(--border);
   width: 100%;
   justify-content: flex-start;
+}
+/* The bar has a divider, so the indicator sits on it instead of below it. */
+.panel-tablist [data-slot="tabs-trigger"] {
+  height: 100%;
+}
+.panel-tablist [data-slot="tabs-trigger"]::after {
+  bottom: -1px !important;
+}
+.panel-tablist [data-slot="tabs-trigger"][data-active] {
+  color: var(--foreground);
 }
 .panel-scroll {
   flex: 1;
