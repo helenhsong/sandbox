@@ -46,6 +46,18 @@ We are designing for **a new joiner at a startup who was dropped into the middle
 - Business: CSAT, NPS.
 - Guardrail: Open.
 
+## 5. Possibilities
+
+Options Helen is exploring (none chosen yet):
+
+| # | Option | Impact | Effort | Note |
+| --- | --- | --- | --- | --- |
+| 1 | **Tabs** on the profile: switch between the person's activity and their static info (team, etc.) | Medium-high: activity is one click away without crowding the basics | Low-medium | |
+| 2 | **Expanded full-screen profile** with search that's pre-filtered to this person | High for finding one exact message or file | High | Overlaps with Slack search (Helen: more flexible here). Fits the "view all" exception |
+| 3 | **Sections** stacked on the page | Medium | Low | Helen dislikes the scrolling |
+| 4 | **Nested sections**, like a messaging app's contact page: what they've shared with you plus contact info | Medium-high: familiar pattern | Low-medium | A direction Helen is leaning toward |
+| 5 | **Profile panel stays open** while you follow a link to a specific page and keep navigating | Medium: keeps the person's context while you jump to the item | Medium | Touches navigation; check against "no IA changes" |
+
 ## Captured for later Ps
 
 - Perspective: a startup employee (Helen).
