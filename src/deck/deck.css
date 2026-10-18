@@ -827,15 +827,52 @@
 }
 
 /* Which side the notes sit on: two icon buttons, the current one highlighted. */
-.presenter-place {
-  display: flex;
-  gap: 2px;
-  margin-right: 4px;
-}
-
-.presenter-place [aria-pressed="true"],
 .presenter-title > [aria-pressed="true"] {
   background: var(--accent);
+  color: var(--foreground);
+}
+
+/*
+ * The notes position toggle: one outlined control holding both layouts, the current one raised.
+ * A click anywhere on it switches to the other layout.
+ */
+.presenter-place {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  margin-right: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.presenter-place:hover {
+  border-color: color-mix(in oklab, var(--foreground) 30%, transparent);
+}
+
+.presenter-place:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.presenter-place-option {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 24px;
+  border-radius: calc(var(--radius-md) - 3px);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.presenter-place-option[data-active] {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.presenter-place:hover .presenter-place-option:not([data-active]) {
   color: var(--foreground);
 }
 
