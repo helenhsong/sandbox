@@ -75,14 +75,14 @@ Helen's outline:
 - **Entry:** in the channel, they click a specific person's profile, which opens the profile panel.
 - **Header:** basic info: name, position, team, location.
 - **Tabs below it:**
-  - **Info:** pinned files or messages, plus standard profile info (email, phone, etc.).
+  - **Info:** standard profile info (email, phone, etc.), pinned items, and maybe an AI summary of what this person is good at answering questions about.
   - **Activity:** all their recent activity, like DMs or posts.
   - **Shared:** all their shared attachments. A toggle switches to what they've shared with you specifically instead of the team (any type of file attachment).
-- **Also:** a summary of their messages; things they've pinned to their profile shown on top.
+- **Also:** a summary of their messages.
 - **Privacy:** anything gated (shared in a private channel) is hinted at but not exposed.
 - **Proof:** the success metrics above (time to find a message or file, projects, shared files).
 
-Open in the outline: where the message summary sits; whether pins sit at the top of the panel or the top of Info; whether the in-panel search and expand icon from the chosen direction stay.
+Open in the outline: where the message summary sits; whether the in-panel search and expand icon from the chosen direction stay.
 
 ## Captured for later Ps
 
