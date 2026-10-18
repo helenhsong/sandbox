@@ -8,6 +8,11 @@
  * Both pages run the same code at the same size (a deck draws every live page in a window of
  * the same fixed size), so a click is replayed at the same point, and fields and scrolling
  * areas are found by their position in the page.
+ *
+ * The two pages can still drift apart (a scroll that lands differently, an image that loads
+ * later), so the mouse is also anchored to the element under it, and each move carries the
+ * scroll positions around it: the other page snaps back to them, and the mouse lands on the
+ * same element even if something else moved.
  */
 
 export interface MirrorOptions {
@@ -19,10 +24,25 @@ export interface MirrorOptions {
 
 export type WindowAction = "back" | "forward" | "restart" | "fill";
 
+/** The element under the mouse, and where in it the mouse is. */
+interface Anchor {
+  path: number[];
+  tag: string;
+  dx: number;
+  dy: number;
+}
+
+/** A scroll position: the page's own (path null) or a scrolling element's. */
+interface ScrollState {
+  path: number[] | null;
+  top: number;
+  left: number;
+}
+
 export type MirrorOp =
-  | { k: "move"; x: number; y: number }
+  | { k: "move"; x: number; y: number; at?: Anchor; scroll?: ScrollState[] }
   | { k: "leave" }
-  | { k: "pointer"; type: string; x: number; y: number; button: number; buttons: number; detail: number }
+  | { k: "pointer"; type: string; x: number; y: number; button: number; buttons: number; detail: number; at?: Anchor }
   | { k: "key"; type: string; key: string; code: string; alt: boolean; ctrl: boolean; meta: boolean; shift: boolean; path: number[] | null }
   | { k: "input"; type: string; path: number[]; value: string }
   | { k: "scroll"; path: number[] | null; top: number; left: number }
@@ -71,6 +91,31 @@ function elementAt(doc: Document, path: number[] | null): Element | null {
   return current;
 }
 
+/** The element at a point in the page, and the point's offset inside it. */
+function anchorAt(doc: Document, x: number, y: number): Anchor | undefined {
+  const element = doc.elementFromPoint(x, y);
+  const path = pathOf(element);
+  if (!element || !path) return undefined;
+  const box = element.getBoundingClientRect();
+  return { path, tag: element.tagName, dx: x - box.left, dy: y - box.top };
+}
+
+/** The page's scroll position and that of every scrolling element around a point. */
+function scrollsAround(doc: Document, x: number, y: number): ScrollState[] {
+  const win = doc.defaultView;
+  const root = doc.scrollingElement ?? doc.documentElement;
+  const states: ScrollState[] = [{ path: null, top: root.scrollTop, left: root.scrollLeft }];
+  if (!win) return states;
+  for (let node = doc.elementFromPoint(x, y); node && node !== root && node !== doc.body; node = node.parentElement) {
+    if (node.scrollHeight <= node.clientHeight && node.scrollWidth <= node.clientWidth) continue;
+    const style = win.getComputedStyle(node);
+    if (!/(auto|scroll|overlay)/.test(style.overflowY + style.overflowX)) continue;
+    const path = pathOf(node);
+    if (path) states.push({ path, top: node.scrollTop, left: node.scrollLeft });
+  }
+  return states;
+}
+
 /**
  * Sends what a person does in a page's document. Returns a function that stops listening. Set
  * up again each time the page loads, since a new document replaces the old one.
@@ -87,7 +132,10 @@ export function captureInput(doc: Document, send: (op: MirrorOp) => void) {
     if (frame) return;
     frame = win.requestAnimationFrame(() => {
       frame = 0;
-      if (lastMove) send({ k: "move", ...lastMove });
+      if (lastMove) {
+        const { x, y } = lastMove;
+        send({ k: "move", x, y, at: anchorAt(doc, x, y), scroll: scrollsAround(doc, x, y) });
+      }
     });
   };
   const onLeave = (event: PointerEvent) => {
@@ -95,7 +143,9 @@ export function captureInput(doc: Document, send: (op: MirrorOp) => void) {
   };
   const onPointer = (event: MouseEvent) => {
     if (!event.isTrusted) return;
-    send({ k: "pointer", type: event.type, x: event.clientX, y: event.clientY, button: event.button, buttons: event.buttons, detail: event.detail });
+    const x = event.clientX;
+    const y = event.clientY;
+    send({ k: "pointer", type: event.type, x, y, button: event.button, buttons: event.buttons, detail: event.detail, at: anchorAt(doc, x, y) });
   };
   const onKey = (event: KeyboardEvent) => {
     if (!event.isTrusted) return;
@@ -165,37 +215,52 @@ const hovered = new WeakMap<Document, Element | null>();
 
 /*
  * Hover and press styles. A replayed mouse can't trigger CSS :hover or :active (only a real
- * pointer does), so each page gets a copy of its own :hover and :active rules written against
+ * pointer does), so each of the page's :hover and :active rules gets a copy written against
  * attributes instead, and the replay sets those attributes on the element under the mouse and
  * its ancestors, the same elements a real pointer would match.
+ *
+ * Each copy goes right after its original, in the same stylesheet, @media block and layer, so
+ * it wins and loses against the page's other rules exactly as the original does (a selected
+ * row's style still beats its hover style, say).
  */
 const HOVER = "data-mirror-hover";
 const ACTIVE = "data-mirror-active";
-const styled = new WeakMap<Document, { sheet: HTMLStyleElement; count: number }>();
+const copiedSheets = new WeakSet<CSSStyleSheet>();
 
-function ensureStateStyles(doc: Document) {
-  const current = styled.get(doc);
-  const sheets = [...doc.styleSheets].filter((sheet) => sheet.ownerNode !== current?.sheet);
-  if (current && current.count === sheets.length && current.sheet.isConnected) return;
-  const copies: string[] = [];
-  for (const sheet of sheets) {
-    let rules: CSSRuleList;
-    try {
-      rules = sheet.cssRules;
-    } catch {
-      continue; // Another site's stylesheet (fonts): can't be read, and has no hover rules anyway.
+type RuleParent = CSSStyleSheet | CSSGroupingRule;
+
+function copyStateRules(parent: RuleParent) {
+  for (let i = 0; i < parent.cssRules.length; i++) {
+    const rule = parent.cssRules[i];
+    const text = rule.cssText;
+    if (!text.includes(":hover") && !text.includes(":active")) continue;
+    if (text.includes(HOVER) || text.includes(ACTIVE)) continue;
+    // A block of rules (@media, @supports, @layer, @container): copy the rules inside it.
+    // (Checked by shape: the page's rules come from its own window, not this one.)
+    if (!("selectorText" in rule) && "cssRules" in rule && "insertRule" in rule) {
+      copyStateRules(rule as CSSGroupingRule);
+      continue;
     }
-    for (const rule of Array.from(rules)) {
-      const text = rule.cssText;
-      if (text.includes(":hover") || text.includes(":active")) {
-        copies.push(text.replaceAll(":hover", `[${HOVER}]`).replaceAll(":active", `[${ACTIVE}]`));
-      }
+    try {
+      parent.insertRule(text.replaceAll(":hover", `[${HOVER}]`).replaceAll(":active", `[${ACTIVE}]`), i + 1);
+      i++;
+    } catch {
+      // A rule the browser won't take back in this form: that hover just isn't mirrored.
     }
   }
-  const sheet = current?.sheet.isConnected ? current.sheet : doc.createElement("style");
-  sheet.textContent = copies.join("\n");
-  if (!sheet.isConnected) doc.head.appendChild(sheet);
-  styled.set(doc, { sheet, count: sheets.length });
+}
+
+function ensureStateStyles(doc: Document) {
+  for (const sheet of Array.from(doc.styleSheets)) {
+    // A stylesheet replaced while the page runs (a reload of its styles) is a new sheet.
+    if (copiedSheets.has(sheet)) continue;
+    copiedSheets.add(sheet);
+    try {
+      copyStateRules(sheet);
+    } catch {
+      // Another site's stylesheet (fonts): can't be read, and has no hover rules anyway.
+    }
+  }
 }
 
 /** Puts a state attribute on an element and its ancestors, clearing it everywhere else. */
@@ -208,10 +273,41 @@ function markPath(doc: Document, attribute: string, target: Element | null) {
   for (const element of path) if (!element.hasAttribute(attribute)) element.setAttribute(attribute, "");
 }
 
-/** Plays back something done in the other window, in this page's document. */
-export function replayInput(doc: Document, op: MirrorOp) {
+/**
+ * Scrolls to a position from the other page, at once rather than smoothly (a page may ask for
+ * smooth scrolling), so the scroll events it causes are over before they could be sent back.
+ */
+function applyScroll(doc: Document, state: ScrollState) {
+  const win = doc.defaultView;
+  const target = state.path ? elementAt(doc, state.path) : (doc.scrollingElement ?? doc.documentElement);
+  if (!win || !target) return;
+  if (Math.abs(target.scrollTop - state.top) < 1 && Math.abs(target.scrollLeft - state.left) < 1) return;
+  const source = state.path ? target : doc;
+  ignoringScroll.add(source);
+  target.scrollTo({ top: state.top, left: state.left, behavior: "instant" });
+  win.setTimeout(() => ignoringScroll.delete(source), 120);
+}
+
+/** Where the other page's mouse is in this page: on the same element, or failing that the same point. */
+function pointFor(doc: Document, x: number, y: number, at?: Anchor) {
+  const element = at ? elementAt(doc, at.path) : null;
+  // Not the same kind of element here, so the pages differ around it: fall back to the point.
+  if (!element || !at || element.tagName !== at.tag) return { x, y };
+  const box = element.getBoundingClientRect();
+  if (!box.width && !box.height) return { x, y };
+  // Kept inside the element, in case it's a little smaller here.
+  const px = box.left + Math.min(Math.max(at.dx, 0), Math.max(box.width - 1, 0));
+  const py = box.top + Math.min(Math.max(at.dy, 0), Math.max(box.height - 1, 0));
+  return { x: px, y: py };
+}
+
+/**
+ * Plays back something done in the other window, in this page's document. For a mouse move,
+ * returns where the mouse landed here, which is where to draw it.
+ */
+export function replayInput(doc: Document, op: MirrorOp): { x: number; y: number } | undefined {
   const win = doc.defaultView as (Window & typeof globalThis) | null;
-  if (!win) return;
+  if (!win) return undefined;
   const at = (x: number, y: number) => doc.elementFromPoint(x, y) ?? doc.body;
   const mouse = (x: number, y: number, extra: MouseEventInit = {}): PointerEventInit => ({
     bubbles: true,
@@ -233,20 +329,23 @@ export function replayInput(doc: Document, op: MirrorOp) {
   if (op.k === "move" || op.k === "pointer") ensureStateStyles(doc);
 
   if (op.k === "move") {
-    const target = at(op.x, op.y);
+    for (const state of op.scroll ?? []) applyScroll(doc, state);
+    const { x, y } = pointFor(doc, op.x, op.y, op.at);
+    const target = at(x, y);
     markPath(doc, HOVER, target);
     const before = hovered.get(doc) ?? null;
     if (before !== target) {
       if (before?.isConnected) {
-        fire(before, "pointerout", mouse(op.x, op.y, { relatedTarget: target }));
-        fire(before, "mouseout", mouse(op.x, op.y, { relatedTarget: target }));
+        fire(before, "pointerout", mouse(x, y, { relatedTarget: target }));
+        fire(before, "mouseout", mouse(x, y, { relatedTarget: target }));
       }
-      fire(target, "pointerover", mouse(op.x, op.y, { relatedTarget: before }));
-      fire(target, "mouseover", mouse(op.x, op.y, { relatedTarget: before }));
+      fire(target, "pointerover", mouse(x, y, { relatedTarget: before }));
+      fire(target, "mouseover", mouse(x, y, { relatedTarget: before }));
       hovered.set(doc, target);
     }
-    fire(target, "pointermove", mouse(op.x, op.y));
-    fire(target, "mousemove", mouse(op.x, op.y));
+    fire(target, "pointermove", mouse(x, y));
+    fire(target, "mousemove", mouse(x, y));
+    return { x, y };
   } else if (op.k === "leave") {
     const before = hovered.get(doc);
     if (before?.isConnected) {
@@ -257,14 +356,15 @@ export function replayInput(doc: Document, op: MirrorOp) {
     markPath(doc, HOVER, null);
     markPath(doc, ACTIVE, null);
   } else if (op.k === "pointer") {
-    const target = at(op.x, op.y);
+    const { x, y } = pointFor(doc, op.x, op.y, op.at);
+    const target = at(x, y);
     if (op.type === "pointerdown") markPath(doc, ACTIVE, target);
     if (op.type === "pointerup") markPath(doc, ACTIVE, null);
     if (op.type === "pointerdown" || op.type === "mousedown") {
       const focusable = target.closest<HTMLElement>("input, textarea, select, button, a[href], [tabindex], [contenteditable]");
       if (op.type === "mousedown") focusable?.focus({ preventScroll: true });
     }
-    fire(target, op.type, mouse(op.x, op.y, { button: op.button, buttons: op.buttons, detail: op.detail }));
+    fire(target, op.type, mouse(x, y, { button: op.button, buttons: op.buttons, detail: op.detail }));
   } else if (op.k === "key") {
     const target = elementAt(doc, op.path) ?? doc.activeElement ?? doc.body;
     target.dispatchEvent(
@@ -290,12 +390,7 @@ export function replayInput(doc: Document, op: MirrorOp) {
     Object.getOwnPropertyDescriptor(proto, "value")?.set?.call(target, op.value);
     target.dispatchEvent(new win.Event(op.type, { bubbles: true }));
   } else if (op.k === "scroll") {
-    const target = op.path ? elementAt(doc, op.path) : (doc.scrollingElement ?? doc.documentElement);
-    if (!target) return;
-    const source = op.path ? target : doc;
-    ignoringScroll.add(source);
-    target.scrollTop = op.top;
-    target.scrollLeft = op.left;
-    win.setTimeout(() => ignoringScroll.delete(source), 120);
+    applyScroll(doc, op);
   }
+  return undefined;
 }

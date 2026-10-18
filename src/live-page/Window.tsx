@@ -155,10 +155,10 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
       }
       try {
         const doc = frameRef.current?.contentDocument;
-        if (doc) replayInput(doc, op);
+        const point = (doc ? replayInput(doc, op) : undefined) ?? (op.k === "move" ? { x: op.x, y: op.y } : undefined);
         // The cursor takes the shape the page asks for at that spot: a hand over links and
         // buttons, a text cursor over text you can type in, and so on.
-        if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: doc ? cursorAt(doc, op.x, op.y) : "default", scale: screenScale() });
+        if (showCursor && op.k === "move" && point) setCursor({ x: point.x, y: point.y, kind: doc ? cursorAt(doc, point.x, point.y) : "default", scale: screenScale() });
       } catch {
         // The page went away, or can't be reached.
         if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y, kind: "default", scale: screenScale() });
