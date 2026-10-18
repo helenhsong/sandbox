@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { Button, Textarea } from "@helenhsong/ui";
-import { ChevronLeft, ChevronRight, Globe, Minus, MonitorPlay, PanelBottom, PanelLeftClose, PanelLeftOpen, PanelRight, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, GalleryVerticalEnd, Globe, Minus, MonitorPlay, PanelBottom, PanelRight, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
 import { closeTab, openPresentChannel, openView, viewTabName, viewUrl, type PresentMessage } from "./presentSync";
 import { SlideView } from "./SlideView";
 import { visibleSlides, type Slide } from "./types";
@@ -243,15 +243,11 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
             variant="ghost"
             size="icon-sm"
             onClick={() => setListOpen((open) => !open)}
-            aria-expanded={listOpen}
+            aria-pressed={listOpen}
             aria-label={listOpen ? "Hide slides" : "Show slides"}
             title={listOpen ? "Hide slides" : "Show slides"}
           >
-            {listOpen ? (
-              <PanelLeftClose size={16} strokeWidth={2} aria-hidden />
-            ) : (
-              <PanelLeftOpen size={16} strokeWidth={2} aria-hidden />
-            )}
+            <GalleryVerticalEnd size={16} strokeWidth={2} aria-hidden />
           </Button>
           <span className="presenter-name">{name}</span>
         </div>

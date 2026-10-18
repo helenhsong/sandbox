@@ -833,7 +833,8 @@
   margin-right: 4px;
 }
 
-.presenter-place [aria-pressed="true"] {
+.presenter-place [aria-pressed="true"],
+.presenter-title > [aria-pressed="true"] {
   background: var(--accent);
   color: var(--foreground);
 }
