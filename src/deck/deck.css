@@ -641,6 +641,17 @@
   background: oklch(0.269 0 0);
 }
 
+/* A live page in the presenter view, mirrored with the audience view. */
+.presenter-live-layer {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+
+.presenter-live-layer[data-active] {
+  visibility: visible;
+}
+
 .presenter-thumb {
   display: block;
   border-radius: 4px;
@@ -721,11 +732,6 @@
 
 .presenter-thumb .presenter-live-title {
   font-size: 12px;
-}
-
-.presenter-live-hint {
-  margin: 0;
-  font-size: 14px;
 }
 
 /* This slide's notes, large enough to read at a glance, with editing and text size at the bottom. */
