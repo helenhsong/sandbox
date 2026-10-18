@@ -938,6 +938,11 @@
   right: calc(var(--notes-w, 360px) - 4px);
 }
 
+/* The height handle only applies with the notes under the slide (always the case under 900px). */
+.presenter[data-notes="right"] .presenter-resize[data-edge="notes-h"] {
+  display: none;
+}
+
 .presenter-resize[data-edge="notes-h"] {
   left: 0;
   bottom: calc(var(--notes-h, 280px) - 4px);
@@ -962,16 +967,52 @@
   user-select: none;
 }
 
+/* Narrower windows: the notes go under the slide, whichever way they're set, so the slide keeps room. */
 @media (max-width: 900px) {
-  .presenter-resize {
+  .presenter[data-notes] .presenter-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) var(--notes-h, 280px);
+  }
+
+  .presenter[data-notes][data-list] .presenter-body {
+    grid-template-columns: var(--list-w, 240px) minmax(0, 1fr);
+  }
+
+  .presenter[data-notes] .presenter-list {
+    grid-row: 1 / span 2;
+  }
+
+  .presenter[data-notes] .presenter-stage {
+    grid-column: -2 / -1;
+    grid-row: 1;
+  }
+
+  .presenter[data-notes] .presenter-notes {
+    grid-column: -2 / -1;
+    grid-row: 2;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .presenter-place,
+  .presenter-resize[data-edge="notes-w"] {
     display: none;
   }
 
-  /* Too narrow for the slide list: one column, with the notes under the slide whichever way they're set. */
-  .presenter .presenter-body,
-  .presenter[data-list] .presenter-body,
-  .presenter[data-notes="below"] .presenter-body,
-  .presenter[data-notes="below"][data-list] .presenter-body {
+  .presenter[data-notes="right"] .presenter-resize[data-edge="notes-h"] {
+    display: block;
+  }
+}
+
+/* Phone widths: no room for the slide list, and the notes scroll under the slide. */
+@media (max-width: 640px) {
+  .presenter-resize,
+  .presenter[data-notes="right"] .presenter-resize[data-edge="notes-h"] {
+    display: none;
+  }
+
+  .presenter[data-notes] .presenter-body,
+  .presenter[data-notes][data-list] .presenter-body {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(240px, 1fr) auto;
     overflow-y: auto;
@@ -983,13 +1024,12 @@
   }
 
   .presenter-list,
-  .presenter-list-toggle,
-  .presenter-place {
+  .presenter-list-toggle {
     display: none;
   }
 
-  .presenter-notes {
-    border-top: 1px solid var(--border);
-    border-left: 0;
+  /* With no slide list button, the header lines up with the slide and notes below it. */
+  .presenter-header {
+    padding: 0 24px;
   }
 }

@@ -95,7 +95,9 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
       // Keep room for the slide: at least 360px wide and 240px tall.
       setSizes((now) => {
         if (edge === "list") {
-          const max = box.width - (notesPlace === "right" ? now.notesWidth : 0) - 360;
+          // Under 900px the notes always sit under the slide (see deck.css).
+          const notesBeside = notesPlace === "right" && !window.matchMedia("(max-width: 900px)").matches;
+          const max = box.width - (notesBeside ? now.notesWidth : 0) - 360;
           return { ...now, list: Math.round(Math.min(Math.max(move.clientX - box.left, 160), Math.max(max, 160))) };
         }
         if (edge === "notes-w") {
@@ -305,20 +307,19 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
             onPointerDown={(event) => startResize("notes-w", event)}
             onDoubleClick={() => resetSize("notesWidth")}
           />
-        ) : (
-          <div
-            key="notes-h"
-            className="presenter-resize"
-            data-axis="y"
-            data-edge="notes-h"
-            role="separator"
-            aria-orientation="horizontal"
-            aria-label="Resize the notes"
-            title="Drag to resize, double-click to reset"
-            onPointerDown={(event) => startResize("notes-h", event)}
-            onDoubleClick={() => resetSize("notesHeight")}
-          />
-        )}
+        ) : null}
+        <div
+          key="notes-h"
+          className="presenter-resize"
+          data-axis="y"
+          data-edge="notes-h"
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label="Resize the notes"
+          title="Drag to resize, double-click to reset"
+          onPointerDown={(event) => startResize("notes-h", event)}
+          onDoubleClick={() => resetSize("notesHeight")}
+        />
         {listOpen ? (
           <nav className="presenter-list" aria-label="Slides">
             <ol ref={listRef}>
