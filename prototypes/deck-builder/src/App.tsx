@@ -557,7 +557,6 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
             <DropdownMenuTrigger render={<Button variant="outline" disabled={!shown.length} />}>
               <Play size={16} strokeWidth={2} aria-hidden />
               Present
-              <ChevronDown size={16} strokeWidth={2} aria-hidden />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="present-menu">
               {/* Links rather than window.open, so the new tab opens wherever a link would (some
@@ -571,10 +570,12 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
               >
                 <Play size={16} strokeWidth={2} aria-hidden />
                 <span className="present-option-text">
-                  <span className="present-option-title">Present</span>
+                  <span className="present-option-title">
+                    Present
+                    <DropdownMenuShortcut>⌥⌘↩</DropdownMenuShortcut>
+                  </span>
                   <span className="present-option-description">The slides in a new tab</span>
                 </span>
-                <DropdownMenuShortcut>⌥⌘↩</DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="present-option"
@@ -588,10 +589,12 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
               >
                 <NotebookText size={16} strokeWidth={2} aria-hidden />
                 <span className="present-option-text">
-                  <span className="present-option-title">Present with notes</span>
-                  <span className="present-option-description">The slides in one tab, your notes in another</span>
+                  <span className="present-option-title">
+                    Present with notes
+                    <DropdownMenuShortcut>⌥⇧⌘↩</DropdownMenuShortcut>
+                  </span>
+                  <span className="present-option-description">Your notes in a second tab</span>
                 </span>
-                <DropdownMenuShortcut>⌥⇧⌘↩</DropdownMenuShortcut>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
