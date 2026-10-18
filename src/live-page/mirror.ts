@@ -163,6 +163,51 @@ const ignoringScroll = new WeakSet<object>();
 /** The element under the replayed mouse, so hover effects follow it. */
 const hovered = new WeakMap<Document, Element | null>();
 
+/*
+ * Hover and press styles. A replayed mouse can't trigger CSS :hover or :active (only a real
+ * pointer does), so each page gets a copy of its own :hover and :active rules written against
+ * attributes instead, and the replay sets those attributes on the element under the mouse and
+ * its ancestors, the same elements a real pointer would match.
+ */
+const HOVER = "data-mirror-hover";
+const ACTIVE = "data-mirror-active";
+const styled = new WeakMap<Document, { sheet: HTMLStyleElement; count: number }>();
+
+function ensureStateStyles(doc: Document) {
+  const current = styled.get(doc);
+  const sheets = [...doc.styleSheets].filter((sheet) => sheet.ownerNode !== current?.sheet);
+  if (current && current.count === sheets.length && current.sheet.isConnected) return;
+  const copies: string[] = [];
+  for (const sheet of sheets) {
+    let rules: CSSRuleList;
+    try {
+      rules = sheet.cssRules;
+    } catch {
+      continue; // Another site's stylesheet (fonts): can't be read, and has no hover rules anyway.
+    }
+    for (const rule of Array.from(rules)) {
+      const text = rule.cssText;
+      if (text.includes(":hover") || text.includes(":active")) {
+        copies.push(text.replaceAll(":hover", `[${HOVER}]`).replaceAll(":active", `[${ACTIVE}]`));
+      }
+    }
+  }
+  const sheet = current?.sheet.isConnected ? current.sheet : doc.createElement("style");
+  sheet.textContent = copies.join("\n");
+  if (!sheet.isConnected) doc.head.appendChild(sheet);
+  styled.set(doc, { sheet, count: sheets.length });
+}
+
+/** Puts a state attribute on an element and its ancestors, clearing it everywhere else. */
+function markPath(doc: Document, attribute: string, target: Element | null) {
+  const path = new Set<Element>();
+  for (let node = target; node; node = node.parentElement) path.add(node);
+  for (const element of Array.from(doc.querySelectorAll(`[${attribute}]`))) {
+    if (!path.has(element)) element.removeAttribute(attribute);
+  }
+  for (const element of path) if (!element.hasAttribute(attribute)) element.setAttribute(attribute, "");
+}
+
 /** Plays back something done in the other window, in this page's document. */
 export function replayInput(doc: Document, op: MirrorOp) {
   const win = doc.defaultView as (Window & typeof globalThis) | null;
@@ -185,8 +230,11 @@ export function replayInput(doc: Document, op: MirrorOp) {
     return target.dispatchEvent(event);
   };
 
+  if (op.k === "move" || op.k === "pointer") ensureStateStyles(doc);
+
   if (op.k === "move") {
     const target = at(op.x, op.y);
+    markPath(doc, HOVER, target);
     const before = hovered.get(doc) ?? null;
     if (before !== target) {
       if (before?.isConnected) {
@@ -206,8 +254,12 @@ export function replayInput(doc: Document, op: MirrorOp) {
       fire(before, "mouseout", mouse(-1, -1));
     }
     hovered.set(doc, null);
+    markPath(doc, HOVER, null);
+    markPath(doc, ACTIVE, null);
   } else if (op.k === "pointer") {
     const target = at(op.x, op.y);
+    if (op.type === "pointerdown") markPath(doc, ACTIVE, target);
+    if (op.type === "pointerup") markPath(doc, ACTIVE, null);
     if (op.type === "pointerdown" || op.type === "mousedown") {
       const focusable = target.closest<HTMLElement>("input, textarea, select, button, a[href], [tabindex], [contenteditable]");
       if (op.type === "mousedown") focusable?.focus({ preventScroll: true });
