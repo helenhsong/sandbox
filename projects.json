@@ -72,6 +72,26 @@
       },
       "publishedUrl": null,
       "notes": "Presentation published from Deck Builder: Figma slides with live web pages in between."
+    },
+    {
+      "name": "PF App Critique",
+      "slug": "pf-app-critique-2026-10",
+      "path": "prototypes/pf-app-critique-2026-10/",
+      "purpose": "whiteboarding",
+      "status": "published",
+      "createdAt": "2026-10-18",
+      "designSource": {
+        "type": "ui",
+        "reference": "shadcn/base-mira"
+      },
+      "publishedUrl": "https://helenhsong.com/sandbox/pf-app-critique-2026-10/",
+      "brief": {
+        "who": "New joiner dropped into a very busy project channel",
+        "what": "Can't retrace what a teammate said or shared without searching the whole workspace; surface that person's activity, files and context on their Slack profile",
+        "when": "In the middle of reading a busy project channel, remembering something a teammate said but not where",
+        "where": "Slack desktop, profile panel opened from a message in a channel",
+        "how": "Desktop only; an improvement to the existing profile, not a redesign; private channels the viewer isn't in never appear; success signal: time to find something, plus CSAT/NPS and profile engagement"
+      }
     }
   ]
 }
