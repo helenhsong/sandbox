@@ -86,7 +86,7 @@ export function App() {
 
   // The presenter view (?presenter=3) is its own tab, opened with Present with notes.
   const [presenterAt] = useState(readPresenterParam);
-  if (presenterAt !== null) return <PresenterPage draft={draft} startIndex={presenterAt} />;
+  if (presenterAt !== null) return <PresenterPage draft={draft} setDraft={setDraft} startIndex={presenterAt} />;
 
   return (
     <Editor key={generation} draft={draft} setDraft={setDraft} replaceDraft={replaceDraft} token={token} setToken={setToken} />
@@ -94,9 +94,11 @@ export function App() {
 }
 
 /** The presenter view, following the saved deck as it changes (notes edited in the editor show up here). */
-function PresenterPage({ draft, startIndex }: { draft: Draft; startIndex: number }) {
+function PresenterPage({ draft, setDraft, startIndex }: { draft: Draft; setDraft: Dispatch<SetStateAction<Draft>>; startIndex: number }) {
   const slides = useImageUrls(draft.slides);
-  return <Presenter name={draft.name || "Untitled deck"} slides={slides} startIndex={startIndex} />;
+  const setNotes = (id: string, notes: string) =>
+    setDraft((now) => ({ ...now, slides: now.slides.map((slide) => (slide.id === id ? { ...slide, notes: notes || undefined } : slide)) }));
+  return <Presenter name={draft.name || "Untitled deck"} slides={slides} startIndex={startIndex} onNotesChange={setNotes} />;
 }
 
 /** Object URLs for the stored slide images, loaded as slides refer to them. */

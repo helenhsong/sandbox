@@ -1013,14 +1013,15 @@ p {
 }
 
 /*
- * Presenter view: its own tab beside the audience view. The current slide large on the left;
- * the next slide, then the notes, on the right.
+ * Presenter view: its own tab beside the audience view, dark like Figma's. The slides down the
+ * left, the current slide in the middle with its controls under it, the notes on the right.
  */
 .presenter {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  background: var(--muted);
+  background: oklch(0.205 0 0);
+  color: var(--foreground);
 }
 
 .presenter-header {
@@ -1028,30 +1029,24 @@ p {
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 16px;
-  padding: 12px 24px;
+  height: 52px;
+  padding: 0 12px 0 8px;
   border-bottom: 1px solid var(--border);
-  background: var(--background);
 }
 
 .presenter-title {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
 }
 
 .presenter-name {
   overflow: hidden;
+  font-size: 14px;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.presenter-count {
-  flex-shrink: 0;
-  color: var(--muted-foreground);
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
 }
 
 .presenter-timer {
@@ -1061,8 +1056,8 @@ p {
 }
 
 .presenter-time {
-  min-width: 64px;
-  font-size: 20px;
+  min-width: 56px;
+  font-size: 16px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -1076,32 +1071,66 @@ p {
 
 .presenter-body {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
   flex: 1;
   min-height: 0;
-  padding: 24px;
 }
 
-.presenter-current {
+.presenter[data-list] .presenter-body {
+  grid-template-columns: 240px minmax(0, 1fr) minmax(280px, 380px);
+}
+
+/* The slides, down the left: click one to go to it. */
+.presenter-list {
+  min-height: 0;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+}
+
+.presenter-list ol {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  min-height: 0;
+  gap: 4px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
 }
 
-.presenter-side {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-height: 0;
-}
-
-.presenter-side h2 {
-  margin: 0 0 8px;
+.presenter-list button {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  padding: 8px 8px 8px 4px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
   color: var(--muted-foreground);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.presenter-list button[aria-current="true"] {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .presenter-list button:not([aria-current="true"]):hover {
+    background: oklch(1 0 0 / 0.05);
+  }
+}
+
+.presenter-list button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.presenter-list-number {
   font-size: 12px;
-  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .presenter-slide {
@@ -1110,16 +1139,63 @@ p {
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 8px;
-  background: var(--background);
-  box-shadow:
-    0 0 0 1px rgb(0 0 0 / 0.06),
-    0 8px 24px rgb(0 0 0 / 0.08);
+  background: oklch(0.269 0 0);
+}
+
+.presenter-thumb {
+  display: block;
+  border-radius: 4px;
+}
+
+/* The current slide, as large as fits, with the controls under it. */
+.presenter-stage {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+
+.presenter-current {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 24px;
 }
 
 .presenter-current .presenter-slide {
-  /* As large as fits above the buttons. */
-  width: min(100%, (100dvh - 200px) * 16 / 9);
-  margin: 0 auto;
+  width: min(100cqw - 48px, (100cqh - 120px) * 16 / 9);
+  border-radius: 12px;
+}
+
+.presenter-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px 24px;
+}
+
+.presenter-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.presenter-stepper {
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius);
+  background: var(--secondary);
+}
+
+.presenter-count {
+  min-width: 72px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 .presenter-slide-end,
@@ -1130,7 +1206,7 @@ p {
   justify-content: center;
   gap: 8px;
   height: 100%;
-  padding: 16px;
+  padding: 12px;
   color: var(--muted-foreground);
   text-align: center;
 }
@@ -1141,49 +1217,91 @@ p {
   font-weight: 500;
 }
 
+.presenter-thumb .presenter-live-title {
+  font-size: 12px;
+}
+
 .presenter-live-hint {
   margin: 0;
   font-size: 14px;
 }
 
-.presenter-nav {
+/* This slide's notes, large enough to read at a glance, with editing and text size at the bottom. */
+.presenter-notes {
   display: flex;
-  justify-content: center;
-  gap: 8px;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 1px solid var(--border);
 }
 
-.presenter-notes {
+.presenter-notes-slide {
+  margin: 0;
+  padding: 24px 24px 0;
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.presenter-notes-body {
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-height: 0;
+  padding: 16px 24px;
   overflow-y: auto;
 }
 
-.presenter-notes p {
+.presenter-notes-text {
   margin: 0;
-  font-size: 18px;
-  line-height: 1.5;
+  line-height: 1.4;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-.presenter-notes .presenter-notes-empty {
+.presenter-notes-body [data-slot="textarea"] {
+  flex: 1;
+  min-height: 160px;
+  line-height: 1.4;
+  resize: none;
+}
+
+.presenter-notes-empty {
+  margin: 0;
   color: var(--muted-foreground);
   font-size: 14px;
 }
 
+.presenter-notes-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.presenter-notes-size {
+  display: flex;
+  gap: 4px;
+}
+
 @media (max-width: 900px) {
-  .presenter-body {
+  .presenter-body,
+  .presenter[data-list] .presenter-body {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(240px, 1fr) auto;
     overflow-y: auto;
   }
 
-  .presenter-header {
-    grid-template-columns: minmax(0, 1fr) auto;
+  .presenter-list {
+    display: none;
   }
 
-  .presenter-timer {
-    order: 3;
-    grid-column: 1 / -1;
-    justify-content: center;
+  .presenter-notes {
+    border-top: 1px solid var(--border);
+    border-left: 0;
   }
 }

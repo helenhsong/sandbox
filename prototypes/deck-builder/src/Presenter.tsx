@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button } from "@helenhsong/ui";
-import { ArrowLeft, ArrowRight, Globe, MonitorPlay, Pause, Play, RotateCcw } from "lucide-react";
+import { Button, Textarea } from "@helenhsong/ui";
+import { ChevronLeft, ChevronRight, Globe, Minus, MonitorPlay, PanelLeft, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
 import { SlideView } from "../../../src/deck/SlideView";
 import { visibleSlides, type Slide } from "../../../src/deck/types";
 import { closeTab, openPresentChannel, presentTabUrl, type PresentMessage } from "./presentSync";
@@ -9,18 +9,36 @@ interface PresenterProps {
   name: string;
   slides: Slide[];
   startIndex: number;
+  /** Saves a slide's notes (edited here with Edit), so the editor has them too. */
+  onNotesChange: (slideId: string, notes: string) => void;
+}
+
+const NOTES_SIZE_KEY = "deck-builder:notes-size";
+const NOTES_SIZES = [16, 20, 24, 28, 32, 40];
+
+function readNotesSize() {
+  try {
+    const value = Number(localStorage.getItem(NOTES_SIZE_KEY));
+    return NOTES_SIZES.includes(value) ? value : 24;
+  } catch {
+    return 24;
+  }
 }
 
 /**
- * The presenter view, in its own tab beside the audience view: the current slide and the next
- * one, this slide's notes, and a timer. Moving here moves the audience view too, and the other
- * way round.
+ * The presenter view, in its own tab beside the audience view, laid out like Figma's: the slides
+ * down the left, the current slide in the middle with the controls under it, and this slide's
+ * notes on the right, large enough to read at a glance. Moving here moves the audience view too,
+ * and the other way round.
  */
-export function Presenter({ name, slides: allSlides, startIndex }: PresenterProps) {
+export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }: PresenterProps) {
   const slides = visibleSlides(allSlides);
   const last = Math.max(slides.length - 1, 0);
   const [index, setIndex] = useState(() => Math.min(Math.max(startIndex, 0), last));
   const [audienceOpen, setAudienceOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [notesSize, setNotesSize] = useState(readNotesSize);
   const channel = useRef<BroadcastChannel | null>(null);
   const indexRef = useRef(index);
 
@@ -63,8 +81,8 @@ export function Presenter({ name, slides: allSlides, startIndex }: PresenterProp
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       if (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable]")) return;
-      if (["ArrowRight", "PageDown", " "].includes(event.key)) go(indexRef.current + 1);
-      else if (["ArrowLeft", "PageUp"].includes(event.key)) go(indexRef.current - 1);
+      if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(event.key)) go(indexRef.current + 1);
+      else if (["ArrowLeft", "ArrowUp", "PageUp"].includes(event.key)) go(indexRef.current - 1);
       else if (event.key === "Home") go(0);
       else if (event.key === "End") go(last);
       else return;
@@ -73,6 +91,23 @@ export function Presenter({ name, slides: allSlides, startIndex }: PresenterProp
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [go, last]);
+
+  // The current slide stays in view in the list.
+  const listRef = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    listRef.current?.querySelector("[aria-current='true']")?.scrollIntoView({ block: "nearest" });
+  }, [index, listOpen]);
+
+  const resize = (delta: number) => {
+    const at = NOTES_SIZES.indexOf(notesSize);
+    const next = NOTES_SIZES[Math.min(Math.max(at + delta, 0), NOTES_SIZES.length - 1)];
+    setNotesSize(next);
+    try {
+      localStorage.setItem(NOTES_SIZE_KEY, String(next));
+    } catch {
+      // Not saved; it still applies now.
+    }
+  };
 
   const end = () => {
     channel.current?.postMessage({ type: "end" } satisfies PresentMessage);
@@ -87,76 +122,146 @@ export function Presenter({ name, slides: allSlides, startIndex }: PresenterProp
   };
 
   const current = slides[index] as Slide | undefined;
-  const next = slides[index + 1] as Slide | undefined;
-  const notes = current?.notes?.trim();
+  const notes = current?.notes ?? "";
 
   return (
-    <div className="presenter">
+    <div className="presenter dark" data-list={listOpen || undefined}>
       <header className="presenter-header">
         <div className="presenter-title">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setListOpen((open) => !open)}
+            aria-pressed={listOpen}
+            aria-label={listOpen ? "Hide slides" : "Show slides"}
+            title={listOpen ? "Hide slides" : "Show slides"}
+          >
+            <PanelLeft size={16} strokeWidth={2} aria-hidden />
+          </Button>
           <span className="presenter-name">{name}</span>
-          <span className="presenter-count">
-            Slide {slides.length ? index + 1 : 0} of {slides.length}
-          </span>
         </div>
         <Timer />
         <div className="presenter-actions">
-          {!audienceOpen ? (
-            <Button
-              variant="outline"
-              nativeButton={false}
-              render={<a href={presentTabUrl("audience", index)} target="_blank" rel="opener" />}
-            >
-              <MonitorPlay size={16} strokeWidth={2} aria-hidden />
-              Open audience view
-            </Button>
-          ) : null}
           <Button onClick={end}>End presentation</Button>
         </div>
       </header>
 
-      <main className="presenter-body">
-        <section className="presenter-current" aria-label="Current slide">
-          <div className="presenter-slide">{current ? <PresenterSlide slide={current} /> : null}</div>
-          <div className="presenter-nav">
-            <Button variant="outline" onClick={() => go(index - 1)} disabled={index <= 0}>
-              <ArrowLeft size={16} strokeWidth={2} aria-hidden />
-              Previous
-            </Button>
-            <Button variant="outline" onClick={() => go(index + 1)} disabled={index >= last}>
-              Next
-              <ArrowRight size={16} strokeWidth={2} aria-hidden />
-            </Button>
+      <div className="presenter-body">
+        {listOpen ? (
+          <nav className="presenter-list" aria-label="Slides">
+            <ol ref={listRef}>
+              {slides.map((slide, i) => (
+                <li key={slide.id}>
+                  <button type="button" onClick={() => go(i)} aria-current={i === index} aria-label={`Slide ${i + 1}: ${slideName(slide)}`}>
+                    <span className="presenter-list-number">{i + 1}</span>
+                    <span className="presenter-slide presenter-thumb">
+                      <PresenterSlide slide={slide} compact />
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        ) : null}
+
+        <main className="presenter-stage">
+          <div className="presenter-current">
+            <div className="presenter-slide">{current ? <PresenterSlide slide={current} /> : null}</div>
           </div>
-        </section>
-        <aside className="presenter-side">
-          <section className="presenter-next" aria-label="Next slide">
-            <h2>Next</h2>
-            <div className="presenter-slide">
-              {next ? <PresenterSlide slide={next} /> : <div className="presenter-slide-end">End of deck</div>}
+          <div className="presenter-controls">
+            <div className="presenter-nav">
+              <Button variant="secondary" size="icon" onClick={() => go(0)} aria-label="Back to the first slide" title="Back to the first slide">
+                <RotateCcw size={16} strokeWidth={2} aria-hidden />
+              </Button>
+              <div className="presenter-stepper">
+                <Button variant="ghost" size="icon" onClick={() => go(index - 1)} disabled={index <= 0} aria-label="Previous slide" title="Previous slide">
+                  <ChevronLeft size={16} strokeWidth={2} aria-hidden />
+                </Button>
+                <span className="presenter-count" aria-live="polite">
+                  {slides.length ? index + 1 : 0} / {slides.length}
+                </span>
+                <Button variant="ghost" size="icon" onClick={() => go(index + 1)} disabled={index >= last} aria-label="Next slide" title="Next slide">
+                  <ChevronRight size={16} strokeWidth={2} aria-hidden />
+                </Button>
+              </div>
             </div>
-          </section>
-          <section className="presenter-notes" aria-label="Notes">
-            <h2>Notes</h2>
-            {notes ? <p>{notes}</p> : <p className="presenter-notes-empty">No notes for this slide.</p>}
-          </section>
+            {!audienceOpen ? (
+              <Button
+                variant="outline"
+                size="sm"
+                nativeButton={false}
+                render={<a href={presentTabUrl("audience", index)} target="_blank" rel="opener" />}
+              >
+                <MonitorPlay size={16} strokeWidth={2} aria-hidden />
+                Open audience view
+              </Button>
+            ) : null}
+          </div>
+        </main>
+
+        <aside className="presenter-notes" aria-label="Notes">
+          <p className="presenter-notes-slide">{current ? slideName(current) : ""}</p>
+          <div className="presenter-notes-body">
+            {editing && current ? (
+              <Textarea
+                key={current.id}
+                aria-label="Presenter notes"
+                value={notes}
+                onChange={(event) => onNotesChange(current.id, event.target.value)}
+                placeholder="Add presenter notes…"
+                style={{ fontSize: notesSize }}
+                autoFocus
+              />
+            ) : notes.trim() ? (
+              <p className="presenter-notes-text" style={{ fontSize: notesSize }}>
+                {notes}
+              </p>
+            ) : (
+              <p className="presenter-notes-empty">No notes for this slide.</p>
+            )}
+          </div>
+          <div className="presenter-notes-tools">
+            <Button variant="outline" size="sm" onClick={() => setEditing((on) => !on)} aria-pressed={editing}>
+              <Pencil size={16} strokeWidth={2} aria-hidden />
+              {editing ? "Done" : "Edit"}
+            </Button>
+            <div className="presenter-notes-size">
+              <Button variant="outline" size="icon-sm" onClick={() => resize(-1)} disabled={notesSize <= NOTES_SIZES[0]} aria-label="Smaller notes" title="Smaller notes">
+                <Minus size={16} strokeWidth={2} aria-hidden />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => resize(1)}
+                disabled={notesSize >= NOTES_SIZES[NOTES_SIZES.length - 1]}
+                aria-label="Larger notes"
+                title="Larger notes"
+              >
+                <Plus size={16} strokeWidth={2} aria-hidden />
+              </Button>
+            </div>
+          </div>
         </aside>
-      </main>
+      </div>
     </div>
   );
+}
+
+function slideName(slide: Slide) {
+  return slide.kind === "figma" ? slide.name : slide.title || "Live page";
 }
 
 /**
  * A slide as the presenter sees it: Figma slides as their image, and live pages as a card (the
  * page itself runs in the audience view, where people use it).
  */
-function PresenterSlide({ slide }: { slide: Slide }) {
+function PresenterSlide({ slide, compact = false }: { slide: Slide; compact?: boolean }) {
   if (slide.kind === "figma") return <SlideView slide={{ ...slide, embedUrl: undefined }} />;
   return (
     <div className="presenter-live">
-      <Globe size={20} strokeWidth={2} aria-hidden />
+      <Globe size={compact ? 16 : 24} strokeWidth={2} aria-hidden />
       <p className="presenter-live-title">{slide.title || "Live page"}</p>
-      <p className="presenter-live-hint">Live page. Use it in the audience view.</p>
+      {compact ? null : <p className="presenter-live-hint">Live page. Use it in the audience view.</p>}
     </div>
   );
 }
