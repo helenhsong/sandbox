@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@helenhsong/ui";
 import { ArrowLeft, ArrowRight, ArrowUpRight, LoaderCircle, MousePointerClick, RotateCw } from "lucide-react";
 import { DECK_FILL_EVENT, DECK_HISTORY_EVENT, type LivePageWindow } from "./contract";
+import { captureInput, openMirrorChannel, replayInput, type MirrorOp, type MirrorOptions, type WindowAction } from "./mirror";
 import "./window.css";
 
 /** Whether a page is on this site, so the window can reach what it offers (screen history, filling in). */
@@ -49,6 +50,11 @@ interface PageWindowProps {
   openLink?: boolean;
   /** Light everywhere (Sandbox pages and decks); dark is kept as an option. */
   theme?: "dark" | "light";
+  /**
+   * Mirrors this page with other windows showing it (a deck's presenter and audience views):
+   * what's done in one is done in the others.
+   */
+  mirror?: MirrorOptions;
 }
 
 /**
@@ -56,7 +62,7 @@ interface PageWindowProps {
  * the fast-forward button when a Sandbox prototype offers it.
  * Changing `src` should remount it (key it by src).
  */
-export function PageWindow({ src, label, openLink = true, theme = "light" }: PageWindowProps) {
+export function PageWindow({ src, label, openLink = true, theme = "light", mirror }: PageWindowProps) {
   const [loaded, setLoaded] = useState(false);
   // Changing this remounts the page at its starting address.
   const [visit, setVisit] = useState(0);
@@ -104,6 +110,57 @@ export function PageWindow({ src, label, openLink = true, theme = "light" }: Pag
     }
   };
 
+  // Mirroring (see mirror.ts): this window's input goes to the others, and theirs plays here.
+  const mirrorId = mirror?.id;
+  // Tells this window's own messages apart from the other windows'.
+  const [instance] = useState(() => crypto.randomUUID());
+  const channel = useRef<BroadcastChannel | null>(null);
+  const send = (op: MirrorOp) => {
+    if (mirrorId) channel.current?.postMessage({ id: mirrorId, from: instance, op });
+  };
+  // A restart asked for by another window doesn't ask the others to start over again.
+  const restartedRemotely = useRef(false);
+  const stopCapture = useRef<() => void>(() => undefined);
+  const perform = (action: WindowAction) => {
+    if (action === "restart") restart();
+    else if (action === "fill") fill();
+    else go(action);
+  };
+  /** A window button pressed here: done here, and in the mirrored windows. */
+  const act = (action: WindowAction) => {
+    perform(action);
+    send({ k: "window", action });
+  };
+  const onMirror = useRef<(op: MirrorOp) => void>(() => undefined);
+  useEffect(() => {
+    onMirror.current = (op) => {
+      if (op.k === "window") return perform(op.action);
+      if (op.k === "fresh") {
+        restartedRemotely.current = true;
+        return restart();
+      }
+      if (!loaded) return;
+      try {
+        const doc = frameRef.current?.contentDocument;
+        if (doc) replayInput(doc, op);
+      } catch {
+        // The page went away, or can't be reached.
+      }
+    };
+  });
+  useEffect(() => {
+    if (!mirrorId) return;
+    const opened = openMirrorChannel((message) => {
+      if (message.id === mirrorId && message.from !== instance) onMirror.current(message.op);
+    });
+    channel.current = opened;
+    return () => {
+      opened?.close();
+      channel.current = null;
+      stopCapture.current();
+    };
+  }, [mirrorId, instance]);
+
   // N fast-forwards too, from the page around the window or from inside the prototype.
   const onShortcut = useRef<(event: KeyboardEvent) => void>(() => {});
   useEffect(() => {
@@ -115,6 +172,8 @@ export function PageWindow({ src, label, openLink = true, theme = "light" }: Pag
       if (frameRef.current && !frameRef.current.checkVisibility({ visibilityProperty: true })) return;
       event.preventDefault();
       fill();
+      // Pressed in the page, it's mirrored as a key press; pressed around the window, as the button.
+      if (event.isTrusted && event.currentTarget === window) send({ k: "window", action: "fill" });
     };
   });
   useEffect(() => {
@@ -128,7 +187,20 @@ export function PageWindow({ src, label, openLink = true, theme = "light" }: Pag
     setLoaded(true);
     setNav({ back: false, forward: false });
     setCanFill(false);
+    stopCapture.current();
+    stopCapture.current = () => undefined;
     if (!sameSite) return;
+    if (mirrorId) {
+      try {
+        const doc = frameRef.current?.contentDocument;
+        if (doc) stopCapture.current = captureInput(doc, send);
+      } catch {
+        // Can't reach this page to mirror it.
+      }
+      // Loaded fresh here: the other windows start over too, so they all begin on the same screen.
+      if (!restartedRemotely.current) send({ k: "fresh" });
+      restartedRemotely.current = false;
+    }
     try {
       const page = frameRef.current?.contentWindow as Page | null;
       if (!page) return;
@@ -148,17 +220,18 @@ export function PageWindow({ src, label, openLink = true, theme = "light" }: Pag
     <div className="page-window" data-theme={theme}>
       <div className="page-window-bar">
         <span className="page-window-nav">
-          <button type="button" onClick={() => go("back")} disabled={!nav.back} aria-label="Back" title="Back">
+          <button type="button" onClick={() => act("back")} disabled={!nav.back} aria-label="Back" title="Back">
             <ArrowLeft size={16} strokeWidth={2} aria-hidden />
           </button>
-          <button type="button" onClick={() => go("forward")} disabled={!nav.forward} aria-label="Forward" title="Forward">
+          <button type="button" onClick={() => act("forward")} disabled={!nav.forward} aria-label="Forward" title="Forward">
             <ArrowRight size={16} strokeWidth={2} aria-hidden />
           </button>
           <button
             type="button"
             onClick={() => {
               // Back to where the page started, with a fresh history.
-              restart();
+              restartedRemotely.current = true;
+              act("restart");
             }}
             aria-label="Reload"
             title="Reload"
@@ -192,7 +265,7 @@ export function PageWindow({ src, label, openLink = true, theme = "light" }: Pag
         <span className="page-window-spacer" aria-hidden />
         <span className="page-window-actions">
           {canFill ? (
-            <button type="button" onClick={fill} aria-label="Fast-forward this screen" title="Fast-forward this screen (N)" aria-keyshortcuts="N">
+            <button type="button" onClick={() => act("fill")} aria-label="Fast-forward this screen" title="Fast-forward this screen (N)" aria-keyshortcuts="N">
               <MousePointerClick size={16} strokeWidth={2} aria-hidden />
             </button>
           ) : null}

@@ -100,6 +100,8 @@ export function mergeFigmaSlides(currentSlides: Slide[], incoming: FigmaSlide[])
     return slide.nodeId.startsWith("slide-") && match && !match.nodeId.startsWith("slide-") ? { ...slide, nodeId: match.nodeId } : slide;
   });
   const hidden = new Set(current.filter((s): s is FigmaSlide => s.kind === "figma" && Boolean(s.hidden)).map((s) => s.nodeId));
+  // Presenter notes are written here, not in Figma, so they stay with their slide.
+  const notes = new Map(current.flatMap((s) => (s.kind === "figma" && s.notes ? [[s.nodeId, s.notes] as const] : [])));
   // Slides already in the deck keep their IDs, so the selection and loaded previews stay put.
   const existingIds = new Map(current.filter((s): s is FigmaSlide => s.kind === "figma").map((s) => [s.nodeId, s.id]));
   const anchored = new Map<string | null, WebSlide[]>();
@@ -113,7 +115,8 @@ export function mergeFigmaSlides(currentSlides: Slide[], incoming: FigmaSlide[])
   const placed = new Set<string | null>([null]);
   for (const slide of incoming) {
     const id = existingIds.get(slide.nodeId) ?? slide.id;
-    result.push(hidden.has(slide.nodeId) ? { ...slide, id, hidden: true } : { ...slide, id });
+    const kept = { ...slide, id, notes: notes.get(slide.nodeId) };
+    result.push(hidden.has(slide.nodeId) ? { ...kept, hidden: true } : kept);
     result.push(...(anchored.get(slide.nodeId) ?? []));
     placed.add(slide.nodeId);
   }

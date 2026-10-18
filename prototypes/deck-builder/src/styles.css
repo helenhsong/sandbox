@@ -294,7 +294,7 @@ p {
   overflow-y: auto;
   background: var(--muted);
   /* The slide fills the space, like Figma's editor: as wide as the panel allows, but never so
-     tall that it and its details above (about 48px with the gap) don't fit. */
+     tall that it, its details above and its notes below (about 232px with the gaps) don't fit. */
   --stage-gutter: 36px;
   --stage-width: 100%;
 }
@@ -303,7 +303,7 @@ p {
   .builder-main {
     container-type: size;
     /* No larger than on a 16-inch MacBook Pro (a 1728px-wide window, less the slide list and gutters). */
-    --stage-width: min(1384px, 100cqw - 2 * var(--stage-gutter), (100cqh - 2 * var(--stage-gutter) - 48px) * 16 / 9);
+    --stage-width: min(1384px, 100cqw - 2 * var(--stage-gutter), (100cqh - 2 * var(--stage-gutter) - 160px) * 16 / 9);
   }
 }
 
@@ -317,6 +317,39 @@ p {
   gap: 16px;
   margin-block: auto;
   padding: var(--stage-gutter);
+}
+
+/* Presenter notes for the selected slide, under it and as wide. */
+.slide-notes {
+  width: var(--stage-width);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.slide-notes [data-slot="textarea"] {
+  height: 96px;
+  min-height: 96px;
+  resize: vertical;
+  background: var(--background);
+}
+
+/* Present's two choices, each with its shortcut. */
+.present-menu {
+  width: max-content;
+  min-width: 240px;
+  padding: 6px;
+}
+
+.present-option {
+  gap: 10px;
+  padding: 12px 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.present-option [data-slot="dropdown-menu-shortcut"] {
+  padding-left: 24px;
+  font-weight: 400;
 }
 
 /* A new deck with no slides yet: a 16:9 placeholder where the slide will be. */
