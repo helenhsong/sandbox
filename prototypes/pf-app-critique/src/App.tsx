@@ -67,8 +67,6 @@ type SharedFilter = "all" | "with-you";
 export function App() {
   const [convId, setConvId] = useHistoryState("conv", "proj-onboarding", { nested: true });
   const [profileId, setProfileId] = useHistoryState<string | null>("profile", null, { nested: true });
-  const [tab, setTab] = useHistoryState<Tab>("tab", "info", { nested: true });
-  const [filter, setFilter] = useHistoryState<SharedFilter>("filter", "all", { nested: true });
   const [target, setTarget] = useHistoryState<Target | null>("target", null, { nested: true });
   const [query, setQuery] = useState("");
   const [sent, setSent] = useState<Record<string, Message[]>>({});
@@ -108,10 +106,6 @@ export function App() {
           <ProfilePanel
             key={profileId}
             person={people[profileId]}
-            tab={tab}
-            onTab={setTab}
-            filter={filter}
-            onFilter={setFilter}
             query={query}
             onQuery={setQuery}
             onJump={jumpTo}
@@ -281,25 +275,20 @@ function MessageRow({ m, highlight, onOpenProfile }: { m: Message; highlight: bo
 
 function ProfilePanel({
   person,
-  tab,
-  onTab,
-  filter,
-  onFilter,
   query,
   onQuery,
   onJump,
   onClose,
 }: {
   person: Person;
-  tab: Tab;
-  onTab: (t: Tab) => void;
-  filter: SharedFilter;
-  onFilter: (f: SharedFilter) => void;
   query: string;
   onQuery: (q: string) => void;
   onJump: (t: Target) => void;
   onClose: () => void;
 }) {
+  // Each person's panel opens on Info and remembers its own tab and filter.
+  const [tab, onTab] = useHistoryState<Tab>(`tab:${person.id}`, "info", { nested: true });
+  const [filter, onFilter] = useHistoryState<SharedFilter>(`filter:${person.id}`, "all", { nested: true });
   const activity = useMemo(() => activityFor(person.id), [person.id]);
   const files = useMemo(() => filesFor(person.id), [person.id]);
   const first = person.name.split(" ")[0];

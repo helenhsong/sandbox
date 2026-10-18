@@ -10,8 +10,8 @@ still presses each screen's own button.
 | --- | --- | --- | --- |
 | Conversation (#proj-onboarding by default) | `conv` | Sidebar item, or jumping to an item from the profile | Nothing (null) while no profile is open |
 | Profile panel | `profile` | Clicking a person's name or avatar on any message | Fills the panel search with "onboarding flow" when it's empty |
-| Profile tab (Info, Activity, Shared) | `tab` | Tabs under the panel search | Same as the panel |
-| Shared filter (All, Shared with you) | `filter` | Toggle at the top of Shared | Same as the panel |
+| Profile tab (Info, Activity, Shared), per person | `tab:<person>` | Tabs under the panel search | Same as the panel |
+| Shared filter (All, Shared with you), per person | `filter:<person>` | Toggle at the top of Shared | Same as the panel |
 | Jump target (highlighted message, thread opened) | `target` | Clicking a pinned item, message, file or search result in the panel | Same as the panel |
 
 The panel search text is ordinary state; clearing it (X or Escape) returns to the tabs.
