@@ -13,10 +13,16 @@
 - Company need: Slack's job is to make finding context more efficient. It wants to provide the correct context for people, and in the future for agents, so they can suggest better team structures or staffing.
 - In this session, we hope to: brainstorm a few focused areas for improvement in Slack, choose one, and share a point of view on what isn't working, its impact on users and the business, and why this problem over the others considered (from the prompt).
 
+## 2. Person
+
+We are designing for **a new joiner at a startup who was dropped into the middle of a project**, because they have to ramp up quickly without context on the people around them.
+
+- What matters most: quickly learning who's responsible for what, who's most expert at what, what resources have been shared, and which questions they can take to which person.
+- Not the focus (for now): team leads.
+
 ## Captured for later Ps
 
 - Perspective: a startup employee (Helen).
-- Possible people mentioned: team leads, new joiners. Not yet chosen.
 - Problem area Helen wants to address: how people find context as they use Slack. Surface important context when it's needed instead of forcing people to search, starting with the user profile page.
 - Current path (from Helen): you look someone up because you remember something they said or a file they shared, then dig through search and filters to get to the exact thing.
 - Today's profile page: fairly static. At larger companies it shows useful info like team and manager. Opportunity Helen sees: also show work they've done, how they've interacted with others, and what they have context on.
