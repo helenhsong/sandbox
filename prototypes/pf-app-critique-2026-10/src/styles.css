@@ -602,7 +602,7 @@ button {
 
 mark {
   border-radius: 2px;
-  background: #fde58f;
+  background: #fcefb4;
   color: inherit;
 }
 
@@ -1428,5 +1428,133 @@ mark {
 .msg.is-highlighted {
     animation: none;
     background: var(--highlight);
+  }
+}
+
+/* ---------- Search results (Slack's search result cards) ---------- */
+
+.results-count {
+  margin: 0 0 10px;
+  color: var(--ink-3);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .result:hover {
+    border-color: #d1d0d1;
+    background: var(--surface-2);
+  }
+}
+
+.result:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}
+
+.result[aria-current="true"] {
+  border-color: #e8d48a;
+  background: var(--highlight);
+}
+
+.result-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.result-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.result-author {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 900;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.result-time {
+  flex-shrink: 0;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.result-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.result-where {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.result-text {
+  display: -webkit-box;
+  margin-top: 2px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.result .row-file {
+  margin-top: 4px;
+}
+
+.result-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.result-replies {
+  color: var(--link);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result {
+    transition: none;
   }
 }

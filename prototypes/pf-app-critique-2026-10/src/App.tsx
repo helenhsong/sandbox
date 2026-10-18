@@ -1102,9 +1102,14 @@ function ActivityTab({
         <NoResults query={filters.query} what="messages" narrowed={narrowed} first={person.first} onClear={onClear} />
       ) : (
         <>
+          {narrowed && (
+            <p className="results-count">
+              {items.length} {items.length === 1 ? "result" : "results"}
+            </p>
+          )}
           {involving.length > 0 && (
             <Section title="Involving you" aside={<span className="count">{involving.length}</span>}>
-              <ul className="rows rows-involving">
+              <ul className="results">
                 {involving.map((msg) => (
                   <ActivityRow key={msg.id} msg={msg} query={filters.query} selected={selected === msg.id} onJump={onJump} />
                 ))}
@@ -1113,7 +1118,7 @@ function ActivityTab({
           )}
           {rest.length > 0 && (
             <Section title={involving.length ? "All other activity" : "All activity"} aside={<span className="count">{rest.length}</span>}>
-              <ul className="rows">
+              <ul className="results">
                 {rest.map((msg) => (
                   <ActivityRow key={msg.id} msg={msg} query={filters.query} selected={selected === msg.id} onJump={onJump} />
                 ))}
@@ -1126,28 +1131,55 @@ function ActivityTab({
   );
 }
 
+function shortTime(msg: Message) {
+  return msg.ago === 0 ? msg.time : dayLabel(msg.ago);
+}
+
+// One search result, shaped like Slack's own search results: avatar, author, where, time, text.
 function ActivityRow({ msg, query, selected, onJump }: { msg: Activity; query: string; selected: boolean; onJump: (id: string) => void }) {
+  const author = PEOPLE[msg.author];
+  const replies = msg.replies ?? [];
   return (
     <li>
-      <button type="button" className="row row-activity" aria-current={selected || undefined} onClick={() => onJump(msg.id)}>
-        <span className="row-tags">
-          <span className="tag tag-channel">
-            <ChannelLabel id={msg.channel} />
+      <button type="button" className="result" aria-current={selected || undefined} onClick={() => onJump(msg.id)}>
+        <PersonAvatar person={author} size={36} />
+        <span className="result-main">
+          <span className="result-head">
+            <span className="result-author">{author.name}</span>
+            <span className="result-time" title={`${dayLabel(msg.ago)} at ${msg.time}`}>
+              {shortTime(msg)}
+            </span>
           </span>
-          {msg.parentId && <span className="tag">Thread reply</span>}
-          {msg.reason && <span className="tag tag-you">{msg.reason}</span>}
-          <span className="row-time">
-            {dayLabel(msg.ago)} {msg.time}
+          <span className="result-meta">
+            <span className="result-where">
+              {msg.parentId && "Thread in "}
+              <ChannelLabel id={msg.channel} />
+            </span>
+            {msg.reason && <span className="tag tag-you">{msg.reason}</span>}
           </span>
+          <span className="result-text">
+            <RichText text={msg.text} query={query} />
+          </span>
+          {msg.files?.map((f) => (
+            <span key={f.id} className="row-file">
+              <FileIcon kind={f.kind} /> {f.name}
+            </span>
+          ))}
+          {(msg.reactions || replies.length > 0) && (
+            <span className="result-foot">
+              {msg.reactions?.map((r) => (
+                <span key={r.emoji} className="reaction">
+                  <span aria-hidden>{r.emoji}</span> {r.count}
+                </span>
+              ))}
+              {replies.length > 0 && (
+                <span className="result-replies">
+                  {replies.length} {replies.length === 1 ? "reply" : "replies"}
+                </span>
+              )}
+            </span>
+          )}
         </span>
-        <span className="row-snippet">
-          <RichText text={msg.text} query={query} />
-        </span>
-        {msg.files?.map((f) => (
-          <span key={f.id} className="row-file">
-            <FileIcon kind={f.kind} /> {f.name}
-          </span>
-        ))}
       </button>
     </li>
   );
@@ -1172,24 +1204,28 @@ function SharedTab({
 }) {
   if (!items.length) return <NoResults query={query} what="files" narrowed={narrowed} first={person.first} onClear={onClear} />;
   return (
-    <Section title="Files" aside={<span className="count">{items.length}</span>}>
-      <ul className="rows">
+    <Section title={narrowed ? `${items.length} ${items.length === 1 ? "result" : "results"}` : "Files"} aside={narrowed ? undefined : <span className="count">{items.length}</span>}>
+      <ul className="results">
         {items.map(({ file, msg }) => (
           <li key={file.id}>
-            <button type="button" className="row" aria-current={selected === msg.id || undefined} onClick={() => onJump(msg.id)}>
+            <button type="button" className="result" aria-current={selected === msg.id || undefined} onClick={() => onJump(msg.id)}>
               <FileIcon kind={file.kind} />
-              <span className="row-main">
-                <span className="row-title">
-                  <Highlighted text={file.name} query={query} />
+              <span className="result-main">
+                <span className="result-head">
+                  <span className="result-author">
+                    <Highlighted text={file.name} query={query} />
+                  </span>
+                  <span className="result-time" title={`${dayLabel(msg.ago)} at ${msg.time}`}>
+                    {shortTime(msg)}
+                  </span>
                 </span>
-                <span className="row-meta">
-                  {file.kind} · {file.size}
-                </span>
-                <span className="row-meta">
-                  <ChannelLabel id={msg.channel} /> · {dayLabel(msg.ago)}
+                <span className="result-meta">
+                  <span className="result-where">
+                    {file.kind} · {file.size} · <ChannelLabel id={msg.channel} />
+                  </span>
+                  {msg.reason && <span className="tag tag-you">{msg.reason}</span>}
                 </span>
               </span>
-              {msg.reason && <span className="tag tag-you">{msg.reason}</span>}
             </button>
           </li>
         ))}
