@@ -42,6 +42,7 @@ We are designing for **a new joiner at a startup who was dropped into the middle
 - Time to find a specific message or file from a person.
 - Time to find all the projects someone is involved in.
 - Time to find all the files someone has shared with a specific person.
+- Profile page usage: how long people spend on it and interacting with it, and how often they use it. A sign of usability, usefulness, and people relying on Slack more for context.
 - Business: CSAT, NPS.
 - Guardrail: Open.
 
