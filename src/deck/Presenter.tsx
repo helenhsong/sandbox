@@ -1,16 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { Button, Textarea } from "@helenhsong/ui";
 import { ChevronLeft, ChevronRight, Globe, Minus, MonitorPlay, PanelLeft, Pause, Pencil, Play, Plus, RotateCcw } from "lucide-react";
-import { SlideView } from "../../../src/deck/SlideView";
-import { visibleSlides, type Slide } from "../../../src/deck/types";
-import { closeTab, openPresentChannel, presentTabUrl, type PresentMessage } from "./presentSync";
+import { closeTab, openPresentChannel, openView, viewTabName, viewUrl, type PresentMessage } from "./presentSync";
+import { SlideView } from "./SlideView";
+import { visibleSlides, type Slide } from "./types";
 
 interface PresenterProps {
   name: string;
   slides: Slide[];
   startIndex: number;
-  /** Saves a slide's notes (edited here with Edit), so the editor has them too. */
-  onNotesChange: (slideId: string, notes: string) => void;
+  /**
+   * Saves a slide's notes, edited here with Edit, so the editor has them too. Left out for a
+   * published deck, which can't save changes.
+   */
+  onNotesChange?: (slideId: string, notes: string) => void;
 }
 
 const NOTES_SIZE_KEY = "deck-builder:notes-size";
@@ -35,7 +38,6 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
   const slides = visibleSlides(allSlides);
   const last = Math.max(slides.length - 1, 0);
   const [index, setIndex] = useState(() => Math.min(Math.max(startIndex, 0), last));
-  const [audienceOpen, setAudienceOpen] = useState(false);
   const [listOpen, setListOpen] = useState(true);
   const [editing, setEditing] = useState(false);
   const [notesSize, setNotesSize] = useState(readNotesSize);
@@ -57,15 +59,9 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
       if (message.type === "slide" && message.from === "audience") {
         indexRef.current = message.index;
         setIndex(message.index);
-        setAudienceOpen(true);
-      } else if (message.type === "here") {
+      } else if (message.type === "here" && message.index !== indexRef.current) {
         // An audience view is open: bring it to the slide shown here.
-        setAudienceOpen(true);
-        if (message.index !== indexRef.current) {
-          channel.current?.postMessage({ type: "slide", index: indexRef.current, from: "presenter" } satisfies PresentMessage);
-        }
-      } else if (message.type === "bye") {
-        setAudienceOpen(false);
+        channel.current?.postMessage({ type: "slide", index: indexRef.current, from: "presenter" } satisfies PresentMessage);
       }
     });
     channel.current?.postMessage({ type: "hello" } satisfies PresentMessage);
@@ -111,14 +107,12 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
 
   const end = () => {
     channel.current?.postMessage({ type: "end" } satisfies PresentMessage);
-    const backToEditor = () => {
+    // A tab opened from another view closes; one opened any other way goes back to the deck's page.
+    closeTab(() => {
       const url = new URL(window.location.href);
       url.searchParams.delete("presenter");
       window.location.assign(url.href);
-    };
-    // Only a tab the editor opened closes itself; one opened any other way goes back to the editor.
-    if (window.opener) closeTab(backToEditor);
-    else backToEditor();
+    });
   };
 
   const current = slides[index] as Slide | undefined;
@@ -185,24 +179,24 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
                 </Button>
               </div>
             </div>
-            {!audienceOpen ? (
-              <Button
-                variant="outline"
-                size="sm"
-                nativeButton={false}
-                render={<a href={presentTabUrl("audience", index)} target="_blank" rel="opener" />}
-              >
-                <MonitorPlay size={16} strokeWidth={2} aria-hidden />
-                Open audience view
-              </Button>
-            ) : null}
+            {/* Goes to the audience view's tab if it's open, or opens one on this slide. */}
+            <Button
+              variant="outline"
+              size="sm"
+              nativeButton={false}
+              render={<a href={viewUrl("audience", index)} target={viewTabName("audience")} rel="opener" />}
+              onClick={(event: MouseEvent) => openView("audience", indexRef.current, event)}
+            >
+              <MonitorPlay size={16} strokeWidth={2} aria-hidden />
+              Audience view
+            </Button>
           </div>
         </main>
 
         <aside className="presenter-notes" aria-label="Notes">
           <p className="presenter-notes-slide">{current ? slideName(current) : ""}</p>
           <div className="presenter-notes-body">
-            {editing && current ? (
+            {editing && current && onNotesChange ? (
               <Textarea
                 key={current.id}
                 aria-label="Presenter notes"
@@ -221,10 +215,14 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
             )}
           </div>
           <div className="presenter-notes-tools">
-            <Button variant="outline" size="sm" onClick={() => setEditing((on) => !on)} aria-pressed={editing}>
-              <Pencil size={16} strokeWidth={2} aria-hidden />
-              {editing ? "Done" : "Edit"}
-            </Button>
+            {onNotesChange ? (
+              <Button variant="outline" size="sm" onClick={() => setEditing((on) => !on)} aria-pressed={editing}>
+                <Pencil size={16} strokeWidth={2} aria-hidden />
+                {editing ? "Done" : "Edit"}
+              </Button>
+            ) : (
+              <span />
+            )}
             <div className="presenter-notes-size">
               <Button variant="outline" size="icon-sm" onClick={() => resize(-1)} disabled={notesSize <= NOTES_SIZES[0]} aria-label="Smaller notes" title="Smaller notes">
                 <Minus size={16} strokeWidth={2} aria-hidden />

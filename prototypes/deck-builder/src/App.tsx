@@ -19,8 +19,8 @@ import { readDeckFile } from "./deckFile";
 import { figmaFileName, figmaFileStamp, listSlides, loadFigmaSlides } from "./figma";
 import { FigmaLogo, FigmaSource, RemoveFigmaDialog } from "./FigmaSource";
 import { Inspector } from "./Inspector";
-import { Presenter } from "./Presenter";
-import { closeTab, openPresentChannel, presentTabUrl, readPresenterParam, type PresentMessage } from "./presentSync";
+import { Presenter } from "../../../src/deck/Presenter";
+import { closeTab, openView, readPresenterParam, viewTabName, viewUrl } from "../../../src/deck/presentSync";
 import { PublishDialog } from "./PublishDialog";
 import { StartOverDialog } from "./SourceDialogs";
 import { SlideList } from "./SlideList";
@@ -386,8 +386,9 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
 
   /*
    * Presenting opens new tabs, so the editor stays as it was: the audience view alone, or with
-   * the presenter view (notes, next slide, timer) in a second tab. Both start on the selected
-   * slide. If the browser blocks the new tab, the presentation opens here instead.
+   * the presenter view (slides, notes, timer) in a second tab. Both start on the selected slide,
+   * and a view already open in another tab is brought up instead of opening a second one. If the
+   * browser won't open a tab, the presentation opens here instead.
    */
   const [presentMenuOpen, setPresentMenuOpen] = useState(false);
   const closePresentMenu = () => window.setTimeout(() => setPresentMenuOpen(false), 0);
@@ -398,13 +399,13 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
   };
   const present = () => {
     const at = presentStart();
-    if (!window.open(presentTabUrl("audience", at), "_blank")) presentHere(at);
+    if (!openView("audience", at)) presentHere(at);
   };
   const presentWithNotes = () => {
     const at = presentStart();
-    if (!window.open(presentTabUrl("presenter", at), "_blank")) return presentHere(at);
-    // Browsers may block a second tab from one click; the presenter view then offers to open it.
-    window.open(presentTabUrl("audience", at), "_blank");
+    if (!openView("presenter", at)) return presentHere(at);
+    // Browsers may block a second tab from one click; the presenter view can open it too.
+    openView("audience", at);
   };
 
   // ⌥⌘↩ presents; ⌥⇧⌘↩ presents with notes.
@@ -420,12 +421,8 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  // In an audience view opened beside the presenter view, stay on the same slide as it.
-  const [presenterGoTo, setPresenterGoTo] = useState<{ index: number }>();
-  const presentChannel = useRef<BroadcastChannel | null>(null);
-  const presentIndex = useRef(presentFrom ?? 0);
+  // Leaving the presentation: a tab opened for presenting closes; otherwise the editor comes back.
   const closePresentation = useRef<() => void>(() => undefined);
-  const presenting = presentFrom !== null;
   useEffect(() => {
     closePresentation.current = () => {
       const deckPresent = (history.state as { deckPresent?: boolean } | null)?.deckPresent;
@@ -435,30 +432,10 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
         else history.replaceState(null, "", presentUrl(null));
         setPresentFrom(null);
       };
-      // A tab opened for presenting closes; otherwise the editor comes back.
-      if (window.opener && !deckPresent) closeTab(leaveHere);
-      else leaveHere();
+      if (deckPresent) leaveHere();
+      else closeTab(leaveHere);
     };
   });
-  useEffect(() => {
-    if (!presenting) return;
-    const channel = openPresentChannel((message) => {
-      if (message.type === "slide" && message.from === "presenter") setPresenterGoTo({ index: message.index });
-      else if (message.type === "hello") channel?.postMessage({ type: "here", index: presentIndex.current } satisfies PresentMessage);
-      else if (message.type === "end") closePresentation.current();
-    });
-    presentChannel.current = channel;
-    // Let a presenter view that opened first know this audience view is here.
-    channel?.postMessage({ type: "here", index: presentIndex.current } satisfies PresentMessage);
-    const onLeave = () => channel?.postMessage({ type: "bye" } satisfies PresentMessage);
-    window.addEventListener("pagehide", onLeave);
-    return () => {
-      onLeave();
-      window.removeEventListener("pagehide", onLeave);
-      channel?.close();
-      presentChannel.current = null;
-    };
-  }, [presenting]);
 
   /** The selected slide's presenter notes, kept with the slide. */
   const setNotes = (id: string, notes: string) =>
@@ -565,8 +542,11 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
               <DropdownMenuItem
                 className="present-option"
                 closeOnClick={false}
-                onClick={closePresentMenu}
-                render={<a href={presentTabUrl("audience", presentStart())} target="_blank" rel="opener" />}
+                onClick={(event) => {
+                  openView("audience", presentStart(), event);
+                  closePresentMenu();
+                }}
+                render={<a href={viewUrl("audience", presentStart())} target={viewTabName("audience")} rel="opener" />}
               >
                 <Play size={16} strokeWidth={2} aria-hidden />
                 Presentation
@@ -574,11 +554,12 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="present-option"
-                render={<a href={presentTabUrl("presenter", presentStart())} target="_blank" rel="opener" />}
+                render={<a href={viewUrl("presenter", presentStart())} target={viewTabName("presenter")} rel="opener" />}
                 closeOnClick={false}
-                // The presenter tab opens from the link; the audience tab too, where the browser allows a second.
-                onClick={() => {
-                  window.open(presentTabUrl("audience", presentStart()), "_blank");
+                // The presenter view from the link; the audience view too, where the browser allows a second tab.
+                onClick={(event) => {
+                  openView("presenter", presentStart(), event);
+                  openView("audience", presentStart());
                   closePresentMenu();
                 }}
               >
@@ -689,12 +670,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
           name={draft.name || "Untitled deck"}
           slides={slides}
           startIndex={presentFrom}
-          goTo={presenterGoTo}
-          onSlideChange={(at) => {
-            history.replaceState(history.state, "", presentUrl(at));
-            presentIndex.current = at;
-            presentChannel.current?.postMessage({ type: "slide", index: at, from: "audience" } satisfies PresentMessage);
-          }}
+          onSlideChange={(at) => history.replaceState(history.state, "", presentUrl(at))}
           onClose={() => closePresentation.current()}
         />
       ) : null}

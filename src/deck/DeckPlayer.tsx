@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Globe, LayoutGrid, Maximize, Minimize, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Globe, LayoutGrid, Maximize, Minimize, NotebookText, X } from "lucide-react";
+import { closeTab, openPresentChannel, openView, viewTabName, viewUrl, type PresentMessage } from "./presentSync";
 import { SlideView } from "./SlideView";
 import { isImageLoading, isPersistent, urlLabel, visibleSlides, type Slide } from "./types";
 
@@ -13,11 +14,6 @@ interface DeckPlayerProps {
   exitHref?: string;
   /** Called with the slide's position (0-based) whenever it changes, e.g. to keep a URL in step. */
   onSlideChange?: (index: number) => void;
-  /**
-   * Moves to a slide from outside, such as the presenter view in another tab. A new object each
-   * time, so asking for the same slide twice still moves there.
-   */
-  goTo?: { index: number };
 }
 
 /** How long the controls show on opening, and how long the mouse can rest before the cursor hides. */
@@ -49,7 +45,7 @@ function nearbyWebIds(slides: Slide[], index: number) {
   return slides.slice(Math.max(index - 1, 0), index + 2).filter(isPersistent).map((slide) => slide.id);
 }
 
-export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitHref, onSlideChange, goTo }: DeckPlayerProps) {
+export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitHref, onSlideChange }: DeckPlayerProps) {
   const slides = visibleSlides(allSlides);
   const standalone = !onClose;
   const rootRef = useRef<HTMLDivElement>(null);
@@ -257,12 +253,31 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   );
   const step = useCallback((delta: number) => go(indexRef.current + delta), [go]);
 
-  const handledGoTo = useRef(goTo);
+  // Stays on the same slide as the presenter view, in its own tab: moving in either moves both.
+  const presentChannel = useRef<BroadcastChannel | null>(null);
+  const followPresenter = useRef<(message: PresentMessage) => void>(() => undefined);
   useEffect(() => {
-    if (!goTo || goTo === handledGoTo.current) return;
-    handledGoTo.current = goTo;
-    if (goTo.index !== indexRef.current) go(goTo.index);
-  }, [goTo, go]);
+    followPresenter.current = (message) => {
+      if (message.type === "slide" && message.from === "presenter") {
+        if (message.index !== indexRef.current) go(message.index);
+      } else if (message.type === "hello") {
+        presentChannel.current?.postMessage({ type: "here", index: indexRef.current } satisfies PresentMessage);
+      } else if (message.type === "end" && window.opener) {
+        // Ending in the presenter view closes an audience view it opened.
+        if (onClose) onClose();
+        else closeTab(() => (exitHref ? window.location.assign(exitHref) : undefined));
+      }
+    };
+  });
+  useEffect(() => {
+    const channel = openPresentChannel((message) => followPresenter.current(message));
+    presentChannel.current = channel;
+    channel?.postMessage({ type: "here", index: indexRef.current } satisfies PresentMessage);
+    return () => {
+      channel?.close();
+      presentChannel.current = null;
+    };
+  }, []);
 
   /** Leaves the presentation: closes it in the editor, or goes back to Sandbox from a published deck. */
   const exit = useCallback(() => {
@@ -284,6 +299,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   });
   useEffect(() => {
     slideChange.current?.(index);
+    presentChannel.current?.postMessage({ type: "slide", index, from: "audience" } satisfies PresentMessage);
   }, [index]);
 
   // As an overlay, keep the page behind it from scrolling; restore it on close.
@@ -494,6 +510,18 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
           </button>
         </div>
         <div className="deck-controls-actions">
+          {/* The presenter view's tab if it's open, or a new one on this slide. */}
+          <a
+            className="deck-icon-button"
+            href={viewUrl("presenter", index)}
+            target={viewTabName("presenter")}
+            rel="opener"
+            onClick={(event) => openView("presenter", indexRef.current, event)}
+            aria-label="Presenter view"
+            title="Presenter view, with notes"
+          >
+            <NotebookText size={18} strokeWidth={2} />
+          </a>
           <button type="button" className="deck-icon-button" onClick={() => setOverview(true)} aria-label="All slides" title="All slides (G)">
             <LayoutGrid size={18} strokeWidth={2} />
           </button>

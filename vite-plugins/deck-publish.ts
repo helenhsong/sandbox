@@ -26,12 +26,14 @@ interface PublishSlideFigma {
   name: string;
   image: string;
   hidden?: boolean;
+  notes?: string;
 }
 interface PublishSlideWeb {
   id: string;
   kind: "web";
   url: string;
   title: string;
+  notes?: string;
 }
 interface PublishBody {
   deck: {
@@ -69,6 +71,11 @@ function extensionFor(contentType: string | null) {
   if (contentType?.includes("jpeg")) return "jpg";
   if (contentType?.includes("svg")) return "svg";
   return "png";
+}
+
+/** Presenter notes go out with the deck (for its presenter view); empty ones are left off. */
+function withNotes(notes: string | undefined) {
+  return notes?.trim() ? { notes } : {};
 }
 
 async function imageBytes(slide: PublishSlideFigma, dataUrl: string | undefined) {
@@ -144,14 +151,14 @@ async function publish(root: string, body: PublishBody) {
   let figmaCount = 0;
   for (const slide of slides) {
     if (slide.kind === "web") {
-      output.push({ id: slide.id, kind: "web", url: slide.url, title: slide.title });
+      output.push({ id: slide.id, kind: "web", url: slide.url, title: slide.title, ...withNotes(slide.notes) });
       continue;
     }
     figmaCount += 1;
     const { bytes, ext } = await imageBytes(slide, body.images?.[slide.id]);
     const file = `${String(figmaCount).padStart(2, "0")}.${ext}`;
     files.set(file, bytes);
-    output.push({ id: slide.id, kind: "figma", nodeId: slide.nodeId, name: slide.name, image: file });
+    output.push({ id: slide.id, kind: "figma", nodeId: slide.nodeId, name: slide.name, image: file, ...withNotes(slide.notes) });
   }
 
   const createdAt = existsSync(deckFile)
