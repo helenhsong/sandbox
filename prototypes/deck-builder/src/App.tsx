@@ -569,13 +569,8 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
                 render={<a href={presentTabUrl("audience", presentStart())} target="_blank" rel="opener" />}
               >
                 <Play size={16} strokeWidth={2} aria-hidden />
-                <span className="present-option-text">
-                  <span className="present-option-title">
-                    Present
-                    <DropdownMenuShortcut>⌥⌘↩</DropdownMenuShortcut>
-                  </span>
-                  <span className="present-option-description">The slides in a new tab</span>
-                </span>
+                Presentation
+                <DropdownMenuShortcut>⌥⌘↩</DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="present-option"
@@ -588,13 +583,8 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
                 }}
               >
                 <NotebookText size={16} strokeWidth={2} aria-hidden />
-                <span className="present-option-text">
-                  <span className="present-option-title">
-                    Present with notes
-                    <DropdownMenuShortcut>⌥⇧⌘↩</DropdownMenuShortcut>
-                  </span>
-                  <span className="present-option-description">Your notes in a second tab</span>
-                </span>
+                Presentation with notes
+                <DropdownMenuShortcut>⌥⇧⌘↩</DropdownMenuShortcut>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
