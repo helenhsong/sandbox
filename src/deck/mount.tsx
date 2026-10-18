@@ -3,8 +3,6 @@ import { createRoot } from "react-dom/client";
 import "@helenhsong/ui/style.css";
 import "./deck.css";
 import { DeckPlayer } from "./DeckPlayer";
-import { Presenter } from "./Presenter";
-import { readPresenterParam } from "./presentSync";
 import { withFigmaEmbeds, type Deck, type Slide } from "./types";
 
 /**
@@ -19,15 +17,9 @@ export function mountDeck(deck: Deck, images: Record<string, string>) {
   const slides = deck.figmaLive === false ? withImages : withFigmaEmbeds(withImages, deck.source);
   document.body.style.margin = "0";
   document.body.style.background = "#0b0b0c";
-  // ?presenter=3 is the presenter view (notes, slide list, timer), opened from the deck's controls.
-  const presenterAt = readPresenterParam();
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
-      {presenterAt !== null ? (
-        <Presenter name={deck.name} slides={slides} startIndex={presenterAt} />
-      ) : (
-        <DeckPlayer name={deck.name} slides={slides} exitHref={import.meta.env.BASE_URL} />
-      )}
+      <DeckPlayer name={deck.name} slides={slides} exitHref={import.meta.env.BASE_URL} />
     </StrictMode>,
   );
 }

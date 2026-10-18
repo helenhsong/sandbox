@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Globe, LayoutGrid, Maximize, Minimize, NotebookText, X } from "lucide-react";
-import { closeTab, openPresentChannel, openView, viewTabName, viewUrl, type PresentMessage } from "./presentSync";
+import { ChevronLeft, ChevronRight, Globe, LayoutGrid, Maximize, Minimize, X } from "lucide-react";
 import { SlideView } from "./SlideView";
 import { isImageLoading, isPersistent, urlLabel, visibleSlides, type Slide } from "./types";
 
@@ -253,32 +252,6 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   );
   const step = useCallback((delta: number) => go(indexRef.current + delta), [go]);
 
-  // Stays on the same slide as the presenter view, in its own tab: moving in either moves both.
-  const presentChannel = useRef<BroadcastChannel | null>(null);
-  const followPresenter = useRef<(message: PresentMessage) => void>(() => undefined);
-  useEffect(() => {
-    followPresenter.current = (message) => {
-      if (message.type === "slide" && message.from === "presenter") {
-        if (message.index !== indexRef.current) go(message.index);
-      } else if (message.type === "hello") {
-        presentChannel.current?.postMessage({ type: "here", index: indexRef.current } satisfies PresentMessage);
-      } else if (message.type === "end" && window.opener) {
-        // Ending in the presenter view closes an audience view it opened.
-        if (onClose) onClose();
-        else closeTab(() => (exitHref ? window.location.assign(exitHref) : undefined));
-      }
-    };
-  });
-  useEffect(() => {
-    const channel = openPresentChannel((message) => followPresenter.current(message));
-    presentChannel.current = channel;
-    channel?.postMessage({ type: "here", index: indexRef.current } satisfies PresentMessage);
-    return () => {
-      channel?.close();
-      presentChannel.current = null;
-    };
-  }, []);
-
   /** Leaves the presentation: closes it in the editor, or goes back to Sandbox from a published deck. */
   const exit = useCallback(() => {
     if (onClose) onClose();
@@ -299,7 +272,6 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
   });
   useEffect(() => {
     slideChange.current?.(index);
-    presentChannel.current?.postMessage({ type: "slide", index, from: "audience" } satisfies PresentMessage);
   }, [index]);
 
   // As an overlay, keep the page behind it from scrolling; restore it on close.
@@ -467,7 +439,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
             if (isPersistent(slide) && !mounted.has(slide.id) && !active) return null;
             return (
               <div key={slide.id} className="deck-layer" data-active={active || undefined} aria-hidden={!active} inert={!active}>
-                <SlideView slide={slide} mirror />
+                <SlideView slide={slide} />
               </div>
             );
           })}
@@ -510,18 +482,6 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
           </button>
         </div>
         <div className="deck-controls-actions">
-          {/* The presenter view's tab if it's open, or a new one on this slide. */}
-          <a
-            className="deck-icon-button"
-            href={viewUrl("presenter", index)}
-            target={viewTabName("presenter")}
-            rel="opener"
-            onClick={(event) => openView("presenter", indexRef.current, event)}
-            aria-label="Presenter view"
-            title="Presenter view, with notes"
-          >
-            <NotebookText size={18} strokeWidth={2} />
-          </a>
           <button type="button" className="deck-icon-button" onClick={() => setOverview(true)} aria-label="All slides" title="All slides (G)">
             <LayoutGrid size={18} strokeWidth={2} />
           </button>

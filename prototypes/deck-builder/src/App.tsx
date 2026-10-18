@@ -6,11 +6,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
-  Textarea,
 } from "@helenhsong/ui";
-import { ArrowLeft, ChevronDown, Download, FileUp, NotebookText, Play, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ChevronDown, Download, FileUp, Play, Plus, Trash2, Upload } from "lucide-react";
 import { DeckPlayer } from "../../../src/deck/DeckPlayer";
 import { SlideView } from "../../../src/deck/SlideView";
 import { isPersistent, visibleSlides, withFigmaEmbeds, type Deck, type Slide, type WebSlide } from "../../../src/deck/types";
@@ -19,8 +17,6 @@ import { readDeckFile } from "./deckFile";
 import { figmaFileName, figmaFileStamp, listSlides, loadFigmaSlides } from "./figma";
 import { FigmaLogo, FigmaSource, RemoveFigmaDialog } from "./FigmaSource";
 import { Inspector } from "./Inspector";
-import { Presenter } from "../../../src/deck/Presenter";
-import { closeTab, openView, readPresenterParam, viewTabName, viewUrl } from "../../../src/deck/presentSync";
 import { PublishDialog } from "./PublishDialog";
 import { StartOverDialog } from "./SourceDialogs";
 import { SlideList } from "./SlideList";
@@ -84,21 +80,9 @@ export function App() {
     setGeneration((value) => value + 1);
   };
 
-  // The presenter view (?presenter=3) is its own tab, opened with Present with notes.
-  const [presenterAt] = useState(readPresenterParam);
-  if (presenterAt !== null) return <PresenterPage draft={draft} setDraft={setDraft} startIndex={presenterAt} />;
-
   return (
     <Editor key={generation} draft={draft} setDraft={setDraft} replaceDraft={replaceDraft} token={token} setToken={setToken} />
   );
-}
-
-/** The presenter view, following the saved deck as it changes (notes edited in the editor show up here). */
-function PresenterPage({ draft, setDraft, startIndex }: { draft: Draft; setDraft: Dispatch<SetStateAction<Draft>>; startIndex: number }) {
-  const slides = useImageUrls(draft.slides);
-  const setNotes = (id: string, notes: string) =>
-    setDraft((now) => ({ ...now, slides: now.slides.map((slide) => (slide.id === id ? { ...slide, notes: notes || undefined } : slide)) }));
-  return <Presenter name={draft.name || "Untitled deck"} slides={slides} startIndex={startIndex} onNotesChange={setNotes} />;
 }
 
 /** Object URLs for the stored slide images, loaded as slides refer to them. */
@@ -193,8 +177,7 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
           .then((name) => setDraft((now) => (now.fileKey === current.fileKey ? { ...now, figmaName: name } : now)))
           .catch(() => undefined);
       }
-      // A tab that's only presenting leaves this to the editor.
-      if (document.visibilityState !== "visible" || readPresentParam() !== null) return;
+      if (document.visibilityState !== "visible") return;
       if (running || Date.now() - lastCheck < 4_000 || !current.fileKey || !key.trim() || !figmaIds.length) return;
       running = true;
       lastCheck = Date.now();
@@ -384,62 +367,11 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
 
   const rename = (name: string) => update({ name, slug: draft.slugEdited ? draft.slug : slugify(name) });
 
-  /*
-   * Presenting opens new tabs, so the editor stays as it was: the audience view alone, or with
-   * the presenter view (slides, notes, timer) in a second tab. Both start on the selected slide,
-   * and a view already open in another tab is brought up instead of opening a second one. If the
-   * browser won't open a tab, the presentation opens here instead.
-   */
-  const [presentMenuOpen, setPresentMenuOpen] = useState(false);
-  const closePresentMenu = () => window.setTimeout(() => setPresentMenuOpen(false), 0);
-  const presentStart = () => Math.max(shown.findIndex((slide) => slide.id === selected?.id), 0);
-  const presentHere = (at: number) => {
-    setPresentFrom(at);
-    history.pushState({ deckPresent: true }, "", presentUrl(at));
-  };
   const present = () => {
-    const at = presentStart();
-    if (!openView("audience", at)) presentHere(at);
+    const at = shown.findIndex((slide) => slide.id === selected?.id);
+    setPresentFrom(Math.max(at, 0));
+    history.pushState({ deckPresent: true }, "", presentUrl(Math.max(at, 0)));
   };
-  const presentWithNotes = () => {
-    const at = presentStart();
-    if (!openView("presenter", at)) return presentHere(at);
-    // Browsers may block a second tab from one click; the presenter view can open it too.
-    openView("audience", at);
-  };
-
-  // ⌥⌘↩ presents; ⌥⇧⌘↩ presents with notes.
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Enter" || !event.altKey || !(event.metaKey || event.ctrlKey)) return;
-      if (presentFrom !== null || dialog !== null || addOpen || !shown.length) return;
-      event.preventDefault();
-      if (event.shiftKey) presentWithNotes();
-      else present();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  });
-
-  // Leaving the presentation: a tab opened for presenting closes; otherwise the editor comes back.
-  const closePresentation = useRef<() => void>(() => undefined);
-  useEffect(() => {
-    closePresentation.current = () => {
-      const deckPresent = (history.state as { deckPresent?: boolean } | null)?.deckPresent;
-      const leaveHere = () => {
-        // Opened with Present here: step back to the editor's address. Opened from a link: drop the parameter.
-        if (deckPresent) history.back();
-        else history.replaceState(null, "", presentUrl(null));
-        setPresentFrom(null);
-      };
-      if (deckPresent) leaveHere();
-      else closeTab(leaveHere);
-    };
-  });
-
-  /** The selected slide's presenter notes, kept with the slide. */
-  const setNotes = (id: string, notes: string) =>
-    update({ slides: draft.slides.map((slide) => (slide.id === id ? { ...slide, notes: notes || undefined } : slide)) });
 
   /** Saves the deck as a file, images included, so it can be imported in another browser. */
   const exportDeck = async () => {
@@ -530,45 +462,10 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
           </div>
         </div>
         <div className="builder-header-actions">
-          <DropdownMenu open={presentMenuOpen} onOpenChange={setPresentMenuOpen}>
-            <DropdownMenuTrigger render={<Button variant="outline" disabled={!shown.length} />}>
-              <Play size={16} strokeWidth={2} aria-hidden />
-              Present
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="present-menu">
-              {/* Links rather than window.open, so the new tab opens wherever a link would (some
-                  browsers, Claude's included, block tabs opened from script). The menu closes just
-                  after the click, so the link is still on the page when the browser follows it. */}
-              <DropdownMenuItem
-                className="present-option"
-                closeOnClick={false}
-                onClick={(event) => {
-                  openView("audience", presentStart(), event);
-                  closePresentMenu();
-                }}
-                render={<a href={viewUrl("audience", presentStart())} target={viewTabName("audience")} rel="opener" />}
-              >
-                <Play size={16} strokeWidth={2} aria-hidden />
-                Presentation
-                <DropdownMenuShortcut>⌥⌘↩</DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="present-option"
-                render={<a href={viewUrl("presenter", presentStart())} target={viewTabName("presenter")} rel="opener" />}
-                closeOnClick={false}
-                // The presenter view from the link; the audience view too, where the browser allows a second tab.
-                onClick={(event) => {
-                  openView("presenter", presentStart(), event);
-                  openView("audience", presentStart());
-                  closePresentMenu();
-                }}
-              >
-                <NotebookText size={16} strokeWidth={2} aria-hidden />
-                Presentation with notes
-                <DropdownMenuShortcut>⌥⇧⌘↩</DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button variant="outline" onClick={present} disabled={!shown.length}>
+            <Play size={16} strokeWidth={2} aria-hidden />
+            Present
+          </Button>
           <Button onClick={() => setDialog("publish")} disabled={!shown.length}>
             <Upload size={16} strokeWidth={2} aria-hidden />
             Publish
@@ -640,15 +537,6 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
                   })}
                 </SlideMenu>
               </div>
-              <div className="slide-notes">
-                <Textarea
-                  key={selected.id}
-                  aria-label="Presenter notes"
-                  value={draft.slides[selectedIndex]?.notes ?? ""}
-                  onChange={(event) => setNotes(selected.id, event.target.value)}
-                  placeholder="Add presenter notes…"
-                />
-              </div>
             </div>
           ) : (
             <div className="builder-stage builder-preview">
@@ -671,7 +559,12 @@ function Editor({ draft, setDraft, replaceDraft, token, setToken }: EditorProps)
           slides={slides}
           startIndex={presentFrom}
           onSlideChange={(at) => history.replaceState(history.state, "", presentUrl(at))}
-          onClose={() => closePresentation.current()}
+          onClose={() => {
+            // Opened with Present: step back to the editor's address. Opened from a link: drop the parameter.
+            if ((history.state as { deckPresent?: boolean } | null)?.deckPresent) history.back();
+            else history.replaceState(null, "", presentUrl(null));
+            setPresentFrom(null);
+          }}
         />
       ) : null}
 

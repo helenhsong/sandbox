@@ -7,18 +7,14 @@ import { isImageLoading, resolveUrl, urlLabel, type FigmaSlide, type Slide, type
  * One slide at 16:9. Figma slides render as images, or (live) as Figma's own embed alone;
  * web slides as a live, interactive page filling the slide.
  */
-/**
- * `mirror`: a live page is mirrored between a deck's presenter and audience views (what's done in
- * one is done in the other). Left off for the editor's preview.
- */
-export function SlideView({ slide, mirror = false }: { slide: Slide; mirror?: boolean }) {
+export function SlideView({ slide }: { slide: Slide }) {
   if (slide.kind === "figma") {
     if (slide.embedUrl) return <FigmaFrame key={slide.embedUrl} slide={slide} src={slide.embedUrl} />;
     if (isImageLoading(slide.image)) return <div className="deck-slide-placeholder deck-slide-loading" aria-label="Loading slide" />;
     if (!slide.image) return <div className="deck-slide-placeholder">No preview from Figma.</div>;
     return <img className="deck-slide-image" src={slide.image} alt={slide.name} draggable={false} />;
   }
-  return <WebFrame slide={slide} mirror={mirror} />;
+  return <WebFrame slide={slide} />;
 }
 
 /**
@@ -46,7 +42,7 @@ function FigmaFrame({ slide, src }: { slide: FigmaSlide; src: string }) {
  */
 const SCREEN = { width: 1728, height: 972 };
 
-function WebFrame({ slide, mirror }: { slide: WebSlide; mirror: boolean }) {
+function WebFrame({ slide }: { slide: WebSlide }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
   useLayoutEffect(() => {
@@ -72,13 +68,7 @@ function WebFrame({ slide, mirror }: { slide: WebSlide; mirror: boolean }) {
     <div className="deck-web" ref={frameRef}>
       <div className="deck-web-screen" style={{ width: SCREEN.width, height: SCREEN.height, transform: `scale(${scale || 1})`, visibility: scale ? undefined : "hidden" }}>
         {/* Keyed by src so a new URL shows the loading state again. */}
-        <PageWindow
-          key={src}
-          src={src}
-          label={slide.title || urlLabel(slide.url)}
-          theme="light"
-          mirror={mirror ? { id: slide.id } : undefined}
-        />
+        <PageWindow key={src} src={src} label={slide.title || urlLabel(slide.url)} theme="light" />
       </div>
     </div>
   );
