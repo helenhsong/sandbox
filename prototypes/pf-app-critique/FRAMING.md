@@ -77,12 +77,12 @@ Helen's outline:
 - **Tabs below it:**
   - **Info:** standard profile info (email, phone, etc.), pinned items, and maybe an AI summary of what this person is good at answering questions about.
   - **Activity:** all their recent activity, like DMs or posts.
-  - **Shared:** all their shared attachments. A toggle switches to what they've shared with you specifically instead of the team (any type of file attachment).
+  - **Shared:** by default, everything they've shared (anything gated is hinted, not exposed). A "Shared with you" filter narrows it to what they've shared directly to you or to channels you're in (any type of file attachment). Each item is labeled with where it was shared (DM, thread, #channel).
 - **Also:** a summary of their messages.
 - **Privacy:** anything gated (shared in a private channel) is hinted at but not exposed.
 - **Proof:** the success metrics above (time to find a message or file, projects, shared files).
 
-Open in the outline: where the message summary sits; whether the in-panel search and expand icon from the chosen direction stay.
+Open in the outline: where "projects they're involved in" lives, or whether it's out of scope; where the message summary sits; whether the in-panel search and expand icon from the chosen direction stay.
 
 ## Captured for later Ps
 
