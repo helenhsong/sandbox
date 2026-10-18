@@ -221,7 +221,7 @@ function Sidebar({ active, onSelect }: { active: string; onSelect: (id: string) 
       <li key={id}>
         <button className="side-item" data-active={id === active || undefined} onClick={() => onSelect(id)}>
           {person ? <PersonTile person={person} size={20} /> : <Hash size={16} />}
-          {c.name}
+          <span className="side-name">{c.name}</span>
         </button>
       </li>
     );
@@ -313,7 +313,7 @@ function ChannelView({
         <div className="channel-title">
           <h1>
             {conv.kind === "channel" ? <Hash size={18} /> : null}
-            {conv.name}
+            <span className="channel-name">{conv.name}</span>
           </h1>
           {conv.topic && <span className="channel-topic">{conv.topic}</span>}
           {conv.members && (
@@ -323,7 +323,8 @@ function ChannelView({
                   <PersonTile key={id} person={people[id]} size={20} />
                 ))}
               </span>
-              {conv.members} members
+              <span className="channel-members-count">{conv.members}</span>
+              <span className="channel-members-label">members</span>
             </span>
           )}
         </div>
@@ -638,9 +639,17 @@ function InfoTab({ person, first, onJump }: { person: Person; first: string; onJ
             {person.pinned.map((p) => (
               <li key={p.label}>
                 <button className="row" onClick={() => onJump(p.target)}>
-                  {p.kind === "message" ? <MessageSquare size={16} className="row-icon" /> : <FileIcon kind={p.kind} />}
-                  <span className="row-main">{p.label}</span>
-                  <span className="row-where">{p.target.parent ? "Thread in " : ""}#{convById(p.target.conv).name}</span>
+                  {p.kind === "message" ? (
+                    <span className="file-icon" data-kind="message" aria-hidden="true">
+                      <MessageSquare size={16} />
+                    </span>
+                  ) : (
+                    <FileIcon kind={p.kind} />
+                  )}
+                  <span className="row-stack">
+                    <span className="row-main">{p.label}</span>
+                    <span className="row-sub">{p.target.parent ? "Thread in " : ""}#{convById(p.target.conv).name}</span>
+                  </span>
                 </button>
               </li>
             ))}
