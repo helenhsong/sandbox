@@ -119,7 +119,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
   const notes = current?.notes ?? "";
 
   // Live pages run here too, mirrored with the audience view: what you do on one here happens
-  // there, with your mouse shown. Each stays loaded once opened, like in the audience view.
+  // there, and the other way round. Each stays loaded once opened, like in the audience view.
   const [liveIds, setLiveIds] = useState<string[]>([]);
   if (current?.kind === "web" && !liveIds.includes(current.id)) setLiveIds([...liveIds, current.id]);
   const livePages = slides.filter((slide) => slide.kind === "web" && liveIds.includes(slide.id));
@@ -172,7 +172,7 @@ export function Presenter({ name, slides: allSlides, startIndex, onNotesChange }
                 const active = slide.id === current?.id;
                 return (
                   <div key={slide.id} className="presenter-live-layer" data-active={active || undefined} aria-hidden={!active} inert={!active}>
-                    <SlideView slide={slide} mirror="presenter" />
+                    <SlideView slide={slide} mirror />
                   </div>
                 );
               })}

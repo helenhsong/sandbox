@@ -8,13 +8,10 @@ import { isImageLoading, resolveUrl, urlLabel, type FigmaSlide, type Slide, type
  * web slides as a live, interactive page filling the slide.
  */
 /**
- * How a live page takes part in mirroring between a deck's presenter and audience views (what's
- * done in one is done in the other): "audience" also shows the presenter's mouse. Left out, the
- * page isn't mirrored (the editor's preview).
+ * `mirror`: a live page is mirrored between a deck's presenter and audience views (what's done in
+ * one is done in the other). Left off for the editor's preview.
  */
-export type MirrorRole = "presenter" | "audience";
-
-export function SlideView({ slide, mirror }: { slide: Slide; mirror?: MirrorRole }) {
+export function SlideView({ slide, mirror = false }: { slide: Slide; mirror?: boolean }) {
   if (slide.kind === "figma") {
     if (slide.embedUrl) return <FigmaFrame key={slide.embedUrl} slide={slide} src={slide.embedUrl} />;
     if (isImageLoading(slide.image)) return <div className="deck-slide-placeholder deck-slide-loading" aria-label="Loading slide" />;
@@ -49,7 +46,7 @@ function FigmaFrame({ slide, src }: { slide: FigmaSlide; src: string }) {
  */
 const SCREEN = { width: 1728, height: 972 };
 
-function WebFrame({ slide, mirror }: { slide: WebSlide; mirror?: MirrorRole }) {
+function WebFrame({ slide, mirror }: { slide: WebSlide; mirror: boolean }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
   useLayoutEffect(() => {
@@ -80,7 +77,7 @@ function WebFrame({ slide, mirror }: { slide: WebSlide; mirror?: MirrorRole }) {
           src={src}
           label={slide.title || urlLabel(slide.url)}
           theme="light"
-          mirror={mirror ? { id: slide.id, showCursor: mirror === "audience" } : undefined}
+          mirror={mirror ? { id: slide.id } : undefined}
         />
       </div>
     </div>

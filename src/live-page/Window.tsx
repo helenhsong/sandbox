@@ -112,7 +112,6 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
 
   // Mirroring (see mirror.ts): this window's input goes to the others, and theirs plays here.
   const mirrorId = mirror?.id;
-  const showCursor = Boolean(mirror?.showCursor);
   // Tells this window's own messages apart from the other windows'.
   const [instance] = useState(() => crypto.randomUUID());
   const channel = useRef<BroadcastChannel | null>(null);
@@ -122,7 +121,6 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
   // A restart asked for by another window doesn't ask the others to start over again.
   const restartedRemotely = useRef(false);
   const stopCapture = useRef<() => void>(() => undefined);
-  const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
   const perform = (action: WindowAction) => {
     if (action === "restart") restart();
     else if (action === "fill") fill();
@@ -141,8 +139,6 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
         restartedRemotely.current = true;
         return restart();
       }
-      if (showCursor && op.k === "move") setCursor({ x: op.x, y: op.y });
-      if (showCursor && op.k === "leave") setCursor(null);
       if (!loaded) return;
       try {
         const doc = frameRef.current?.contentDocument;
@@ -290,12 +286,6 @@ export function PageWindow({ src, label, openLink = true, theme = "light", mirro
           allow="clipboard-read; clipboard-write; fullscreen"
           referrerPolicy="no-referrer-when-downgrade"
         />
-        {/* Where the presenter's mouse is, so the audience can follow along. */}
-        {cursor ? (
-          <svg className="page-window-cursor" style={{ transform: `translate(${cursor.x}px, ${cursor.y}px)` }} width="20" height="24" viewBox="0 0 20 24" aria-hidden>
-            <path d="M2 1.5v18.2l4.9-4.6 3 7.1 3.4-1.5-3-6.9h6.8L2 1.5Z" fill="#111" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round" />
-          </svg>
-        ) : null}
       </div>
     </div>
   );

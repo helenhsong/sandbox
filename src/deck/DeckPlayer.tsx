@@ -467,7 +467,7 @@ export function DeckPlayer({ name, slides: allSlides, startIndex, onClose, exitH
             if (isPersistent(slide) && !mounted.has(slide.id) && !active) return null;
             return (
               <div key={slide.id} className="deck-layer" data-active={active || undefined} aria-hidden={!active} inert={!active}>
-                <SlideView slide={slide} mirror="audience" />
+                <SlideView slide={slide} mirror />
               </div>
             );
           })}
