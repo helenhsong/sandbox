@@ -77,8 +77,46 @@ button {
 
 .topbar-nav {
   display: inline-flex;
-  gap: 14px;
+  align-items: center;
+  gap: 2px;
   color: var(--sidebar-muted);
+}
+
+.topbar-btn,
+.topbar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.topbar-btn {
+  border: 0;
+  background: none;
+  color: var(--sidebar-fg);
+  cursor: pointer;
+}
+
+.topbar-btn:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.topbar-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+
+.topbar-btn:disabled {
+  color: var(--sidebar-muted);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tooltip-keys {
+  margin-left: 6px;
+  opacity: 0.7;
 }
 
 .topbar-search {
@@ -403,6 +441,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
   margin: 0;
   font-size: 18px;
   font-weight: 900;
@@ -421,11 +460,20 @@ button {
   font-weight: 700;
 }
 
+/* When the pane narrows the channel, the topic gives way first, then the name truncates; neither
+   runs under the members and icons on the right. */
 .channel-title-left {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   gap: 12px;
   min-width: 0;
+  overflow: hidden;
+}
+
+.channel-title > svg,
+.channel-title > .avatar {
+  flex-shrink: 0;
 }
 
 .channel-star {
@@ -433,11 +481,8 @@ button {
   color: var(--ink-2);
 }
 
-.channel-title {
-  flex-shrink: 0;
-}
-
 .channel-topic {
+  flex: 0 1000 auto;
   min-width: 0;
   overflow: hidden;
   color: var(--ink-3);
@@ -696,7 +741,8 @@ mark {
   font-size: 13px;
 }
 
-.thread-summary:hover {
+.thread-summary:hover,
+.thread-summary[data-lit] {
   border-color: var(--line);
   background: #fff;
 }

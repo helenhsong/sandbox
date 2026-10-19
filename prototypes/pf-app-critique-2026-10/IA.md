@@ -6,7 +6,8 @@ This is a logged-in desktop app. The prototype recreates Slack's existing shell 
 
 Added to fill essential gaps (marked *added*):
 - An entry point in the channel (avatar or name on a message) and a way out (close button, Escape).
-- Clicking a result jumps to and highlights the message. A channel message highlights in the channel while the profile stays open; a thread reply opens the Thread pane (as Slack does), with a back arrow to the profile.
+- Clicking a result always works the same way: the profile stays open, and the channel switches to where the message lives and highlights it. A thread reply highlights its parent and the parent's "N replies"; opening the thread lands on the reply, with a back arrow to the profile.
+- A way back from everywhere: Slack's top-bar back and forward (⌘[ and ⌘]) step through every view, including channel changes from a result, and land each channel and list where it was scrolled. When the right pane's content is replaced (thread over profile, profile over thread, Manager), its back arrow returns to what it replaced, with that profile's tab, search and filters intact.
 - Empty and no-results states.
 - An "Involving you" highlight inside Activity, carried over from the problem statement.
 
@@ -36,6 +37,7 @@ Workspace shell (rail + narrow sidebar)
      │  └ Shared
      └ Fixed footer: [Message] [Huddle ▾] [More ⋮]
   └ Thread pane (right pane, replaces the profile; back arrow returns to it)
+  Any pane that replaces another shows a back arrow to it; × or Escape closes the pane and clears that stack.
 ```
 
 * Expand is a cue only; it shows a "Full profile coming soon" tooltip.
@@ -43,6 +45,8 @@ Workspace shell (rail + narrow sidebar)
 ## Navigation
 
 - **Workspace rail and sidebar** control where you are (channel). Unchanged from Slack.
+- **Top-bar back and forward** (Slack's, ⌘[ and ⌘]) return to any earlier view: channel, pane, tab. Same history as the prototype window's arrows.
+- **Right-pane back arrow** returns to the pane this one replaced ("Back to Priya's profile", "Back to thread").
 - **Profile tabs** control which view of this person you see. Search and filters sit above the tabs and apply to Activity and Shared. Typing in search from Info switches to Activity.
 - Rejected: a full-page profile. The new joiner needs to stay in the busy channel, and Slack's right pane already keeps context visible.
 
@@ -68,7 +72,7 @@ Workspace shell (rail + narrow sidebar)
 
 More menu: Copy display name · View files · Copy member ID, Copy link to profile · Hide (destructive).
 
-**Thread pane (right pane).** Header with a back arrow (when opened from a profile), "Thread", the channel, and Close. Parent message, "N replies" divider, replies, reply composer.
+**Thread pane (right pane).** Header with a back arrow (when it replaced a profile or another thread), "Thread", the channel, and Close. The profile header gets the same back arrow when it replaced a thread or another profile. Parent message, "N replies" divider, replies, reply composer.
 
 Primary action on the panel: finding and opening a message or file. Message and Huddle stay as Slack has them, in the footer.
 
@@ -77,7 +81,7 @@ Primary action on the panel: finding and opening a message or file. Message and 
 1. In #proj-harbor-launch, click Priya's name or avatar.
 2. The profile opens on Info. Switch to Activity, or type in search ("staging").
 3. Narrow with a filter (Involving you, or Threads).
-4. Click the message. A channel message scrolls into view and highlights while the profile stays open; Priya's staging reply opens in the Thread pane, highlighted, with a back arrow to her profile.
+4. Click the message. The profile stays open; the channel scrolls to it and highlights it. Priya's staging reply is in a thread, so its parent and "3 replies" highlight; clicking that opens the thread on the reply, with a back arrow to her profile. Top-bar back returns to the channel Sam started in.
 
 ## Assumptions
 

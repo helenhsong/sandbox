@@ -63,6 +63,7 @@ import {
   X,
 } from "lucide-react";
 import { useDeckFill, useHistoryState } from "../../../src/live-page";
+import { DECK_HISTORY_EVENT, type LivePageWindow } from "../../../src/live-page/contract";
 import {
   CHANNELS,
   ME,
@@ -83,14 +84,18 @@ import {
 } from "./data";
 
 type Tab = "info" | "activity" | "shared";
-// The right pane shows the thread when one is open, otherwise the profile; closing a thread
-// opened from a profile result returns to that profile.
-type View = { channel: ChannelId; profile: PersonId | null; tab: Tab; thread: string | null };
+// The right pane shows the thread when one is open, otherwise the profile. Whenever the pane's
+// content is replaced (a result opens a thread, a name in a thread opens a profile, Manager opens
+// another profile), what it replaced goes on `prev`, so the pane's back arrow returns to it with
+// its tab intact. Closing the pane clears the stack. The top bar's back and forward step through
+// every view, channel changes included.
+type Pane = { profile: PersonId | null; tab: Tab; thread: string | null; prev: Pane | null };
+type View = { channel: ChannelId } & Pane;
 type TypeFilter = "message" | "thread" | "file";
 type DateFilter = "any" | "7" | "30";
 type Filters = { query: string; types: TypeFilter[]; where: ChannelId[]; date: DateFilter; involving: boolean };
 
-const START: View = { channel: "proj-harbor-launch", profile: null, tab: "info", thread: null };
+const START: View = { channel: "proj-harbor-launch", profile: null, tab: "info", thread: null, prev: null };
 const NO_FILTERS: Filters = { query: "", types: [], where: [], date: "any", involving: false };
 
 const TYPE_LABELS: Record<TypeFilter, string> = { message: "Messages", thread: "Threads", file: "Files" };
@@ -99,21 +104,43 @@ const DATE_ORDER: DateFilter[] = ["any", "7", "30"];
 
 export function App() {
   const [view, setView] = useHistoryState<View>("view", START);
-  const [filters, setFilters] = useState<Filters>(NO_FILTERS);
+  // Each person keeps their own search and filters, so going back to a profile finds it as you left it.
+  const [filtersBy, setFiltersBy] = useState<Partial<Record<PersonId, Filters>>>({});
   const [highlight, setHighlight] = useState<{ id: string; n: number } | null>(null);
+  const filters = (view.profile && filtersBy[view.profile]) || NO_FILTERS;
+  const setFilters = (next: Filters, id: PersonId | null = view.profile) => {
+    if (id) setFiltersBy((all) => ({ ...all, [id]: next }));
+  };
+
+  const pane = (): Pane | null =>
+    view.profile || view.thread ? { profile: view.profile, tab: view.tab, thread: view.thread, prev: view.prev } : null;
+  const inStack = (id: PersonId) => {
+    for (let p = pane(); p; p = p.prev) if (p.profile === id) return true;
+    return false;
+  };
+  // Replaces the pane's content, keeping what it showed so the back arrow can return to it.
+  const showPane = (next: Omit<Pane, "prev">, channel = view.channel) => setView({ channel, ...next, prev: pane() });
 
   const openProfile = (id: PersonId) => {
-    if (view.profile !== id) setFilters(NO_FILTERS);
-    setView({ ...view, profile: id, thread: null, tab: view.profile === id ? view.tab : "info" });
+    if (view.profile === id && !view.thread) return;
+    // A fresh look at someone starts unfiltered; a profile still in the back stack keeps its search.
+    if (!inStack(id)) setFilters(NO_FILTERS, id);
+    showPane({ profile: id, tab: "info", thread: null });
   };
-  const closePane = () => setView({ ...view, profile: null, thread: null });
-  const openThread = (id: string) => setView({ ...view, thread: id });
+  const openThread = (id: string) => {
+    if (view.thread !== id) showPane({ profile: null, tab: view.tab, thread: id });
+  };
+  const paneBack = () => view.prev && setView({ channel: view.channel, ...view.prev });
+  const closePane = () => setView({ ...view, profile: null, thread: null, prev: null });
 
-  // A reply opens its thread in the right pane; a channel message keeps the profile open.
+  // Every result opens the same way: the profile stays open, the channel switches to where the
+  // message lives and highlights it. A thread reply highlights its parent; "N replies" then opens
+  // the thread scrolled to the reply, with a back arrow to the profile. The top bar's back
+  // returns to the channel you were in.
   const jumpTo = (id: string) => {
     const msg = findMessage(id);
     if (!msg) return;
-    setView({ ...view, channel: msg.channel, thread: msg.parentId ?? null });
+    setView({ ...view, channel: msg.channel });
     setHighlight({ id, n: (highlight?.n ?? 0) + 1 });
   };
 
@@ -122,21 +149,24 @@ export function App() {
     const onKey = (e: KeyboardEvent) => {
       // Escape closes the filters popover first, then the right pane.
       if (e.key !== "Escape" || e.defaultPrevented || document.querySelector(".filter-pop")) return;
-      setView({ ...view, profile: null, thread: null });
+      setView({ ...view, profile: null, thread: null, prev: null });
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [view, setView]);
 
   // Happy path: open Priya's profile on Activity, narrowed to what involves Sam and "staging",
-  // so the message Sam is trying to remember is in view.
-  useDeckFill(view.thread ? null : () => {
-    if (view.profile !== "priya" || view.tab !== "activity") setView({ ...view, profile: "priya", tab: "activity" });
-    setFilters((f) => {
-      const base = view.profile === "priya" ? f : NO_FILTERS;
-      return { ...base, query: base.query || "staging", involving: true };
-    });
+  // so the message Sam is trying to remember is in view. Offered only while something is left to
+  // fill, so the window's fast-forward button disappears once it's done (and while a thread is open).
+  const priya = view.profile === "priya" ? filters : NO_FILTERS;
+  const filled = view.profile === "priya" && view.tab === "activity" && !!priya.query && priya.involving;
+  useDeckFill(view.thread || filled ? null : () => {
+    if (view.profile === "priya") setView({ ...view, tab: "activity" });
+    else showPane({ profile: "priya", tab: "activity", thread: null });
+    setFilters({ ...priya, query: priya.query || "staging", involving: true }, "priya");
   });
+
+  const backLabel = view.prev ? (view.prev.thread ? "Back to thread" : `Back to ${PEOPLE[view.prev.profile!].first}'s profile`) : null;
 
   return (
     <Toaster toastManager={toast}>
@@ -158,8 +188,8 @@ export function App() {
                 <ThreadPane
                   parentId={view.thread}
                   highlight={highlight}
-                  canGoBack={!!view.profile}
-                  onBack={() => setView({ ...view, thread: null })}
+                  backLabel={backLabel}
+                  onBack={paneBack}
                   onClose={closePane}
                   onOpenProfile={openProfile}
                 />
@@ -170,7 +200,9 @@ export function App() {
                   tab={view.tab}
                   onTab={(tab) => setView({ ...view, tab })}
                   filters={filters}
-                  onFilters={setFilters}
+                  onFilters={(f) => setFilters(f)}
+                  backLabel={backLabel}
+                  onBack={paneBack}
                   onClose={closePane}
                   onJump={jumpTo}
                   selected={highlight?.id}
@@ -188,19 +220,58 @@ export function App() {
 
 /* ---------- Shell ---------- */
 
+// Slack's own back and forward, stepping through the same view history as the prototype window.
 function TopBar() {
+  const history = (window as Window & LivePageWindow).deckHistory;
+  const [, rerender] = useState(0);
+  useEffect(() => {
+    const update = () => rerender((n) => n + 1);
+    // ⌘[ and ⌘], as in Slack.
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return;
+      if (e.key === "[") history?.back();
+      else if (e.key === "]") history?.forward();
+      else return;
+      e.preventDefault();
+    };
+    window.addEventListener(DECK_HISTORY_EVENT, update);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener(DECK_HISTORY_EVENT, update);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [history]);
   return (
     <header className="topbar">
-      <span className="topbar-nav" aria-hidden>
-        <ArrowLeft size={18} />
-        <ArrowRight size={18} />
-        <History size={18} />
+      <span className="topbar-nav">
+        <NavButton label="Back" keys="⌘[" disabled={!history?.canBack()} onClick={() => history?.back()}>
+          <ArrowLeft size={18} aria-hidden />
+        </NavButton>
+        <NavButton label="Forward" keys="⌘]" disabled={!history?.canForward()} onClick={() => history?.forward()}>
+          <ArrowRight size={18} aria-hidden />
+        </NavButton>
+        <span className="topbar-icon" aria-hidden>
+          <History size={18} />
+        </span>
       </span>
       <div className="topbar-search">
         <Search size={14} aria-hidden />
         <input aria-label="Search Harbor" placeholder="Search Harbor" />
       </div>
     </header>
+  );
+}
+
+function NavButton({ label, keys, disabled, onClick, children }: { label: string; keys: string; disabled: boolean; onClick: () => void; children: ReactNode }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger render={<button type="button" className="topbar-btn" aria-label={label} aria-keyshortcuts={keys === "⌘[" ? "Meta+BracketLeft" : "Meta+BracketRight"} disabled={disabled} onClick={onClick} />}>
+        {children}
+      </TooltipTrigger>
+      <TooltipContent>
+        {label} <span className="tooltip-keys">{keys}</span>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -298,6 +369,9 @@ function Sidebar({ current, onSelect }: { current: ChannelId; onSelect: (id: Cha
 
 /* ---------- Channel ---------- */
 
+// Where each channel was scrolled, so coming back to one (sidebar or back) lands where you left it.
+const channelScroll = new Map<ChannelId, number>();
+
 function ChannelView({
   channelId,
   openThread,
@@ -316,28 +390,33 @@ function ChannelView({
   const listRef = useRef<HTMLDivElement>(null);
   const dmPerson = channel.dm ? PEOPLE[channel.dm] : null;
 
-  // Open at the latest message, as Slack does.
-  const jumpingHere = useRef(false);
+  // A new jump scrolls to its message (below). Otherwise go back to where this channel was left,
+  // or open at the latest message, as Slack does.
+  const handled = useRef(0);
+  const latest = useRef(highlight);
   useLayoutEffect(() => {
-    jumpingHere.current = !!highlight && findMessage(highlight.id)?.channel === channelId;
+    latest.current = highlight;
   });
   useLayoutEffect(() => {
-    const toBottom = () => {
+    if (latest.current && latest.current.n !== handled.current) return;
+    const saved = channelScroll.get(channelId);
+    const restore = () => {
       const list = listRef.current;
-      if (list && !jumpingHere.current) list.scrollTop = list.scrollHeight;
+      if (list) list.scrollTop = saved ?? list.scrollHeight;
     };
-    toBottom();
+    restore();
     // Fonts and the window's first layout can change the height after mount.
-    document.fonts?.ready.then(() => requestAnimationFrame(toBottom));
+    if (saved === undefined) document.fonts?.ready.then(() => requestAnimationFrame(restore));
   }, [channelId]);
 
   useEffect(() => {
-    if (!highlight) return;
+    if (!highlight || highlight.n === handled.current) return;
+    handled.current = highlight.n;
     const target = findMessage(highlight.id);
     const el = document.getElementById(`msg-${target?.parentId ?? highlight.id}`);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     el?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
-  }, [highlight, channelId]);
+  }, [highlight]);
 
   return (
     <main className="channel">
@@ -353,7 +432,7 @@ function ChannelView({
             ) : (
               <Hash size={18} strokeWidth={2.5} aria-hidden />
             )}
-            {channel.name}
+            <span className="truncate">{channel.name}</span>
           </h1>
           {channel.topic && <span className="channel-topic">{channel.topic}</span>}
           </span>
@@ -388,7 +467,7 @@ function ChannelView({
         </div>
       </header>
 
-      <div className="channel-list" ref={listRef}>
+      <div key={channelId} className="channel-list" ref={listRef} onScroll={(e) => channelScroll.set(channelId, e.currentTarget.scrollTop)}>
         {messages.map((msg, i) => (
           <Fragment key={msg.id}>
             {(i === 0 || messages[i - 1].ago !== msg.ago) && (
@@ -440,11 +519,13 @@ function MessageItem({
   onOpenThread?: () => void;
 }) {
   const author = PEOPLE[msg.author];
-  const lit = highlight?.id === msg.id;
   const replies = msg.replies ?? [];
+  // In the channel, a highlighted thread reply lights up its parent, since the reply lives in the thread.
+  const replyLit = idPrefix === "msg" && replies.some((r) => r.id === highlight?.id);
+  const lit = highlight?.id === msg.id || replyLit;
   const className = ["msg", lit && "is-highlighted", threadOpen && "is-thread-open"].filter(Boolean).join(" ");
   return (
-    <article id={`${idPrefix}-${msg.id}`} key={lit ? `lit-${highlight.n}` : "rest"} className={className}>
+    <article id={`${idPrefix}-${msg.id}`} key={lit ? `lit-${highlight?.n}` : "rest"} className={className}>
       <button type="button" className="msg-avatar" onClick={() => onOpenProfile(author.id)} aria-label={`Open ${author.name}'s profile`}>
         <PersonAvatar person={author} size={36} />
       </button>
@@ -469,7 +550,7 @@ function MessageItem({
           </div>
         )}
         {replies.length > 0 && onOpenThread && (
-          <button type="button" className="thread-summary" onClick={onOpenThread}>
+          <button type="button" className="thread-summary" data-lit={replyLit || undefined} onClick={onOpenThread}>
             <span className="avatar-stack" aria-hidden>
               {[...new Set(replies.map((r) => r.author))].slice(0, 3).map((id) => (
                 <PersonAvatar key={id} person={PEOPLE[id]} size={20} />
@@ -489,14 +570,14 @@ function MessageItem({
 function ThreadPane({
   parentId,
   highlight,
-  canGoBack,
+  backLabel,
   onBack,
   onClose,
   onOpenProfile,
 }: {
   parentId: string;
   highlight: { id: string; n: number } | null;
-  canGoBack: boolean;
+  backLabel: string | null;
   onBack: () => void;
   onClose: () => void;
   onOpenProfile: (id: PersonId) => void;
@@ -516,14 +597,7 @@ function ThreadPane({
     <aside className="pane" aria-label="Thread">
       <header className="pane-head">
         <span className="pane-title">
-          {canGoBack && (
-            <Tooltip>
-              <TooltipTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Back to profile" onClick={onBack} />}>
-                <ChevronLeft size={18} aria-hidden />
-              </TooltipTrigger>
-              <TooltipContent>Back to profile</TooltipContent>
-            </Tooltip>
-          )}
+          {backLabel && <PaneBack label={backLabel} onClick={onBack} />}
           <h2>Thread</h2>
           <span className="pane-sub">{channel.dm ? channel.name : <ChannelLabel id={channel.id} />}</span>
         </span>
@@ -555,6 +629,17 @@ function ThreadPane({
         </div>
       </div>
     </aside>
+  );
+}
+
+function PaneBack({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger render={<Button variant="ghost" size="icon-sm" aria-label={label} onClick={onClick} />}>
+        <ChevronLeft size={18} aria-hidden />
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -640,6 +725,8 @@ function PersonAvatar({ person, size, dot }: { person: Person; size: number; dot
 
 /* ---------- Profile ---------- */
 
+const profileScroll = new Map<string, number>();
+
 type Activity = Message & { reason: string | null };
 
 function useProfileData(person: Person, filters: Filters) {
@@ -697,6 +784,8 @@ function ProfilePanel({
   onTab,
   filters,
   onFilters,
+  backLabel,
+  onBack,
   onClose,
   onJump,
   selected,
@@ -709,6 +798,8 @@ function ProfilePanel({
   onTab: (tab: Tab) => void;
   filters: Filters;
   onFilters: (f: Filters) => void;
+  backLabel: string | null;
+  onBack: () => void;
   onClose: () => void;
   onJump: (id: string) => void;
   onOpenProfile: (id: PersonId) => void;
@@ -725,10 +816,20 @@ function ProfilePanel({
     if (tab === "info" && query.trim()) onTab("activity");
   };
 
+  // Each person and tab keeps its scroll, so coming back to a list lands on the row you opened.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const scrollKey = `${person.id}:${tab}`;
+  useLayoutEffect(() => {
+    if (bodyRef.current) bodyRef.current.scrollTop = profileScroll.get(scrollKey) ?? 0;
+  }, [scrollKey]);
+
   return (
     <aside className="pane profile" aria-label={`${person.name}'s profile`}>
       <header className="pane-head">
-        <h2>Profile</h2>
+        <span className="pane-title">
+          {backLabel && <PaneBack label={backLabel} onClick={onBack} />}
+          <h2>Profile</h2>
+        </span>
         <span className="pane-actions">
           <Tooltip>
             <TooltipTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Expand profile" />}>
@@ -796,7 +897,7 @@ function ProfilePanel({
         </TabsList>
       </Tabs>
 
-      <div className="profile-body">
+      <div className="profile-body" ref={bodyRef} onScroll={(e) => profileScroll.set(scrollKey, e.currentTarget.scrollTop)}>
         {tab === "info" && <InfoTab person={person} pinned={pinned} onJump={onJump} onOpenProfile={onOpenProfile} />}
         {tab === "activity" && (
           <ActivityTab person={person} items={activity} filters={filters} narrowed={narrowed} selected={selected} onJump={onJump} onClear={clear} />

@@ -46,7 +46,9 @@ from [`src/live-page`](src/live-page/mount.tsx), and uses the hooks in
   fast-forward button runs it, always along the happy path: fill in realistic
   values for whatever is still empty or invalid, load sample data into an
   empty screen, or finish a simulated wait with its successful outcome
-  (approving a review, say).
+  (approving a review, say). Pass `null` as soon as there's nothing left to
+  fill, so the window hides its fast-forward button instead of offering a
+  fill that would change nothing.
 
 Don't add sample, shortcut or "prototype only" controls to the prototype itself.
 

@@ -90,7 +90,8 @@ function announceFill() {
  * (leaving what the user entered), loads sample data into an empty screen, or finishes a
  * simulated wait with its successful outcome (approving a review, say). Filling doesn't
  * continue to the next step; the presenter presses the screen's own action. Pass `null` while
- * the screen has nothing to do.
+ * the screen has nothing to do, including once everything the fill would set is in place: the
+ * window hides its button whenever no fill is offered.
  */
 export function useDeckFill(fill: (() => void) | null) {
   const handler = useRef<() => void>(() => {});

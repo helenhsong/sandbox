@@ -113,8 +113,16 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
     }, 1200);
   };
 
-  // In a deck, the window's fast-forward button fills in whatever this step still needs.
-  useDeckFill(() => {
+  // In a deck, the window's fast-forward button fills in whatever this step still needs. It's
+  // offered only while something is missing, so the button disappears once the step is complete.
+  const price = Number(book.price);
+  const needsFill =
+    step === 1
+      ? !book.title.trim() || !book.author.trim() || !book.manuscript || !book.description.trim()
+      : step === 3
+        ? book.audience == null || !(book.price && Number.isFinite(price) && price >= 0.99 && price <= 200)
+        : step === 4 && (book.reviewType == null || !terms);
+  useDeckFill(needsFill ? () => {
     if (step === 1) {
       const title = book.title.trim() || "The Lantern Keeper";
       set({
@@ -133,7 +141,7 @@ export function PublishFlow({ initial, resubmit, onSaveExit, onSubmit }: Props) 
       setTerms(true);
       setErrors((e) => ({ ...e, terms: undefined }));
     }
-  });
+  } : null);
 
   const r = royalty(book.price);
 

@@ -66,8 +66,15 @@ export function PublishFlow({ initial, resubmit, onExit, onSubmit }: Props) {
     else go(step + 1);
   };
 
-  // In a deck, the window's fast-forward button fills in whatever this step still needs.
-  useDeckFill(() => {
+  // In a deck, the window's fast-forward button fills in whatever this step still needs. It's
+  // offered only while something is missing, so the button disappears once the step is complete.
+  const needsFill =
+    step === 0
+      ? !book.title.trim() || !book.author.trim() || !book.genre || !book.manuscript
+      : step === 2
+        ? book.rating == null || !earnings(book.price)
+        : step === 3 && !agreed;
+  useDeckFill(needsFill ? () => {
     if (step === 0) {
       const title = book.title.trim() || "The Lantern Keeper";
       update({
@@ -82,7 +89,7 @@ export function PublishFlow({ initial, resubmit, onExit, onSubmit }: Props) {
       setAgreed(true);
       setErrors((e) => ({ ...e, terms: undefined }));
     }
-  });
+  } : null);
 
   const generate = () => {
     setGenerating(true);
