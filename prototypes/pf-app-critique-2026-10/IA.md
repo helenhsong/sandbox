@@ -7,7 +7,7 @@ This is a logged-in desktop app. The prototype recreates Slack's existing shell 
 Added to fill essential gaps (marked *added*):
 - An entry point in the channel (avatar or name on a message) and a way out (close button, Escape).
 - Clicking a result always works the same way: the profile stays open, and the channel switches to where the message lives and highlights it. A thread reply highlights its parent and the parent's "N replies"; opening the thread lands on the reply, with a back arrow to the profile.
-- A way back from everywhere: Slack's top-bar back and forward (⌘[ and ⌘]) step through every view, including channel changes from a result, and land each channel and list where it was scrolled. When the right pane's content is replaced (thread over profile, profile over thread, Manager), its back arrow returns to what it replaced, with that profile's tab, search and filters intact.
+- A way back from everywhere: Slack's top-bar back and forward (⌘[ and ⌘]) step through every view, including channel changes from a result, and land each channel and list where it was scrolled. When you navigate from inside the profile (Manager, or the "N replies" a profile result highlighted), the new pane gets a back arrow to that profile, with its tab, search and filters intact. Opening a profile or thread from the channel or a thread starts a fresh pane with no back arrow.
 - Empty and no-results states.
 - An "Involving you" highlight inside Activity, carried over from the problem statement.
 
@@ -37,7 +37,7 @@ Workspace shell (rail + narrow sidebar)
      │  └ Shared
      └ Fixed footer: [Message] [Huddle ▾] [More ⋮]
   └ Thread pane (right pane, replaces the profile; back arrow returns to it)
-  Any pane that replaces another shows a back arrow to it; × or Escape closes the pane and clears that stack.
+  A pane shows a back arrow only when it was opened from the profile; × or Escape closes the pane and clears that stack.
 ```
 
 * Expand is a cue only; it shows a "Full profile coming soon" tooltip.
@@ -46,7 +46,7 @@ Workspace shell (rail + narrow sidebar)
 
 - **Workspace rail and sidebar** control where you are (channel). Unchanged from Slack.
 - **Top-bar back and forward** (Slack's, ⌘[ and ⌘]) return to any earlier view: channel, pane, tab. Same history as the prototype window's arrows.
-- **Right-pane back arrow** returns to the pane this one replaced ("Back to Priya's profile", "Back to thread").
+- **Right-pane back arrow** returns to the profile you navigated from ("Back to Priya's profile"). It appears only after navigating from the profile, never when a pane is opened fresh from the channel or a thread.
 - **Profile tabs** control which view of this person you see. Search and filters sit above the tabs and apply to Activity and Shared. Typing in search from Info switches to Activity.
 - Rejected: a full-page profile. The new joiner needs to stay in the busy channel, and Slack's right pane already keeps context visible.
 
@@ -72,7 +72,7 @@ Workspace shell (rail + narrow sidebar)
 
 More menu: Copy display name · View files · Copy member ID, Copy link to profile · Hide (destructive).
 
-**Thread pane (right pane).** Header with a back arrow (when it replaced a profile or another thread), "Thread", the channel, and Close. The profile header gets the same back arrow when it replaced a thread or another profile. Parent message, "N replies" divider, replies, reply composer.
+**Thread pane (right pane).** Header with a back arrow (only when opened from a profile result), "Thread", the channel, and Close. The profile header gets the same back arrow only when opened from another profile (Manager). Parent message, "N replies" divider, replies, reply composer.
 
 Primary action on the panel: finding and opening a message or file. Message and Huddle stay as Slack has them, in the footer.
 

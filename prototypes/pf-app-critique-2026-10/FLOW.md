@@ -7,7 +7,7 @@ code.
 
 ## Screens (`useHistoryState` key in `App.tsx`)
 
-All screen state lives in one key, `view`: `{ channel, profile, tab, thread, prev }`. Every change below adds a step. The right pane shows the thread when `thread` is set, otherwise the profile. `prev` is the pane this one replaced (a stack), which the pane's back arrow returns to.
+All screen state lives in one key, `view`: `{ channel, profile, tab, thread, prev }`. Every change below adds a step. The right pane shows the thread when `thread` is set, otherwise the profile. `prev` is the profile this pane was opened from (a stack), which the pane's back arrow returns to; it's set only for navigation that starts from the profile.
 
 Slack's top-bar back and forward (and ⌘[ / ⌘]) call the same history as the window's arrows, so every step is reachable from inside the product too. Channels and profile lists keep their scroll position per channel and per person and tab, and each person keeps their own search and filters, so going back lands where you left off.
 
@@ -18,7 +18,7 @@ Slack's top-bar back and forward (and ⌘[ / ⌘]) call the same history as the 
 | Profile tab (Info default, Activity, Shared) | Tabs; typing in search on Info switches to Activity; More → View files | — |
 | Thread pane (right pane) | "N replies" on a channel message (including after a reply result highlighted it) | None (fast-forward is off while a thread is open) |
 
-Closing the right pane (× or Escape) adds a step with `profile: null, thread: null, prev: null`. Whenever a pane replaces another (thread over profile, profile from a name in a thread, Manager), its header shows a back arrow ("Back to Priya's profile", "Back to thread") that returns to it with its tab, search and filters intact.
+Closing the right pane (× or Escape) adds a step with `profile: null, thread: null, prev: null`. Only navigation that starts from the profile (Manager on Info, or "N replies" on the message a profile result highlighted, while the profile is open) shows a back arrow ("Back to Priya's profile") that returns to it with its tab, search and filters intact. Opening a profile or thread from the channel, or a name in a thread, starts a fresh pane with no back arrow.
 
 ## Flow steps (`useHistoryState(…, { nested: true })`)
 
@@ -41,7 +41,7 @@ name, View files, Copy member ID, Copy link to profile (each shows a "copied" to
 Filters: Involving you (mentions, name mentions, DMs, threads Sam is in), Type (Messages, Threads,
 Files; Activity only), Where (channels Priya posts in), Date (any, 7 or 30 days). Search and all
 filters apply to Activity; Shared uses search, Where, Date and Involving you. Filters reset when
-you open someone who isn't already in the pane's back stack; going back to a profile restores them.
+you open someone fresh; going back to a profile with the back arrow restores them.
 
 ## Simulated waits
 

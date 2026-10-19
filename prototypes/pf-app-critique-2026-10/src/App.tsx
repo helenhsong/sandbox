@@ -118,24 +118,27 @@ export function App() {
     for (let p = pane(); p; p = p.prev) if (p.profile === id) return true;
     return false;
   };
-  // Replaces the pane's content, keeping what it showed so the back arrow can return to it.
-  const showPane = (next: Omit<Pane, "prev">, channel = view.channel) => setView({ channel, ...next, prev: pane() });
+  // Shows new content in the right pane. Only navigation that starts from the profile
+  // (Manager, or "N replies" on the message a profile result highlighted) keeps the profile
+  // behind it for the back arrow; opening something from the channel or a thread starts fresh.
+  const showPane = (next: Omit<Pane, "prev">, fromProfile: boolean) =>
+    setView({ channel: view.channel, ...next, prev: fromProfile && view.profile && !view.thread ? pane() : null });
 
-  const openProfile = (id: PersonId) => {
+  const openProfile = (id: PersonId, fromProfile = false) => {
     if (view.profile === id && !view.thread) return;
     // A fresh look at someone starts unfiltered; a profile still in the back stack keeps its search.
-    if (!inStack(id)) setFilters(NO_FILTERS, id);
-    showPane({ profile: id, tab: "info", thread: null });
+    if (!(fromProfile && inStack(id))) setFilters(NO_FILTERS, id);
+    showPane({ profile: id, tab: "info", thread: null }, fromProfile);
   };
-  const openThread = (id: string) => {
-    if (view.thread !== id) showPane({ profile: null, tab: view.tab, thread: id });
+  const openThread = (id: string, fromProfile = false) => {
+    if (view.thread !== id) showPane({ profile: null, tab: view.tab, thread: id }, fromProfile);
   };
   const paneBack = () => view.prev && setView({ channel: view.channel, ...view.prev });
   const closePane = () => setView({ ...view, profile: null, thread: null, prev: null });
 
   // Every result opens the same way: the profile stays open, the channel switches to where the
   // message lives and highlights it. A thread reply highlights its parent; "N replies" then opens
-  // the thread scrolled to the reply, with a back arrow to the profile. The top bar's back
+  // the thread scrolled to the reply, with a back arrow to the profile while it's still open. The top bar's back
   // returns to the channel you were in.
   const jumpTo = (id: string) => {
     const msg = findMessage(id);
@@ -162,7 +165,7 @@ export function App() {
   const filled = view.profile === "priya" && view.tab === "activity" && !!priya.query && priya.involving;
   useDeckFill(view.thread || filled ? null : () => {
     if (view.profile === "priya") setView({ ...view, tab: "activity" });
-    else showPane({ profile: "priya", tab: "activity", thread: null });
+    else showPane({ profile: "priya", tab: "activity", thread: null }, false);
     setFilters({ ...priya, query: priya.query || "staging", involving: true }, "priya");
   });
 
@@ -181,7 +184,7 @@ export function App() {
                 channelId={view.channel}
                 openThread={view.thread}
                 highlight={highlight}
-                onOpenProfile={openProfile}
+                onOpenProfile={(id) => openProfile(id)}
                 onOpenThread={openThread}
               />
               {view.thread && (
@@ -191,7 +194,7 @@ export function App() {
                   backLabel={backLabel}
                   onBack={paneBack}
                   onClose={closePane}
-                  onOpenProfile={openProfile}
+                  onOpenProfile={(id) => openProfile(id)}
                 />
               )}
               {view.profile && !view.thread && (
@@ -206,7 +209,7 @@ export function App() {
                   onClose={closePane}
                   onJump={jumpTo}
                   selected={highlight?.id}
-                  onOpenProfile={openProfile}
+                  onOpenProfile={(id) => openProfile(id, true)}
                   onMessage={(channel) => setView({ ...view, channel })}
                 />
               )}
@@ -383,7 +386,7 @@ function ChannelView({
   openThread: string | null;
   highlight: { id: string; n: number } | null;
   onOpenProfile: (id: PersonId) => void;
-  onOpenThread: (id: string) => void;
+  onOpenThread: (id: string, fromProfile: boolean) => void;
 }) {
   const channel = channelById(channelId);
   const messages = MESSAGES.filter((msg) => msg.channel === channelId);
@@ -481,7 +484,7 @@ function ChannelView({
               highlight={highlight}
               threadOpen={openThread === msg.id}
               onOpenProfile={onOpenProfile}
-              onOpenThread={() => onOpenThread(msg.id)}
+              onOpenThread={(fromResult) => onOpenThread(msg.id, fromResult)}
             />
           </Fragment>
         ))}
@@ -516,7 +519,7 @@ function MessageItem({
   highlight: { id: string; n: number } | null;
   threadOpen?: boolean;
   onOpenProfile: (id: PersonId) => void;
-  onOpenThread?: () => void;
+  onOpenThread?: (fromResult: boolean) => void;
 }) {
   const author = PEOPLE[msg.author];
   const replies = msg.replies ?? [];
@@ -550,7 +553,7 @@ function MessageItem({
           </div>
         )}
         {replies.length > 0 && onOpenThread && (
-          <button type="button" className="thread-summary" data-lit={replyLit || undefined} onClick={onOpenThread}>
+          <button type="button" className="thread-summary" data-lit={replyLit || undefined} onClick={() => onOpenThread(replyLit)}>
             <span className="avatar-stack" aria-hidden>
               {[...new Set(replies.map((r) => r.author))].slice(0, 3).map((id) => (
                 <PersonAvatar key={id} person={PEOPLE[id]} size={20} />
