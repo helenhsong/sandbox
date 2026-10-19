@@ -1,10 +1,3 @@
-/* Every scrollbar thin, with a transparent track (light thumb on the dark player). */
-.deck-player,
-.deck-player * {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(255 255 255 / 0.25) transparent;
-}
-
 /* Presentation player shared by Deck Builder and every published deck. The player is always dark, like a projector. */
 
 .deck-player:focus {

@@ -1,0 +1,27 @@
+/* Every scrollbar on every Sandbox page (home, decks, Deck Builder, prototypes): thin, with a
+   transparent track and a thumb that reads on light and dark surfaces. Each entry point imports
+   this once; don't restyle scrollbars anywhere else. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(128 128 128 / 0.45) transparent;
+}
+
+/* Browsers without the standard properties (older Safari). */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: rgb(128 128 128 / 0.45) padding-box;
+  }
+}

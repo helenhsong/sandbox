@@ -1,6 +1,7 @@
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "@helenhsong/ui/style.css";
+import "../scrollbars.css";
 import "./deck.css";
 import { DeckPlayer } from "./DeckPlayer";
 import { Presenter } from "./Presenter";

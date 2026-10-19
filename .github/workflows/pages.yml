@@ -19,9 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Full history, so the home page can order projects by when each was last published.
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22

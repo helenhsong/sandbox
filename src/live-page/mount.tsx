@@ -2,6 +2,7 @@ import { StrictMode, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { PageScrollbar } from "./PageScrollbar";
 import { PageWindow } from "./Window";
+import "../scrollbars.css";
 import "./page.css";
 
 /**

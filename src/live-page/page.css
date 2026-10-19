@@ -1,31 +1,5 @@
 /* Shared by every prototype page and the window around it. */
 
-/* Scrollbars: thin, with a transparent track, readable on light and dark pages. */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(128 128 128 / 0.45) transparent;
-}
-
-/* Browsers without the standard properties (older Safari). */
-@supports not (scrollbar-color: auto) {
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-track,
-  ::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border: 2px solid transparent;
-    border-radius: 8px;
-    background: rgb(128 128 128 / 0.45) padding-box;
-  }
-}
-
 /* A prototype's page scrolls with an overlay scrollbar (PageScrollbar) that takes no space, so
    there's no blank column beside the page and nothing shifts when a page starts to scroll. */
 html.prototype-page {
