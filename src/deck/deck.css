@@ -588,6 +588,12 @@
   min-height: 0;
   overflow-y: auto;
   border-right: 1px solid var(--border);
+  /* No visible scrollbar on the slide list (it still scrolls), like Deck Builder's sidebar. */
+  scrollbar-width: none;
+}
+
+.presenter-list::-webkit-scrollbar {
+  display: none;
 }
 
 .presenter-list ol {
