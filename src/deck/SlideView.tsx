@@ -1,10 +1,10 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Globe } from "lucide-react";
 import { PageWindow } from "../live-page/Window";
 import { isImageLoading, resolveUrl, urlLabel, type FigmaSlide, type Slide, type WebSlide } from "./types";
 
 /**
- * One slide at 16:9. Figma slides render as images, or (live) as Figma's own embed alone;
+ * One slide at 16:9. Figma slides render as images, or (live) as Figma's own embed over the image;
  * web slides as a live, interactive page filling the slide.
  */
 /**
@@ -17,21 +17,44 @@ export type MirrorRole = "presenter" | "audience";
 export function SlideView({ slide, mirror }: { slide: Slide; mirror?: MirrorRole }) {
   if (slide.kind === "figma") {
     if (slide.embedUrl) return <FigmaFrame key={slide.embedUrl} slide={slide} src={slide.embedUrl} />;
-    if (isImageLoading(slide.image)) return <div className="deck-slide-placeholder deck-slide-loading" aria-label="Loading slide" />;
-    if (!slide.image) return <div className="deck-slide-placeholder">No preview from Figma.</div>;
-    return <img className="deck-slide-image" src={slide.image} alt={slide.name} draggable={false} />;
+    return <SlideImage slide={slide} />;
   }
   return <WebFrame slide={slide} mirror={mirror} />;
 }
 
+function SlideImage({ slide }: { slide: FigmaSlide }) {
+  if (isImageLoading(slide.image)) return <div className="deck-slide-placeholder deck-slide-loading" aria-label="Loading slide" />;
+  if (!slide.image) return <div className="deck-slide-placeholder">No preview from Figma.</div>;
+  return <img className="deck-slide-image" src={slide.image} alt={slide.name} draggable={false} />;
+}
+
+/** Messages Figma's embed posts to the page once it has drawn the slide. */
+const FIGMA_SHOWN = new Set(["INITIAL_LOAD", "NEW_STATE", "PRESENTED_NODE_CHANGED"]);
+
 /**
- * Figma's live embed of the slide, on its own. It can't be clicked or focused, and it's cropped
- * so Figma's own slide controls stay out of view.
+ * Figma's live embed of the slide, over the slide's image. It can't be clicked or focused, and
+ * it's cropped so Figma's own slide controls stay out of view. The embed stays hidden until
+ * Figma says it has drawn the slide: when it can't (signed out of Figma, third-party cookies
+ * blocked, no access to the file), it loads as a blank white page, and the image shows instead.
  */
 function FigmaFrame({ slide, src }: { slide: FigmaSlide; src: string }) {
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== frameRef.current?.contentWindow) return;
+      const type = (event.data as { type?: unknown } | null)?.type;
+      if (typeof type === "string" && FIGMA_SHOWN.has(type)) setShown(true);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
   return (
-    <div className="deck-figma-live">
+    <div className="deck-figma-live" data-shown={shown || undefined}>
+      <SlideImage slide={slide} />
       <iframe
+        ref={frameRef}
         title={slide.name}
         src={src}
         // Look-only: moving between slides happens in the deck, never inside Figma's embed.

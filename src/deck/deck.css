@@ -94,7 +94,7 @@
   user-select: none;
 }
 
-/* Live Figma slide: Figma's own embed of the slide. */
+/* Live Figma slide: Figma's own embed of the slide, over its image. */
 .deck-figma-live {
   /* Extra embed height above and below the slide, cropped away: Figma fits the slide to the
      embed's width and draws its slide controls in the space below it, out of view. */
@@ -116,6 +116,12 @@
   border: 0;
   /* Look-only: clicks never reach Figma, so its embed can't move to other slides. */
   pointer-events: none;
+  /* Hidden (but loading) until Figma says the slide is drawn; until then the image shows. */
+  opacity: 0;
+}
+
+.deck-figma-live[data-shown] iframe {
+  opacity: 1;
 }
 
 
